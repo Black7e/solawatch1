@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Safari-specific fixes and mobile viewport handling */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    /* Prevent zoom on input focus on iOS */
+    font-size: 16px;
+    /* Safari-specific font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    /* Prevent rubber band scrolling on iOS */
+    overscroll-behavior: none;
+    /* Safari-specific background attachment fix */
+    background-attachment: scroll;
+    /* Ensure proper font rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Safari-specific touch handling */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Allow text selection for specific elements */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  
+  /* Fix for mobile Safari viewport issues */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  /* Ensure root element takes full height */
+  #root {
+    min-height: 100vh;
+    min-height: 100dvh;
+    /* Safari-specific isolation */
+    isolation: isolate;
+  }
+  
+  /* Fix for mobile input zoom */
+  input, select, textarea {
+    font-size: 16px;
+    /* Safari-specific input styling */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  * {
+    box-sizing: border-box;
+  }
+  
+  /* Safari-specific button fixes */
+  button {
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  
+  /* Safari-specific link fixes */
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Improve touch targets on mobile */
+@layer utilities {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Safe area padding for mobile devices */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Safari-specific scroll fixes */
+  .safari-scroll-fix {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+}
+
+/* Safari-specific gradient fixes */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+  .backdrop-blur-sm {
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* Fallback for older Safari versions */
+@supports not (-webkit-backdrop-filter: blur(10px)) {
+  .backdrop-blur-sm {
+    background-color: rgba(31, 41, 55, 0.8);
+  }
+}
