@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Twitter, Github, MessageCircle } from 'lucide-react';
+import { Twitter, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -12,14 +12,19 @@ export default function Footer() {
             On-chain intelligence for real-time traders. Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
           </p>
           <div className="flex space-x-6 mt-2">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a 
+              href="https://x.com/solawatch" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               <Twitter className="w-6 h-6" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Github className="w-6 h-6" />
-            </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <MessageCircle className="w-6 h-6" />
+            <a 
+              href="mailto:hey@solawatch.com" 
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Mail className="w-6 h-6" />
             </a>
           </div>
         </div>
