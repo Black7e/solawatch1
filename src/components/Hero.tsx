@@ -60,22 +60,22 @@ export default function Hero({ onConnectWallet }: HeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 py-20 sm:py-32">
+    <section className="relative overflow-hidden bg-gray-900 py-20 sm:py-32">
       <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center">
           <div className="flex justify-center mb-8">
-            <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 flex items-center space-x-2">
+            <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 flex items-center space-x-2">
               <TrendingUp className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-300 text-xs sm:text-sm font-medium">Live on Solana</span>
+              <span className="text-purple-400 text-xs sm:text-sm font-medium">Live on Solana</span>
             </div>
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
             On-Chain Intelligence for{' '}
             <br className="hidden sm:block" />
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="text-purple-400">
               Real-Time Traders
             </span>
           </h1>
@@ -98,7 +98,7 @@ export default function Hero({ onConnectWallet }: HeroProps) {
               <button 
                 onClick={handleAnalyzeWallet}
                 disabled={isValidating}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-purple-500 to-blue-500 text-white p-1.5 sm:p-2 rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white p-1.5 sm:p-2 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </button>

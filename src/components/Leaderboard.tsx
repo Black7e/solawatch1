@@ -69,7 +69,7 @@ export default function Leaderboard() {
         if (data && data.wallets && Array.isArray(data.wallets)) {
           // Find the specific wallet and move it to the top
           const targetWallet = 'As7HjLZdz2vbKRXMvjHKSMB5';
-          const traders = data.wallets.slice(0, 4);
+          const traders = data.wallets.slice(0, 8);
           
           // Find the target wallet in the list
           const targetIndex = traders.findIndex(trader => 
@@ -210,7 +210,7 @@ export default function Leaderboard() {
   }
 
   return (
-    <section id="leaderboard" className="hidden md:block py-12 sm:py-20 bg-gradient-to-br from-gray-900 via-purple-900/10 to-gray-900">
+    <section id="leaderboard" className="py-12 sm:py-20 bg-gradient-to-br from-gray-900 via-purple-900/10 to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
@@ -312,7 +312,7 @@ export default function Leaderboard() {
                 {/* Analyze Button */}
                 <button 
                   onClick={() => handleAnalyzeWallet(trader.wallet)}
-                  className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-3 rounded-xl font-semibold hover:from-purple-600 hover:to-blue-600 transition-all duration-200 flex items-center justify-center space-x-2"
+                  className="w-full bg-purple-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all duration-200 flex items-center justify-center space-x-2"
                 >
                   <TrendingUp className="w-4 h-4" />
                   <span>Analyze Portfolio</span>

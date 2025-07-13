@@ -340,4 +340,76 @@ Please check the Solana Tracker API documentation or contact support.`);
       return null;
     }
   }
+
+  async getTokenData(tokenAddress: string): Promise<{
+    riskScore: number;
+    priceChange24h: number;
+    liquidity: number;
+    marketCap: number;
+    price: number;
+  } | null> {
+    try {
+      if (!this.apiKey || this.apiKey === 'your_solana_tracker_api_key_here') {
+        console.warn('Solana Tracker API key required for token data');
+        return null;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+      };
+
+      const response = await fetch(
+        `${this.baseUrl}/tokens/${tokenAddress}`,
+        { headers }
+      );
+
+      if (!response.ok) {
+        console.warn(`Failed to fetch token data for ${tokenAddress}: ${response.status}`);
+        return null;
+      }
+
+      const data = await response.json();
+      
+      // Extract data from the response
+      const pools = data.pools || [];
+      const events = data.events || {};
+      const risk = data.risk || {};
+      
+      // Get the main pool (usually the first one with highest liquidity)
+      const mainPool = pools.length > 0 ? pools[0] : null;
+      
+      return {
+        riskScore: risk.score || 0,
+        priceChange24h: events['24h']?.priceChangePercentage || 0,
+        liquidity: mainPool?.liquidity?.usd || 0,
+        marketCap: mainPool?.marketCap?.usd || 0,
+        price: mainPool?.price?.usd || 0,
+      };
+    } catch (error) {
+      console.error('Error fetching token data:', error);
+      return null;
+    }
+  }
+
+  async getMultipleTokenData(tokenAddresses: string[]): Promise<Map<string, {
+    riskScore: number;
+    priceChange24h: number;
+    liquidity: number;
+    marketCap: number;
+    price: number;
+  }>> {
+    const tokenDataMap = new Map();
+    
+    // Fetch data for each token
+    const promises = tokenAddresses.map(async (address) => {
+      const data = await this.getTokenData(address);
+      if (data) {
+        tokenDataMap.set(address, data);
+      }
+    });
+
+    await Promise.all(promises);
+    return tokenDataMap;
+  }
 }

@@ -168,12 +168,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         } else if (error.message.includes('Wallet not found')) {
           errorMessage = 'Wallet not found. Please make sure it is installed and unlocked.';
         } else if (error.name === 'WalletNotSelectedError') {
-          // Suppress this error if wallet connects anyway
-          setTimeout(() => {
-            if (!connected) {
-              alert(errorMessage);
-            }
-          }, 700);
+          // This is not a real error, just part of the wallet flow. Do nothing.
           return;
         }
       }
@@ -216,7 +211,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
               className="w-full flex items-center justify-between p-4 bg-gray-700/50 hover:bg-gray-700 rounded-xl transition-all duration-200 group border border-gray-600/50 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center text-xl">
+                <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-xl">
                   {wallet.icon}
                 </div>
                 <span className="text-white font-medium text-lg">

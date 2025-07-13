@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart } from 'lucide-react';
+import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNetworkDisplayName, isTestnet } from '../config/network';
 import CartPopover from './CartPopover';
 import { useCart } from './CartProvider';
+import phantomLogo from '../assets/phantom-logo.jpeg';
+import solflareLogo from '../assets/solflare-logo.png';
+import coin98Logo from '../assets/c98-loogo.png';
 
 interface HeaderProps {
   mobileMenuOpen: boolean;
@@ -22,6 +25,25 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const { cart, removeFromCart } = useCart();
+
+  // Try to detect wallet type for logo
+  const getWalletLogo = () => {
+    const w = window as any;
+    if (w?.phantom?.solana?.isPhantom) {
+      return <img src={phantomLogo} alt="Phantom" className="w-5 h-5 mr-2 rounded" style={{ background: '#fff' }} />;
+    }
+    if (w?.solflare) {
+      return <img src={solflareLogo} alt="Solflare" className="w-5 h-5 mr-2 rounded" style={{ background: '#fff' }} />;
+    }
+    if (w?.coin98?.sol) {
+      return <img src={coin98Logo} alt="Coin98" className="w-5 h-5 mr-2 rounded" style={{ background: '#fff' }} />;
+    }
+    // Default wallet icon
+    return <WalletIcon className="w-5 h-5 mr-2 text-purple-400" />;
+  };
+  function WalletIcon(props: any) {
+    return <svg {...props} fill="none" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="3" fill="#a78bfa"/><rect width="16" height="10" x="4" y="7" rx="2" fill="#fff"/><circle cx="18" cy="12" r="2" fill="#a78bfa"/></svg>;
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -59,11 +81,8 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
           >
             {location.pathname === '/' ? (
               <>
-                <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-1.5 sm:p-2 rounded-lg">
-                  <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
                 <div className="flex flex-col">
-                  <span className="text-lg sm:text-xl font-bold text-white">Solawatch.com</span>
+                  <span className="text-lg sm:text-xl font-bold text-white">solawatch</span>
                   {isTestnet() && (
                     <span className="text-xs text-yellow-400 font-medium -mt-1">
                       {getNetworkDisplayName()}
@@ -88,54 +107,23 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             )}
           </button>
           
-          {location.pathname === '/' && (
-            <nav className="hidden md:flex space-x-8">
-            <a href="#features" className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors">
-              Features
-            </a>
-            <a href="#leaderboard" className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors">
-              Leaderboard
-            </a>
-            <a href="#signup" className="text-sm lg:text-base text-gray-300 hover:text-white transition-colors">
-              Early Access
-            </a>
-            </nav>
-          )}
-
           <div className="hidden md:block relative" ref={dropdownRef}>
             {/* Cart and Wallet Buttons Grouped */}
             <div className="flex items-center space-x-2">
-              {/* Cart View */}
-              <button
-                ref={cartButtonRef}
-                className="relative bg-gray-700 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-gray-600 transition-all duration-200 flex items-center"
-                title="View Cart"
-                onClick={() => setCartPopoverOpen((v) => !v)}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {(cart?.length ?? 0) > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-purple-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
-                )}
-              </button>
-              <CartPopover
-                cart={cart}
-                open={cartPopoverOpen}
-                onClose={() => setCartPopoverOpen(false)}
-                handleRemoveFromCart={removeFromCart}
-                anchorRef={cartButtonRef}
-              />
               {/* Wallet Button */}
               {connected ? (
                 <>
                   <button 
                     onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 text-sm sm:text-base"
+                    className="bg-gray-700 hover:bg-gray-600 text-gray-200 px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm sm:text-base border border-gray-600"
                   >
+                    {getWalletLogo()}
                     <span>{getWalletButtonText()}</span>
+                    <Check className="w-4 h-4 ml-2 text-green-400" />
                     <ChevronDown className={`w-4 h-4 transition-transform ${walletDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {walletDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
                       <div className="py-1">
                         <button
                           onClick={handleDisconnect}
@@ -151,11 +139,32 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               ) : (
                 <button 
                   onClick={onConnectWallet}
-                  className="bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600 px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base"
+                  className="bg-purple-600 text-white hover:bg-purple-700 px-3 py-1.5 sm:px-6 sm:py-2 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base"
                 >
                   {getWalletButtonText()}
                 </button>
               )}
+              {/* Cart View */}
+              <button
+                ref={cartButtonRef}
+                className="relative bg-purple-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-purple-700 transition-all duration-200 flex items-center text-base border-2 border-purple-400"
+                title="View Cart"
+                onClick={() => setCartPopoverOpen((v) => !v)}
+                style={{ zIndex: 2 }}
+              >
+                <ShoppingCart className="w-5 h-5 mr-1" />
+                Cart
+                {(cart?.length ?? 0) > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-purple-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
+                )}
+              </button>
+              <CartPopover
+                cart={cart}
+                open={cartPopoverOpen}
+                onClose={() => setCartPopoverOpen(false)}
+                handleRemoveFromCart={removeFromCart}
+                anchorRef={cartButtonRef}
+              />
             </div>
           </div>
 
@@ -188,7 +197,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               className={`w-full mt-3 px-4 py-2 rounded-lg font-semibold ${
                 connected 
                   ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
+                  : 'bg-purple-600 hover:bg-purple-700 text-white'
               }`}
             >
               {connected ? 'Disconnect Wallet' : getWalletButtonText()}

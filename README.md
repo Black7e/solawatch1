@@ -1,4 +1,4 @@
-# SolWatcher - On-Chain Intelligence for Real-Time Traders
+# solawatch - On-Chain Intelligence for Real-Time Traders
 
 A React application for tracking, analyzing, and copying high-performance portfolios from smart wallets on Solana.
 

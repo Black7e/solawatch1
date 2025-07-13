@@ -359,7 +359,7 @@ export default function TopTradersPage() {
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => handleAnalyzeWallet(trader.wallet)}
-                            className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1.5 rounded-lg font-semibold hover:from-purple-600 hover:to-blue-600 transition-all duration-200 flex items-center space-x-1 text-sm"
+                            className="bg-purple-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-200 flex items-center space-x-1 text-sm"
                           >
                             <TrendingUp className="w-3 h-3" />
                             <span>Analyze</span>

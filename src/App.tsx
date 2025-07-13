@@ -7,7 +7,6 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import Leaderboard from './components/Leaderboard';
-import Signup from './components/Signup';
 import Footer from './components/Footer';
 import WalletModal from './components/WalletModal';
 import PortfolioAnalysis from './components/PortfolioAnalysis';
@@ -47,9 +46,8 @@ function HomePage() {
         onConnectWallet={handleConnectWallet}
       />
       <Hero onConnectWallet={handleConnectWallet} />
-      <Features />
       <Leaderboard />
-      <Signup onConnectWallet={handleConnectWallet} />
+      <Features />
       <Footer />
       
       <WalletModal 
