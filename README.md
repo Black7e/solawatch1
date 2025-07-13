@@ -1,17 +1,35 @@
-# solawatch - On-Chain Intelligence for Real-Time Traders
+# solawatch1 — On-Chain Intelligence for Real-Time Solana Traders
 
-A React application for tracking, analyzing, and copying high-performance portfolios from smart wallets on Solana.
+A modern React + TypeScript dApp for tracking, analyzing, and copying high-performance portfolios from smart wallets on Solana.  
+Now optimized for efficient API usage with batching and persistent caching.
 
-## Setup
+---
+
+## 🚀 Features
+
+- **Portfolio Analysis**: Real-time analysis of any Solana wallet, including token balances, values, and price changes.
+- **Copy Trading**: One-click portfolio replication using Jupiter DEX.
+- **Smart Wallet Tracking**: Follow and analyze top-performing traders.
+- **Live Data**: Real-time on-chain data from multiple RPC providers.
+- **Efficient API Usage**:  
+  - Token info and prices are fetched in large batches (20 at a time).
+  - Persistent localStorage cache (24h) for token metadata and prices.
+  - Dramatically reduced API calls, even for large portfolios or repeat visits.
+
+---
+
+## 🛠️ Setup
 
 ### 1. Install Dependencies
+
 ```bash
 npm install
 ```
 
-### 2. Configure API Keys (Recommended)
+### 2. Configure API Keys
 
-Create a `.env` file in the project root and add your API keys. **Note: At least one API key is required for the app to function.**
+Create a `.env` file in the project root and add your API keys.  
+**At least one API key is required for the app to function.**
 
 ```env
 # Solana Tracker Data API Key (Required for primary features)
@@ -32,116 +50,103 @@ VITE_CUSTOM_RPC_ENDPOINT=https://your-custom-rpc-endpoint.com
 
 ### 3. Get Your API Keys
 
-#### Solana Tracker (Primary - Recommended)
-1. Go to [https://docs.solanatracker.io/](https://docs.solanatracker.io/)
-2. Sign up for a Data API key
-3. Copy your Data API key and add it to `.env` as `VITE_SOLANA_TRACKER_API_KEY`
-4. Go to [https://docs.solanatracker.io/solana-rpc](https://docs.solanatracker.io/solana-rpc)
-5. Get your RPC API key and add it to `.env` as `VITE_SOLANA_TRACKER_RPC_API_KEY`
-
-#### Helius (Recommended)
-1. Go to [https://helius.xyz](https://helius.xyz)
-2. Sign up for a free account
-3. Create a new project
-4. Copy your API key and add it to `.env` as `VITE_HELIUS_API_KEY`
-
-#### Alchemy (Alternative)
-1. Go to [https://alchemy.com](https://alchemy.com)
-2. Sign up for a free account
-3. Create a new Solana app
-4. Copy your API key and add it to `.env` as `VITE_ALCHEMY_API_KEY`
+- **Solana Tracker**: [Get API Key](https://docs.solanatracker.io/)
+- **Helius**: [Get API Key](https://helius.xyz)
+- **Alchemy**: [Get API Key](https://alchemy.com)
 
 ### 4. Start Development Server
+
 ```bash
 npm run dev
 ```
 
 ### 5. Testing on Testnet (Optional)
 
-To test the application on Solana testnet instead of mainnet:
+Add to your `.env`:
 
-1. Add this to your `.env` file:
 ```env
 VITE_NETWORK=testnet
 ```
 
-2. Restart the development server:
+Restart the dev server:
+
 ```bash
 npm run dev
 ```
 
-**Testnet Features:**
-- Uses Solana testnet RPC endpoints
-- Shows "Testnet" indicator in the header
-- Links to testnet explorer
-- Uses testnet token addresses
-- SOL has no real value (for testing only)
-- Portfolio copy trading works with testnet tokens
+---
 
-**Getting Testnet SOL:**
-1. Use the [Solana Faucet](https://faucet.solana.com/) to get testnet SOL
-2. Connect your wallet to testnet in your wallet settings
-3. Request testnet SOL for testing
+## ⚡️ API Usage Optimization
 
-To switch back to mainnet, remove `VITE_NETWORK=testnet` from your `.env` file and restart.
+- **Batch Fetching**: Token metadata and prices are fetched in batches of 20.
+- **Persistent Caching**: All token info and prices are cached in localStorage for 24 hours.
+- **Reduced API Calls**: Only uncached tokens are fetched; repeat visits are much faster and lighter on API usage.
+- **Fallbacks**: If batch endpoints fail, the app gracefully falls back to per-token fetches.
 
-## Features
+---
 
-- **Portfolio Analysis**: Real-time analysis of any Solana wallet
-- **Copy Trading**: One-click portfolio replication using Jupiter DEX
-- **Smart Wallet Tracking**: Follow top-performing traders
-- **Live Data**: Real-time on-chain data from multiple RPC providers
+## 🧩 Tech Stack
 
-## API Providers
-
-The app uses multiple API and RPC providers for reliability. **At least one API key must be configured:**
-
-1. **Solana Tracker API** (Primary) - Comprehensive portfolio and trading data
-2. **Solana Tracker RPC** (Primary) - Optimized Solana RPC endpoint
-3. **Helius RPC** (Fallback) - Reliable, fast, generous free tier
-4. **Alchemy RPC** (Fallback) - Enterprise-grade infrastructure
-5. **Public RPC** (Emergency fallback) - Only used if no API keys are provided
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `VITE_SOLANA_TRACKER_API_KEY` | Solana Tracker Data API key | **Required** |
-| `VITE_SOLANA_TRACKER_RPC_API_KEY` | Solana Tracker RPC API key | Recommended |
-| `VITE_HELIUS_API_KEY` | Helius RPC API key | Optional (fallback) |
-| `VITE_ALCHEMY_API_KEY` | Alchemy RPC API key | Optional |
-| `VITE_CUSTOM_RPC_ENDPOINT` | Custom RPC endpoint URL | Optional |
-| `VITE_NETWORK` | Network to use (`mainnet` or `testnet`) | Optional (defaults to `mainnet`) |
-
-## Production Deployment
-
-For production deployment:
-
-1. Sign up for your own API keys (don't use demo keys)
-2. Set environment variables in your hosting platform
-3. Build the project: `npm run build`
-4. Deploy the `dist` folder
-
-## Troubleshooting
-
-### 403 Errors
-If you're getting 403 "Access forbidden" errors:
-1. **Required**: Add your Solana Tracker Data API key to `.env` as `VITE_SOLANA_TRACKER_API_KEY`
-2. **Recommended**: Add your Solana Tracker RPC API key to `.env` as `VITE_SOLANA_TRACKER_RPC_API_KEY`
-3. **Optional**: Add fallback API keys (Helius, Alchemy) for redundancy
-4. Make sure the `.env` file is in the project root
-5. Restart the development server
-
-### Rate Limiting
-If you're hitting rate limits:
-1. Upgrade to a paid API plan
-2. Add multiple API keys for load balancing
-3. Implement request caching (not included in this demo)
-
-## Tech Stack
-
-- **Frontend**: React + TypeScript + Tailwind CSS
-- **Blockchain**: Solana Web3.js + Wallet Adapter
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **Blockchain**: Solana Web3.js, Wallet Adapter
 - **DEX Integration**: Jupiter Swap API
 - **Data Sources**: Solana Tracker API, Helius, Alchemy, Public RPC
 - **Build Tool**: Vite
+
+---
+
+## 🧑‍💻 Environment Variables
+
+| Variable                             | Description                         | Required                       |
+| ------------------------------------ | ----------------------------------- | ------------------------------ |
+| VITE_SOLANA_TRACKER_API_KEY          | Solana Tracker Data API key         | **Required**                   |
+| VITE_SOLANA_TRACKER_RPC_API_KEY      | Solana Tracker RPC API key          | Recommended                    |
+| VITE_HELIUS_API_KEY                  | Helius RPC API key                  | Optional (fallback)            |
+| VITE_ALCHEMY_API_KEY                 | Alchemy RPC API key                 | Optional                       |
+| VITE_CUSTOM_RPC_ENDPOINT             | Custom RPC endpoint URL             | Optional                       |
+| VITE_NETWORK                         | Network to use (mainnet or testnet) | Optional (defaults to mainnet) |
+
+---
+
+## 🛠️ Troubleshooting
+
+### 403 Errors
+
+- Ensure your Solana Tracker Data API key is set in `.env`.
+- Add your Solana Tracker RPC API key for best performance.
+- Add fallback API keys (Helius, Alchemy) for redundancy.
+- Restart the dev server after changes.
+
+### Rate Limiting
+
+- Upgrade to a paid API plan if needed.
+- Add multiple API keys for load balancing.
+- Benefit from built-in request batching and persistent caching.
+
+---
+
+## 🏗️ Production Deployment
+
+1. Sign up for your own API keys (do not use demo keys).
+2. Set environment variables in your hosting platform.
+3. Build the project:
+
+   ```bash
+   npm run build
+   ```
+
+4. Deploy the `dist` folder.
+
+---
+
+## 📄 License
+
+MIT
+
+---
+
+## 📫 Contact
+
+For questions or support, open an issue or contact the maintainer via [GitHub](https://github.com/Black7e/solawatch1).
+
+---
