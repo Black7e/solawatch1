@@ -15,6 +15,7 @@ interface TokenHolding {
   price: number;
   change24h: number;
   logo?: string;
+  mint: string;
   marketName?: string;
   priceError?: boolean;
 }
@@ -62,6 +63,9 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
   
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
+
+  // Add state for grouped error modal
+  const [safeCopyErrorSummary, setSafeCopyErrorSummary] = useState<{cartLimit: number, notSwappable: number} | null>(null);
 
   // Fetch wallet SOL balance when modal opens and wallet is connected
   useEffect(() => {
@@ -262,6 +266,13 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
     }
   };
 
+  // Example Safe Copy handler (replace with your actual logic)
+  const handleSafeCopy = () => {
+    // ... logic to determine which tokens failed for which reason ...
+    // For demonstration, let's say 23 tokens hit cart limit, 5 not swappable
+    setSafeCopyErrorSummary({ cartLimit: 23, notSwappable: 5 });
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -350,6 +361,27 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
           </div>
         </div>
       </div>
+      {safeCopyErrorSummary && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full border border-gray-700 text-center">
+            <h3 className="text-lg font-bold text-white mb-4">Safe Copy Results</h3>
+            <div className="text-gray-300 space-y-2">
+              {safeCopyErrorSummary.cartLimit > 0 && (
+                <div>Cart limit reached (<b>{safeCopyErrorSummary.cartLimit}</b> tokens not added)</div>
+              )}
+              {safeCopyErrorSummary.notSwappable > 0 && (
+                <div>Not swappable (<b>{safeCopyErrorSummary.notSwappable}</b> tokens)</div>
+              )}
+            </div>
+            <button
+              className="mt-6 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
+              onClick={() => setSafeCopyErrorSummary(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
