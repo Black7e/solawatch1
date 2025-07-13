@@ -84,6 +84,10 @@ class MetaMaskSolanaWalletAdapter {
         }
         return await (window as any).solana.signMessage(message);
     }
+
+    // Add no-op event emitter methods to match adapter interface
+    on(..._args: any[]) {}
+    off(..._args: any[]) {}
 }
 
 // Default styles that can be overridden by your app
