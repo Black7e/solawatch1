@@ -37,7 +37,8 @@ export default function PortfolioAnalysis() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tokensShown, setTokensShown] = useState(50);
   const [safeCopyLoading, setSafeCopyLoading] = useState(false);
-  const [safeCopyResult, setSafeCopyResult] = useState<null | { added: string[]; failed: { symbol: string; reason: string }[] }>(null);
+  // Replace per-token Safe Copy result state with summary state
+  const [safeCopySummary, setSafeCopySummary] = useState<null | { cartLimit: number; notSwappable: number; added: number }>(null);
   // For opening cart popover from Safe Copy modal
   const [openCartFromSafeCopy, setOpenCartFromSafeCopy] = useState(false);
 
@@ -360,10 +361,11 @@ export default function PortfolioAnalysis() {
                     return tokenMarketData && (tokenMarketData.riskScore === 10 || tokenMarketData.riskScore === 0);
                   });
                   const added: string[] = [];
-                  const failed: { symbol: string; reason: string }[] = [];
+                  let cartLimitCount = 0;
+                  let notSwappableCount = 0;
                   for (const token of goodTokens) {
                     if (cart.length + added.length >= 20) {
-                      failed.push({ symbol: token.symbol, reason: 'Cart limit reached (20 tokens)' });
+                      cartLimitCount++;
                       continue;
                     }
                     try {
@@ -386,16 +388,16 @@ export default function PortfolioAnalysis() {
                         bestRoute = quote;
                       }
                       if (!bestRoute || !('outAmount' in bestRoute) || parseFloat(bestRoute.outAmount) === 0) {
-                        failed.push({ symbol: token.symbol, reason: 'No swap route found' });
+                        notSwappableCount++;
                         continue;
                       }
                       addToCart({ token });
                       added.push(token.symbol);
                     } catch (err) {
-                      failed.push({ symbol: token.symbol, reason: 'Error fetching quote' });
+                      notSwappableCount++;
                     }
                   }
-                  setSafeCopyResult({ added, failed });
+                  setSafeCopySummary({ cartLimit: cartLimitCount, notSwappable: notSwappableCount, added: added.length });
                   setSafeCopyLoading(false);
                 }}
                 onMouseEnter={() => setShowTooltip(true)}
@@ -622,45 +624,27 @@ export default function PortfolioAnalysis() {
       {/* CopyPortfolioModal removed from Add All flow */}
 
       {/* Global Safe Copy Result Modal */}
-      {safeCopyResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-lg font-bold text-white mb-2">Safe Copy Results</h3>
-            <div className="mb-3">
-              {safeCopyResult.added.length > 0 && (
-                <div className="mb-2">
-                  <span className="text-green-400 font-semibold">Added:</span>
-                  <span className="text-white ml-2">{safeCopyResult.added.join(', ')}</span>
-                </div>
+      {safeCopySummary && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full border border-gray-700 text-center">
+            <h3 className="text-lg font-bold text-white mb-4">Safe Copy Results</h3>
+            <div className="text-gray-300 space-y-2">
+              {safeCopySummary.added > 0 && (
+                <div>Added <b>{safeCopySummary.added}</b> tokens to cart</div>
               )}
-              {safeCopyResult.failed.length > 0 && (
-                <div>
-                  <span className="text-red-400 font-semibold">Failed:</span>
-                  <ul className="text-white ml-2 list-disc list-inside">
-                    {safeCopyResult.failed.map(f => (
-                      <li key={f.symbol}><span className="font-mono">{f.symbol}</span>: {f.reason}</li>
-                    ))}
-                  </ul>
-                </div>
+              {safeCopySummary.cartLimit > 0 && (
+                <div>Cart limit reached (<b>{safeCopySummary.cartLimit}</b> tokens not added)</div>
+              )}
+              {safeCopySummary.notSwappable > 0 && (
+                <div>Not swappable (<b>{safeCopySummary.notSwappable}</b> tokens)</div>
               )}
             </div>
-            <div className="flex gap-2 mt-2 justify-end">
-              <button
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
-                onClick={() => {
-                  setSafeCopyResult(null);
-                  setOpenCartFromSafeCopy(true);
-                }}
-              >
-                View Cart
-              </button>
-              <button
-                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold"
-                onClick={() => setSafeCopyResult(null)}
-              >
-                Close
-              </button>
-            </div>
+            <button
+              className="mt-6 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
+              onClick={() => setSafeCopySummary(null)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
