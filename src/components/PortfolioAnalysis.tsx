@@ -26,21 +26,18 @@ export default function PortfolioAnalysis() {
   const [selectedToken, setSelectedToken] = useState<SolanaTrackerTokenHolding | null>(null);
   const { cart, addToCart, removeFromCart } = useCart();
   const [checkingToken, setCheckingToken] = useState<string | null>(null);
-  const [marketData, setMarketData] = useState<Map<string, {
-    riskScore: number;
-    priceChange24h: number;
-    liquidity: number;
-    marketCap: number;
-    price: number;
-  }>>(new Map());
-  const [loadingMarketData, setLoadingMarketData] = useState(false);
+  // Remove marketData and related state
+  // Remove loadingMarketData and loadingAdditionalMarketData
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tokensShown, setTokensShown] = useState(50);
+  const [tokensShown, setTokensShown] = useState(10); // Remove this, will use currentPage
+  const [currentPage, setCurrentPage] = useState(1);
+  const tokensPerPage = 5;
   const [safeCopyLoading, setSafeCopyLoading] = useState(false);
-  // Replace per-token Safe Copy result state with summary state
   const [safeCopySummary, setSafeCopySummary] = useState<null | { cartLimit: number; notSwappable: number; added: number }>(null);
-  // For opening cart popover from Safe Copy modal
   const [openCartFromSafeCopy, setOpenCartFromSafeCopy] = useState(false);
+  const [cartPopoverOpen, setCartPopoverOpen] = useState(false);
+  // Toast state for add-to-cart
+  const [toastMessages, setToastMessages] = useState<string[]>([]);
 
   const handleConnectWallet = () => {
     setWalletModalOpen(true);
@@ -72,21 +69,13 @@ export default function PortfolioAnalysis() {
   useEffect(() => {
     const fetchPortfolioData = async () => {
       if (!walletAddress) return;
-
       try {
         setLoading(true);
         setError(null);
-
-        // Use only Solana Tracker API
+        // Only fetch portfolio data, no market data
         const portfolioService = new SolanaTrackerService(connection);
         const portfolioData = await portfolioService.getPortfolioData(walletAddress);
-
         setPortfolioData(portfolioData);
-        
-        // Fetch market data for tokens
-        if (portfolioData.tokens.length > 0) {
-          await fetchMarketData(portfolioData.tokens);
-        }
       } catch (err) {
         console.error('Error fetching portfolio:', err);
         setError(err instanceof Error ? err.message : 'Unable to load portfolio data. Please check the wallet address and try again.');
@@ -94,29 +83,8 @@ export default function PortfolioAnalysis() {
         setLoading(false);
       }
     };
-
     fetchPortfolioData();
   }, [walletAddress, connection]);
-
-  const fetchMarketData = async (tokens: SolanaTrackerTokenHolding[]) => {
-    try {
-      setLoadingMarketData(true);
-      
-      const portfolioService = new SolanaTrackerService(connection);
-      const tokenAddresses = tokens.map(token => token.mint).filter(mint => mint !== 'unknown');
-      
-      if (tokenAddresses.length === 0) return;
-      
-      const marketDataMap = await portfolioService.getMultipleTokenData(tokenAddresses);
-      setMarketData(marketDataMap);
-      
-    } catch (error) {
-      console.error('Error fetching market data:', error);
-      // Don't show error to user, just log it - market data is optional
-    } finally {
-      setLoadingMarketData(false);
-    }
-  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -215,6 +183,10 @@ export default function PortfolioAnalysis() {
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen}
         onConnectWallet={handleConnectWallet}
+        cartPopoverOpen={cartPopoverOpen}
+        setCartPopoverOpen={setCartPopoverOpen}
+        safeCopySummary={safeCopySummary}
+        setSafeCopySummary={setSafeCopySummary}
       />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -342,84 +314,92 @@ export default function PortfolioAnalysis() {
 
         {/* Token Holdings */}
         <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
             <h2 className="text-xl font-bold text-white">Token Holdings</h2>
-            <div className="relative group">
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                disabled={safeCopyLoading}
-                onClick={async () => {
-                  if (cart.length >= 20) {
-                    alert('The cart only supports swapping up to 20 tokens at a time.');
-                    return;
-                  }
-                  if (!portfolioData?.tokens || marketData.size === 0) return;
-                  setSafeCopyLoading(true);
-                  const jupiter = new JupiterSwapService(connection);
-                  const goodTokens = portfolioData.tokens.filter(token => {
-                    const tokenMarketData = marketData.get(token.mint);
-                    return tokenMarketData && (tokenMarketData.riskScore === 10 || tokenMarketData.riskScore === 0);
-                  });
-                  const added: string[] = [];
-                  let cartLimitCount = 0;
-                  let notSwappableCount = 0;
-                  for (const token of goodTokens) {
-                    if (cart.length + added.length >= 20) {
-                      cartLimitCount++;
-                      continue;
-                    }
-                    try {
-                      // Check swappability (simulate Add button logic)
-                      const buyCurrency = 'SOL';
-                      const inputMint = TOKEN_MINTS[buyCurrency];
-                      const outputMint = token.mint;
-                      const inputDecimals = buyCurrency === 'SOL' ? 9 : 6;
-                      const amountInSmallestUnit = Math.floor(0.1 * Math.pow(10, inputDecimals));
-                      const quote = await jupiter.getQuote({
-                        inputMint,
-                        outputMint,
-                        amount: amountInSmallestUnit,
-                        slippageBps: 300,
-                      });
-                      let bestRoute: any = null;
-                      if (Array.isArray(quote.data) && quote.data.length > 0) {
-                        bestRoute = quote.data[0];
-                      } else if (quote && (quote as any).outAmount) {
-                        bestRoute = quote;
-                      }
-                      if (!bestRoute || !('outAmount' in bestRoute) || parseFloat(bestRoute.outAmount) === 0) {
-                        notSwappableCount++;
-                        continue;
-                      }
-                      addToCart({ token });
-                      added.push(token.symbol);
-                    } catch (err) {
-                      notSwappableCount++;
-                    }
-                  }
-                  setSafeCopySummary({ cartLimit: cartLimitCount, notSwappable: notSwappableCount, added: added.length });
-                  setSafeCopyLoading(false);
-                }}
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-                onFocus={() => setShowTooltip(true)}
-                onBlur={() => setShowTooltip(false)}
+            <div className="flex gap-2 items-center">
+              <a
+                href={`https://solscan.io/account/${walletAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2"
               >
-                {safeCopyLoading ? (
-                  <>
-                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-                    <span>Checking...</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    <span>Safe Copy</span>
-                  </>
-                )}
-              </button>
-              {/* Tooltip */}
-              <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-gray-800 text-gray-100 text-xs rounded-lg shadow-lg px-3 py-2 z-20 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-200">
-                Add tokens with good labels to cart based on risk score.
+                <ExternalLink className="w-4 h-4" />
+                View on chain
+              </a>
+              <div className="relative group">
+                <button
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={safeCopyLoading}
+                  onClick={async () => {
+                    if (!portfolioData?.tokens) return;
+                    // Only allow up to 10 tokens in the cart
+                    const startIdx = (currentPage - 1) * tokensPerPage;
+                    const tokensToAdd = portfolioData.tokens.slice(startIdx, startIdx + tokensPerPage).filter(token => !cart.some(item => item.token.mint === token.mint));
+                    if (cart.length + tokensToAdd.length > 10) {
+                      setSafeCopySummary({ cartLimit: 10 - cart.length, notSwappable: 0, added: 0 });
+                      return;
+                    }
+                    setSafeCopyLoading(true);
+                    const jupiter = new JupiterSwapService(connection);
+                    let addedCount = 0;
+                    for (const token of tokensToAdd) {
+                      try {
+                        // Use a small test amount (e.g., 0.1 SOL)
+                        const buyCurrency = 'SOL';
+                        const inputMint = TOKEN_MINTS[buyCurrency];
+                        const outputMint = token.mint;
+                        const inputDecimals = buyCurrency === 'SOL' ? 9 : 6;
+                        const amountInSmallestUnit = Math.floor(0.1 * Math.pow(10, inputDecimals));
+                        const quote = await jupiter.getQuote({
+                          inputMint,
+                          outputMint,
+                          amount: amountInSmallestUnit,
+                          slippageBps: 300,
+                        });
+                        let bestRoute = null;
+                        if (Array.isArray(quote.data) && quote.data.length > 0) {
+                          bestRoute = quote.data[0];
+                        } else if (quote && (quote as any).outAmount) {
+                          bestRoute = quote;
+                        }
+                        if (!bestRoute || !('outAmount' in bestRoute) || parseFloat(bestRoute.outAmount) === 0) {
+                          setToastMessages(msgs => [...msgs, `Failed fetch quote for ${token.symbol}.`]);
+                          setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
+                          continue;
+                        }
+                        addToCart({ token });
+                        addedCount++;
+                        setToastMessages(msgs => [...msgs, `Added ${token.symbol} successfully.`]);
+                        setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
+                      } catch (err) {
+                        setToastMessages(msgs => [...msgs, `Failed fetch quote for ${token.symbol}.`]);
+                        setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
+                      }
+                    }
+                    setSafeCopySummary({ cartLimit: 0, notSwappable: 0, added: addedCount });
+                    setSafeCopyLoading(false);
+                  }}
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  onFocus={() => setShowTooltip(true)}
+                  onBlur={() => setShowTooltip(false)}
+                >
+                  {safeCopyLoading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Add All</span>
+                    </>
+                  )}
+                </button>
+                {/* Tooltip */}
+                <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-gray-800 text-gray-100 text-xs rounded-lg shadow-lg px-3 py-2 z-20 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-200">
+                  Add up to 5 tokens from this page to cart for bulk swapping.
+                </div>
               </div>
             </div>
           </div>
@@ -429,29 +409,25 @@ export default function PortfolioAnalysis() {
                 <tr className="border-b border-gray-700">
                   <th className="text-left text-gray-400 text-sm font-medium py-3">Token Info</th>
                   <th className="text-right text-gray-400 text-sm font-medium py-3">Balance</th>
-                  <th className="text-right text-gray-400 text-sm font-medium py-3">Liquidity</th>
-                  <th className="text-right text-gray-400 text-sm font-medium py-3">Marketcap</th>
                   <th className="text-right text-gray-400 text-sm font-medium py-3">Price</th>
-                  <th className="text-right text-gray-400 text-sm font-medium py-3">Risk</th>
+                  <th className="text-right text-gray-400 text-sm font-medium py-3"></th>
                 </tr>
               </thead>
               <tbody>
-                {portfolioData?.tokens.slice(0, tokensShown).map((token, index) => {
-                  const tokenMarketData = marketData.get(token.mint);
+                {portfolioData?.tokens.slice((currentPage - 1) * tokensPerPage, currentPage * tokensPerPage).map((token, index) => {
                   const solPrice = getSolPrice();
-                  
                   return (
-                    <tr key={index} className="border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors">
-                      <td className="py-4 pl-0">
+                  <tr key={index} className="border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors">
+                    <td className="py-4 pl-0">
                         <div className="flex items-center space-x-3 min-h-[3rem]">
-                          <img
+                            <img
                             src={token.logo || unknownLogo}
-                            alt={token.symbol}
-                            className="w-8 h-8 rounded-full object-cover border border-gray-600 bg-gray-700"
-                            onError={(e) => {
+                              alt={token.symbol}
+                              className="w-8 h-8 rounded-full object-cover border border-gray-600 bg-gray-700"
+                              onError={(e) => {
                               e.currentTarget.src = unknownLogo;
-                            }}
-                          />
+                              }}
+                            />
                           <div className="flex flex-col justify-center">
                             <div className="text-white font-medium flex items-center">
                               {token.symbol}
@@ -475,72 +451,16 @@ export default function PortfolioAnalysis() {
                           <img src={solLogo} alt="SOL" style={{ width: '14px', height: '14px', display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} />
                           {token.price && solPrice ? formatNumber((token.amount * token.price) / solPrice) : '-'}
                         </span>
-                      </td>
-                      <td className="text-right text-white py-4 align-middle">
-                        {loadingMarketData ? (
-                          <div className="animate-pulse bg-gray-600 h-4 w-16 rounded mx-auto"></div>
-                        ) : tokenMarketData?.liquidity ? (
-                          <>
-                            {formatCurrency(tokenMarketData.liquidity)}<br/>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 justify-end w-full" style={{ display: 'flex' }}>
-                              <img src={solLogo} alt="SOL" style={{ width: '14px', height: '14px', display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} />
-                              {solPrice ? formatNumber(tokenMarketData.liquidity / solPrice) : '-'}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td className="text-right text-white py-4 align-middle">
-                        {loadingMarketData ? (
-                          <div className="animate-pulse bg-gray-600 h-4 w-16 rounded mx-auto"></div>
-                        ) : tokenMarketData?.marketCap ? (
-                          <>
-                            {formatCurrency(tokenMarketData.marketCap)}<br/>
-                            <span className="text-xs text-gray-400 flex items-center gap-1 justify-end w-full" style={{ display: 'flex' }}>
-                              <img src={solLogo} alt="SOL" style={{ width: '14px', height: '14px', display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} />
-                              {solPrice ? formatNumber(tokenMarketData.marketCap / solPrice) : '-'}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td className="text-right text-white py-4 align-middle">
+                    </td>
+                    <td className="text-right text-white py-4 align-middle">
                         ${token.price?.toFixed(8) ?? '-'}<br/>
                         <span className="text-xs text-gray-400 flex items-center gap-1 justify-end w-full" style={{ display: 'flex' }}>
                           <img src={solLogo} alt="SOL" style={{ width: '14px', height: '14px', display: 'inline', verticalAlign: 'middle', marginRight: '2px' }} />
                           {token.price && solPrice ? (token.price / solPrice).toFixed(8) : '-'}
                         </span>
                       </td>
-                      <td className="text-right py-4 align-middle font-bold">
-                        {loadingMarketData ? (
-                          <div className="animate-pulse bg-gray-600 h-4 w-12 rounded mx-auto"></div>
-                        ) : tokenMarketData?.riskScore !== undefined ? (
-                          (() => {
-                            const score = tokenMarketData.riskScore;
-                            let label = '';
-                            let badgeClass = '';
-                            if (score === 10 || score === 0) {
-                              label = 'Good';
-                              badgeClass = 'bg-green-600 text-white';
-                            } else if (score >= 7) {
-                              label = 'Medium';
-                              badgeClass = 'bg-yellow-500 text-black';
-                            } else {
-                              label = 'High';
-                              badgeClass = 'bg-red-600 text-white';
-                            }
-                            return (
-                              <span className={`px-2 py-1 rounded text-xs font-bold inline-block text-center ${badgeClass}`} style={{ minWidth: 60 }}>{label}</span>
-                            );
-                          })()
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td className="text-right py-4 pr-0 align-middle">
-                        <button
+                    <td className="text-right py-4 pr-0 align-middle">
+                      <button
                           onClick={async () => {
                             setCheckingToken(token.symbol);
                             try {
@@ -564,13 +484,17 @@ export default function PortfolioAnalysis() {
                                 bestRoute = quote;
                               }
                               if (!bestRoute || !('outAmount' in bestRoute) || parseFloat(bestRoute.outAmount) === 0) {
-                                alert(`This token cannot be swapped at this time (no route found).`);
+                                setToastMessages(msgs => [...msgs, `Failed fetch quote for ${token.symbol}.`]);
+                                setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
                                 setCheckingToken(null);
                                 return;
                               }
                               addToCart({ token });
+                              setToastMessages(msgs => [...msgs, `Added ${token.symbol} successfully.`]);
+                              setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
                             } catch (err) {
-                              alert(`This token cannot be swapped at this time (error fetching quote).`);
+                              setToastMessages(msgs => [...msgs, `Failed fetch quote for ${token.symbol}.`]);
+                              setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
                             } finally {
                               setCheckingToken(null);
                             }
@@ -587,32 +511,68 @@ export default function PortfolioAnalysis() {
                             : cart.some(item => item.token.mint === token.mint)
                               ? <Check className="w-4 h-4" />
                               : 'Add'}
-                        </button>
-                      </td>
-                    </tr>
+                      </button>
+                    </td>
+                  </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
           {/* Pagination and View on Chain */}
-          {portfolioData && portfolioData.tokens && portfolioData.tokens.length > tokensShown && (
-            <div className="flex items-center justify-center gap-4 mt-6">
+          {portfolioData && portfolioData.tokens && portfolioData.tokens.length > 0 && (
+            <div className="flex items-center justify-center gap-4 mt-6 flex-wrap">
+              {/* Pagination Controls */}
               <button
-                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200"
-                onClick={() => setTokensShown(tokensShown + 50)}
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
               >
-                Load More
+                Previous
               </button>
-              <a
-                href={`https://solscan.io/account/${walletAddress}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2"
+              {/* Page Numbers */}
+              {(() => {
+                const totalPages = Math.ceil(portfolioData.tokens.length / tokensPerPage);
+                const pages = [];
+                for (let i = 1; i <= Math.min(3, totalPages); i++) {
+                  pages.push(i);
+                }
+                const lastPage = totalPages;
+                return (
+                  <>
+                    {pages.map(page => (
+                      <button
+                        key={page}
+                        className={`px-3 py-2 rounded-lg font-semibold mx-1 ${currentPage === page ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                        onClick={() => setCurrentPage(page)}
+                        disabled={currentPage === page}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    {totalPages > 4 && (
+                      <span className="px-2 text-gray-400">...</span>
+                    )}
+                    {totalPages > 3 && (
+                      <button
+                        key={lastPage}
+                        className={`px-3 py-2 rounded-lg font-semibold mx-1 ${currentPage === lastPage ? 'bg-purple-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                        onClick={() => setCurrentPage(lastPage)}
+                        disabled={currentPage === lastPage}
+                      >
+                        {lastPage}
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
+              <button
+                className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                disabled={currentPage === Math.ceil(portfolioData.tokens.length / tokensPerPage)}
+                onClick={() => setCurrentPage(currentPage + 1)}
               >
-                <ExternalLink className="w-4 h-4" />
-                View on chain
-              </a>
+                Next
+              </button>
             </div>
           )}
         </div>
@@ -623,29 +583,20 @@ export default function PortfolioAnalysis() {
 
       {/* CopyPortfolioModal removed from Add All flow */}
 
-      {/* Global Safe Copy Result Modal */}
-      {safeCopySummary && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
-          <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full border border-gray-700 text-center">
-            <h3 className="text-lg font-bold text-white mb-4">Safe Copy Results</h3>
-            <div className="text-gray-300 space-y-2">
-              {safeCopySummary.added > 0 && (
-                <div>Added <b>{safeCopySummary.added}</b> tokens to cart</div>
-              )}
-              {safeCopySummary.cartLimit > 0 && (
-                <div>Cart limit reached (<b>{safeCopySummary.cartLimit}</b> tokens not added)</div>
-              )}
-              {safeCopySummary.notSwappable > 0 && (
-                <div>Not swappable (<b>{safeCopySummary.notSwappable}</b> tokens)</div>
-              )}
-            </div>
-            <button
-              className="mt-6 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
-              onClick={() => setSafeCopySummary(null)}
+      {/* Pass safeCopySummary to CartPopover for in-cart message */}
+
+      {/* Toast message for add to cart */}
+      {toastMessages.length > 0 && (
+        <div className="fixed right-8 top-20 z-50 flex flex-col items-end space-y-2">
+          {toastMessages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Failed fetch quote') ? 'bg-red-600' : 'bg-green-600'} text-white`}
+              style={{ minWidth: 220 }}
             >
-              Close
-            </button>
-          </div>
+              {msg}
+            </div>
+          ))}
         </div>
       )}
 

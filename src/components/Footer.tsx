@@ -9,8 +9,8 @@ export default function Footer() {
           {/* Logo image removed, only text remains */}
           <span className="text-2xl font-bold text-white mb-2">solawatch</span>
           <p className="text-gray-400 max-w-xl mb-4">
-            On-chain intelligence for real-time traders. Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
-          </p>
+              On-chain intelligence for real-time traders. Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
+            </p>
           <div className="flex space-x-6 mt-2">
             <a 
               href="https://x.com/solawatch" 

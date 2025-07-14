@@ -62,17 +62,12 @@ export class JupiterSwapService {
   async getQuote(params: SwapParams): Promise<JupiterQuoteResponse> {
     const { inputMint, outputMint, amount, slippageBps } = params;
     
-    const feeBps = 100; // 1%
-    const feeAccount = 'ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h';
-
     console.log('Jupiter API request:', {
       inputMint,
       outputMint,
       amount,
       slippageBps,
-      baseUrl: this.baseUrl,
-      feeBps,
-      feeAccount
+      baseUrl: this.baseUrl
     });
     
     const url = new URL(`${this.baseUrl}/quote`);
@@ -84,8 +79,6 @@ export class JupiterSwapService {
     url.searchParams.append('asLegacyTransaction', 'false');
     url.searchParams.append('maxAccounts', '64');
     url.searchParams.append('minimizeSlippage', 'true');
-    url.searchParams.append('feeBps', feeBps.toString());
-    url.searchParams.append('feeAccount', feeAccount);
 
     console.log('Jupiter quote URL:', url.toString());
     
@@ -129,7 +122,7 @@ export class JupiterSwapService {
     userPublicKey: string,
     wrapAndUnwrapSol: boolean = true,
     useSharedAccounts: boolean = true,
-    feeAccount: string = 'ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h',
+    feeAccount?: string,
     trackingAccount?: string,
     prioritizationFeeLamports?: number
   ): Promise<JupiterSwapResponse> {
@@ -139,7 +132,6 @@ export class JupiterSwapService {
       wrapAndUnwrapSol,
       useSharedAccounts,
       feeAccount,
-      feeBps: 100, // 1%
       trackingAccount,
       prioritizationFeeLamports,
     };

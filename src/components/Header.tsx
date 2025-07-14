@@ -14,14 +14,20 @@ interface HeaderProps {
   setMobileMenuOpen: (open: boolean) => void;
   onConnectWallet: () => void;
   cartCount?: number;
+  cartPopoverOpen?: boolean;
+  setCartPopoverOpen?: (open: boolean) => void;
+  safeCopySummary?: { cartLimit: number; notSwappable: number; added: number } | null;
+  setSafeCopySummary?: (val: any) => void;
 }
 
-export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWallet, cartCount = 0 }: HeaderProps) {
+export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWallet, cartCount = 0, cartPopoverOpen: cartPopoverOpenProp, setCartPopoverOpen: setCartPopoverOpenProp, safeCopySummary, setSafeCopySummary }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { connected, disconnect, publicKey } = useWallet();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
-  const [cartPopoverOpen, setCartPopoverOpen] = useState(false);
+  const [cartPopoverOpenLocal, setCartPopoverOpenLocal] = useState(false);
+  const cartPopoverOpen = typeof cartPopoverOpenProp === 'boolean' ? cartPopoverOpenProp : cartPopoverOpenLocal;
+  const setCartPopoverOpen = setCartPopoverOpenProp || setCartPopoverOpenLocal;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const { cart, removeFromCart } = useCart();
@@ -149,7 +155,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 ref={cartButtonRef}
                 className="relative bg-purple-600 text-white px-4 py-2 rounded-lg font-bold shadow-md hover:bg-purple-700 transition-all duration-200 flex items-center text-base border-2 border-purple-400"
                 title="View Cart"
-                onClick={() => setCartPopoverOpen((v) => !v)}
+                onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
                 style={{ zIndex: 2 }}
               >
                 <ShoppingCart className="w-5 h-5 mr-1" />
@@ -164,6 +170,8 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 onClose={() => setCartPopoverOpen(false)}
                 handleRemoveFromCart={removeFromCart}
                 anchorRef={cartButtonRef}
+                safeCopySummary={safeCopySummary}
+                setSafeCopySummary={setSafeCopySummary}
               />
             </div>
           </div>

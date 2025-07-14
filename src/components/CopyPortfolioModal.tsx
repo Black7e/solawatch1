@@ -60,6 +60,7 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
   const [loadingBalance, setLoadingBalance] = useState<boolean>(false);
   const [cartPopoverOpen, setCartPopoverOpen] = useState(false);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
+  const [swapSuccess, setSwapSuccess] = useState<boolean>(false);
   
   const { publicKey, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
@@ -256,8 +257,11 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
       setTimeout(() => {
         setIsExecuting(false);
         setExecutionStep('');
-        if (completed.length > 0) onClose();
-        alert(`${completed.length} swaps succeeded, ${failed.length} failed.`);
+        if (completed.length > 0) {
+          setSwapSuccess(true);
+          onClose();
+        }
+        // alert(`${completed.length} swaps succeeded, ${failed.length} failed.`);
       }, 2000);
     } catch (error) {
       setIsExecuting(false);
@@ -376,6 +380,20 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
             <button
               className="mt-6 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
               onClick={() => setSafeCopyErrorSummary(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      {swapSuccess && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center">
+          <div className="bg-gray-800 rounded-xl p-6 max-w-sm w-full border border-gray-700 text-center">
+            <h3 className="text-lg font-bold text-green-400 mb-4">Swap Successful!</h3>
+            <div className="text-gray-300 mb-4">Your tokens have been swapped and added to your wallet.</div>
+            <button
+              className="mt-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold"
+              onClick={() => setSwapSuccess(false)}
             >
               Close
             </button>

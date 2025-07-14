@@ -178,14 +178,9 @@ const WELL_KNOWN_TOKENS: Record<string, { symbol: string; name: string; decimals
 };
 
 export class FreePortfolioService {
-  private static METADATA_CACHE_KEY = 'tokenMetadataCache_v1';
-  private static PRICES_CACHE_KEY = 'tokenPricesCache_v1';
-  private static CACHE_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
-
   private connection: Connection;
   private fallbackEndpoints: string[];
   private tokenMetadataCache: Map<string, any> = new Map();
-  private tokenPricesCache: Map<string, number> = new Map();
   private tokenRegistryCache: any[] = [];
   private registryCacheExpiry: number = 0;
 
@@ -193,55 +188,8 @@ export class FreePortfolioService {
     this.connection = connection;
     // Use network-aware RPC endpoints
     this.fallbackEndpoints = getAllRpcEndpoints();
-    this.loadPersistentCache();
     
     console.log('Configured fallback endpoints:', this.fallbackEndpoints);
-  }
-
-  private loadPersistentCache() {
-    // Metadata
-    const metaRaw = localStorage.getItem(FreePortfolioService.METADATA_CACHE_KEY);
-    if (metaRaw) {
-      try {
-        const { data, expiry } = JSON.parse(metaRaw);
-        if (Date.now() < expiry) {
-          this.tokenMetadataCache = new Map(data);
-        } else {
-          localStorage.removeItem(FreePortfolioService.METADATA_CACHE_KEY);
-        }
-      } catch {}
-    }
-    // Prices
-    const priceRaw = localStorage.getItem(FreePortfolioService.PRICES_CACHE_KEY);
-    if (priceRaw) {
-      try {
-        const { data, expiry } = JSON.parse(priceRaw);
-        if (Date.now() < expiry) {
-          this.tokenPricesCache = new Map(data);
-        } else {
-          localStorage.removeItem(FreePortfolioService.PRICES_CACHE_KEY);
-        }
-      } catch {}
-    }
-  }
-
-  private savePersistentCache() {
-    // Metadata
-    localStorage.setItem(
-      FreePortfolioService.METADATA_CACHE_KEY,
-      JSON.stringify({
-        data: Array.from(this.tokenMetadataCache.entries()),
-        expiry: Date.now() + FreePortfolioService.CACHE_EXPIRY_MS,
-      })
-    );
-    // Prices
-    localStorage.setItem(
-      FreePortfolioService.PRICES_CACHE_KEY,
-      JSON.stringify({
-        data: Array.from(this.tokenPricesCache.entries()),
-        expiry: Date.now() + FreePortfolioService.CACHE_EXPIRY_MS,
-      })
-    );
   }
 
   private async tryWithFallback<T>(operation: () => Promise<T>): Promise<T> {
@@ -317,7 +265,7 @@ export class FreePortfolioService {
 
       // Filter out tokens with zero balance and get unique mints
       const validTokens = tokenAccounts.value
-        .map((account: any) => {
+        .map(account => {
           const info = account.account.data.parsed.info;
           return {
             mint: info.mint,
@@ -325,7 +273,7 @@ export class FreePortfolioService {
             decimals: info.tokenAmount.decimals
           };
         })
-        .filter((token: any) => token.amount > 0);
+        .filter(token => token.amount > 0);
 
       console.log(`Valid tokens: ${validTokens.length}`);
 
@@ -372,7 +320,7 @@ export class FreePortfolioService {
       }
 
       // Add other tokens
-      for (const token of validTokens as any[]) {
+      for (const token of validTokens) {
         const metadata = metadataMap.get(token.mint) || WELL_KNOWN_TOKENS[token.mint];
         const price = prices[token.mint] || 0;
         const value = token.amount * price;
@@ -468,8 +416,8 @@ export class FreePortfolioService {
     // Load token registry if not cached or expired
     await this.loadTokenRegistry();
 
-    // Batch fetch uncached tokens
-    const batchSize = 20;
+    // Fetch metadata for uncached tokens in parallel (limited concurrency)
+    const batchSize = 5; // Process 5 tokens at a time to avoid rate limits
     for (let i = 0; i < uncachedMints.length; i += batchSize) {
       const batch = uncachedMints.slice(i, i + batchSize);
       const batchPromises = batch.map(async (mint) => {
@@ -490,11 +438,12 @@ export class FreePortfolioService {
         console.warn('Batch metadata fetch failed:', error);
       }
       
+      // Small delay between batches to be respectful to APIs
       if (i + batchSize < uncachedMints.length) {
-        await new Promise(resolve => setTimeout(resolve, 250));
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
-    this.savePersistentCache();
+    
     return metadataMap;
   }
 
@@ -593,20 +542,11 @@ export class FreePortfolioService {
       
       const prices: Record<string, number> = {};
       
-      // Check cache first
-      const uncachedMints = tokenMints.filter(mint => !this.tokenPricesCache.has(mint));
-      tokenMints.forEach(mint => {
-        if (this.tokenPricesCache.has(mint)) {
-          prices[mint] = this.tokenPricesCache.get(mint)!;
-        }
-      });
-      if (uncachedMints.length === 0) return prices;
-
-      // Try batch price sources
+      // Try price sources sequentially to avoid overwhelming APIs
       const priceSources = [
-        () => this.getTokenPricesFromJupiter(uncachedMints),
-        () => this.getTokenPricesFromCoinGecko(uncachedMints),
-        () => this.getTokenPricesFromDexScreener(uncachedMints)
+        () => this.getTokenPricesFromJupiter(tokenMints),
+        () => this.getTokenPricesFromCoinGecko(tokenMints),
+        () => this.getTokenPricesFromDexScreener(tokenMints)
       ];
       
       for (const getPrice of priceSources) {
@@ -615,7 +555,6 @@ export class FreePortfolioService {
           Object.entries(result).forEach(([mint, price]) => {
             if (price > 0 && (!prices[mint] || prices[mint] === 0)) {
               prices[mint] = price;
-              this.tokenPricesCache.set(mint, price);
             }
           });
           
@@ -630,20 +569,6 @@ export class FreePortfolioService {
         }
       }
       
-      // Only fall back to per-token fetch if still missing
-      const stillMissing = uncachedMints.filter(mint => !prices[mint]);
-      if (stillMissing.length > 0) {
-        for (const mint of stillMissing) {
-          try {
-            const price = await this.getTokenPriceRealtime(mint);
-            if (price > 0) {
-              prices[mint] = price;
-              this.tokenPricesCache.set(mint, price);
-            }
-          } catch {}
-        }
-      }
-      this.savePersistentCache();
       return prices;
       
     } catch (error) {
@@ -978,8 +903,8 @@ export class FreePortfolioService {
       
       // Try the Jupiter token list search
       const searchResponse = await fetch(`https://tokens.jup.ag/tokens?search=${mint}`);
-      if (searchResponse.ok) {
-        const data = await searchResponse.json();
+      if (response.ok) {
+        const data = await response.json();
         if (data && Array.isArray(data) && data.length > 0) {
           const token = data[0];
           return {

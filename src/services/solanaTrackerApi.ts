@@ -401,15 +401,27 @@ Please check the Solana Tracker API documentation or contact support.`);
   }>> {
     const tokenDataMap = new Map();
     
-    // Fetch data for each token
-    const promises = tokenAddresses.map(async (address) => {
-      const data = await this.getTokenData(address);
-      if (data) {
-        tokenDataMap.set(address, data);
-      }
-    });
+    // Process tokens in batches to avoid overwhelming the API
+    const batchSize = 5; // Process 5 tokens at a time
+    for (let i = 0; i < tokenAddresses.length; i += batchSize) {
+      const batch = tokenAddresses.slice(i, i + batchSize);
+      
+      // Fetch data for this batch
+      const batchPromises = batch.map(async (address) => {
+        const data = await this.getTokenData(address);
+        if (data) {
+          tokenDataMap.set(address, data);
+        }
+      });
 
-    await Promise.all(promises);
+      await Promise.all(batchPromises);
+      
+      // Small delay between batches to be respectful to the API
+      if (i + batchSize < tokenAddresses.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+    
     return tokenDataMap;
   }
 }

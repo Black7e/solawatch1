@@ -107,21 +107,21 @@ function App() {
 
   return (
     <CartProvider>
-      <SafariFallback>
-        <WalletContextProvider>
-          <Router>
-            <Suspense fallback={<LoadingSpinner />}>
-              <div className="min-h-screen bg-gray-900">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
-                  <Route path="/top-traders" element={<TopTradersPage />} />
-                </Routes>
-              </div>
-            </Suspense>
-          </Router>
-        </WalletContextProvider>
-      </SafariFallback>
+    <SafariFallback>
+      <WalletContextProvider>
+        <Router>
+          <Suspense fallback={<LoadingSpinner />}>
+            <div className="min-h-screen bg-gray-900">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
+                <Route path="/top-traders" element={<TopTradersPage />} />
+              </Routes>
+            </div>
+          </Suspense>
+        </Router>
+      </WalletContextProvider>
+    </SafariFallback>
     </CartProvider>
   );
 }
