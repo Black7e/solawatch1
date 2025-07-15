@@ -30,6 +30,37 @@ export interface APIStatus {
   description: string;
 }
 
+export interface TrendingToken {
+  name: string;
+  symbol: string;
+  image: string;
+  marketCap: number;
+  price: number;
+  change24h: number;
+  liquidity: number;
+  volume24h: number;
+  mint: string;
+  riskScore?: number;
+  riskData?: {
+    score: number;
+    rugged: boolean;
+    jupiterVerified: boolean;
+    snipers: {
+      count: number;
+      totalBalance: number;
+      totalPercentage: number;
+    };
+    insiders: {
+      count: number;
+      totalBalance: number;
+      totalPercentage: number;
+    };
+    top10: number;
+    risks: string[];
+  };
+  txns?: number;
+}
+
 export class SolanaTrackerService {
   private baseUrl = 'https://data.solanatracker.io';
   private apiKey?: string;
@@ -389,6 +420,79 @@ Please check the Solana Tracker API documentation or contact support.`);
     } catch (error) {
       console.error('Error fetching token data:', error);
       return null;
+    }
+  }
+
+  async getTrendingTokens(limit: number = 3): Promise<TrendingToken[]> {
+    try {
+      if (!this.apiKey || this.apiKey === 'your_solana_tracker_api_key_here') {
+        throw new Error('Solana Tracker API key is required');
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+      };
+
+      const response = await fetch(
+        `${this.baseUrl}/tokens/trending`,
+        { headers }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Invalid API key. Please check your Solana Tracker API key.');
+        } else if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please try again later.');
+        } else {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+      }
+
+      const data = await response.json();
+      
+      // Transform the API response to match our interface
+      const transformedTokens: TrendingToken[] = data.slice(0, limit).map((tokenData: any) => {
+        const token = tokenData.token || {};
+        const pool = tokenData.pools && tokenData.pools.length > 0 ? tokenData.pools[0] : {};
+        const events = tokenData.events || {};
+        
+        return {
+          name: token.name || 'Unknown Token',
+          symbol: token.symbol || 'UNKNOWN',
+          image: token.image || '/unknown-logo.png',
+          marketCap: pool.marketCap?.usd || 0,
+          price: pool.price?.usd || 0,
+          change24h: events['24h']?.priceChangePercentage || 0,
+          liquidity: pool.liquidity?.usd || 0,
+          volume24h: pool.txns?.volume24h || 0,
+          mint: token.mint || '',
+          riskScore: tokenData.risk?.score || 0,
+          riskData: tokenData.risk ? {
+            score: tokenData.risk.score || 0,
+            rugged: tokenData.risk.rugged || false,
+            jupiterVerified: tokenData.risk.jupiterVerified || false,
+            snipers: {
+              count: tokenData.risk.snipers?.count || 0,
+              totalBalance: tokenData.risk.snipers?.totalBalance || 0,
+              totalPercentage: tokenData.risk.snipers?.totalPercentage || 0
+            },
+            insiders: {
+              count: tokenData.risk.insiders?.count || 0,
+              totalBalance: tokenData.risk.insiders?.totalBalance || 0,
+              totalPercentage: tokenData.risk.insiders?.totalPercentage || 0
+            },
+            top10: tokenData.risk.top10 || 0,
+            risks: tokenData.risk.risks || []
+          } : undefined,
+          txns: pool.txns?.total
+        };
+      });
+      
+      return transformedTokens;
+    } catch (error) {
+      console.error('Error fetching trending tokens:', error);
+      throw error;
     }
   }
 

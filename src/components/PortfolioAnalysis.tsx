@@ -31,7 +31,7 @@ export default function PortfolioAnalysis() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tokensShown, setTokensShown] = useState(10); // Remove this, will use currentPage
   const [currentPage, setCurrentPage] = useState(1);
-  const tokensPerPage = 5;
+  const tokensPerPage = 10;
   const [safeCopyLoading, setSafeCopyLoading] = useState(false);
   const [safeCopySummary, setSafeCopySummary] = useState<null | { cartLimit: number; notSwappable: number; added: number }>(null);
   const [openCartFromSafeCopy, setOpenCartFromSafeCopy] = useState(false);

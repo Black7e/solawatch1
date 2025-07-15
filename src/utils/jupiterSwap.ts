@@ -1,6 +1,6 @@
 import { Connection, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { getJupiterApiUrl, getTokenMints } from '../config/network';
+import { getJupiterApiUrl, getTokenMints, getFeeWalletAddress, getFeePercentage, isFeeEnabled } from '../config/network';
 
 interface SwapParams {
   inputMint: string;
@@ -59,13 +59,36 @@ export class JupiterSwapService {
     this.baseUrl = getJupiterApiUrl();
   }
 
+  // Calculate fee amount
+  calculateFee(amount: number): { feeAmount: number; netAmount: number } {
+    if (!isFeeEnabled()) {
+      return { feeAmount: 0, netAmount: amount };
+    }
+    
+    const feePercentage = getFeePercentage();
+    const feeAmount = Math.floor(amount * (feePercentage / 100));
+    const netAmount = amount - feeAmount;
+    
+    return { feeAmount, netAmount };
+  }
+
+  // Get fee wallet address
+  getFeeWalletAddress(): string | undefined {
+    return isFeeEnabled() ? getFeeWalletAddress() : undefined;
+  }
+
   async getQuote(params: SwapParams): Promise<JupiterQuoteResponse> {
     const { inputMint, outputMint, amount, slippageBps } = params;
+    
+    // Calculate fee and use net amount for quote
+    const { feeAmount, netAmount } = this.calculateFee(amount);
     
     console.log('Jupiter API request:', {
       inputMint,
       outputMint,
-      amount,
+      amount: netAmount, // Use net amount after fee deduction
+      originalAmount: amount,
+      feeAmount,
       slippageBps,
       baseUrl: this.baseUrl
     });
@@ -73,7 +96,7 @@ export class JupiterSwapService {
     const url = new URL(`${this.baseUrl}/quote`);
     url.searchParams.append('inputMint', inputMint);
     url.searchParams.append('outputMint', outputMint);
-    url.searchParams.append('amount', amount.toString());
+    url.searchParams.append('amount', netAmount.toString()); // Use net amount
     url.searchParams.append('slippageBps', slippageBps.toString());
     url.searchParams.append('onlyDirectRoutes', 'false');
     url.searchParams.append('asLegacyTransaction', 'false');
@@ -126,15 +149,24 @@ export class JupiterSwapService {
     trackingAccount?: string,
     prioritizationFeeLamports?: number
   ): Promise<JupiterSwapResponse> {
+    // Use fee wallet address if fees are enabled and no fee account provided
+    const finalFeeAccount = feeAccount || this.getFeeWalletAddress();
+    
     const swapRequest = {
       quoteResponse,
       userPublicKey,
       wrapAndUnwrapSol,
       useSharedAccounts,
-      feeAccount,
+      feeAccount: finalFeeAccount,
       trackingAccount,
       prioritizationFeeLamports,
     };
+
+    console.log('Swap request with fee account:', {
+      feeAccount: finalFeeAccount,
+      feeEnabled: isFeeEnabled(),
+      feePercentage: getFeePercentage()
+    });
 
     const response = await fetch(`${this.baseUrl}/swap`, {
       method: 'POST',

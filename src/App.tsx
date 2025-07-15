@@ -12,6 +12,7 @@ import WalletModal from './components/WalletModal';
 import PortfolioAnalysis from './components/PortfolioAnalysis';
 import TopTradersPage from './components/TopTradersPage';
 import { CartProvider } from './components/CartProvider';
+import TrendingTokens from './components/TrendingTokens';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -46,6 +47,8 @@ function HomePage() {
         onConnectWallet={handleConnectWallet}
       />
       <Hero onConnectWallet={handleConnectWallet} />
+      {/* Ensure TrendingTokens is only rendered after Hero, not above Header or Hero */}
+      <TrendingTokens />
       <Leaderboard />
       <Features />
       <Footer />

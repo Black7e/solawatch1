@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useCart } from './CartProvider';
-import { X as XIcon } from 'lucide-react';
+import { X as XIcon, Trash2 as TrashIcon } from 'lucide-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { JupiterSwapService, TOKEN_MINTS } from '../utils/jupiterSwap';
+import { getBalanceWithFallback, getTokenAccountsWithFallback } from '../utils/rpcFallback';
+import { calculateFee, formatFeeInfo, feesEnabled, getFeePercent } from '../utils/feeUtils';
 
 interface CartPopoverProps {
   cart: any[];
@@ -36,6 +38,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
   const [estimatedOutputs, setEstimatedOutputs] = useState<{ [mint: string]: string }>({});
   // Add toastMessages state at the top:
   const [toastMessages, setToastMessages] = useState<string[]>([]);
+  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
 
   // Auto-set SOL/USDC weight to 0% when buyCurrency changes, and re-normalize others
   useEffect(() => {
@@ -53,19 +56,42 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
   // Fetch balances when wallet or popover opens
   useEffect(() => {
     if (!publicKey || !open) return;
-    // Fetch SOL
-    connection.getBalance(publicKey).then(lamports => {
-      setSolBalance(lamports / 1e9);
-    });
-    // Fetch USDC
-    connection.getParsedTokenAccountsByOwner(publicKey, { mint: new PublicKey(TOKEN_MINTS.USDC) })
-      .then(res => {
+    
+    setIsLoadingBalances(true);
+    
+    // Fetch SOL balance with RPC fallback
+    const fetchSolBalance = async () => {
+      try {
+        const lamports = await getBalanceWithFallback(publicKey);
+        setSolBalance(lamports / 1e9);
+      } catch (error) {
+        console.error('Failed to fetch SOL balance on all RPC endpoints:', error);
+        setSolBalance(0);
+      }
+    };
+
+    // Fetch USDC balance with RPC fallback
+    const fetchUsdcBalance = async () => {
+      try {
+        const res = await getTokenAccountsWithFallback(publicKey, new PublicKey(TOKEN_MINTS.USDC));
         let usdc = 0;
         if (res.value.length > 0) {
-          usdc = res.value.reduce((sum, acc) => sum + (acc.account.data.parsed.info.tokenAmount.uiAmount || 0), 0);
+          usdc = res.value.reduce((sum: number, acc: any) => sum + (acc.account.data.parsed.info.tokenAmount.uiAmount || 0), 0);
         }
         setUsdcBalance(usdc);
-      });
+      } catch (error) {
+        console.error('Failed to fetch USDC balance on all RPC endpoints:', error);
+        setUsdcBalance(0);
+      }
+    };
+
+    // Fetch both balances in parallel
+    Promise.all([
+      fetchSolBalance().catch(() => {}), // Don't throw, just log
+      fetchUsdcBalance().catch(() => {}) // Don't throw, just log
+    ]).finally(() => {
+      setIsLoadingBalances(false);
+    });
   }, [publicKey, connection, open]);
 
   // Close on outside click
@@ -100,6 +126,10 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
     }
     setAmountError(null);
   }, [buyAmount, buyCurrency, solBalance, usdcBalance]);
+
+  // Fee calculation
+  const feeCalc = calculateFee(parseFloat(buyAmount) || 0);
+  const { feeAmount, netAmount } = feeCalc;
 
   if (!open) return null;
 
@@ -241,33 +271,77 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       </button>
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="mb-4">
+                    <label className="block text-gray-300 text-sm mb-1">Amount</label>
                     <input
                       id="cart-buy-amount"
                       type="number"
                       min={0}
-                      step={0.0001}
+                      step={0.01}
                       value={buyAmount}
                       onChange={e => setBuyAmount(e.target.value)}
-                      placeholder="Enter amount"
-                      className={`flex-1 px-3 py-2 rounded-lg bg-gray-800 text-white border ${amountError ? 'border-red-500 focus:ring-red-500' : 'border-gray-600 focus:ring-purple-500'} focus:outline-none focus:ring-2 text-base font-semibold`}
+                      placeholder="Enter total amount to buy"
+                      className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
-                    <select
-                      value={buyCurrency}
-                      onChange={e => setBuyCurrency(e.target.value as 'SOL' | 'USDC')}
-                      className="px-2 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base font-semibold"
-                    >
-                      <option value="SOL">SOL</option>
-                      <option value="USDC">USDC</option>
-                    </select>
+                    
+                    {/* Fee Information */}
+                    {feesEnabled() && parseFloat(buyAmount) > 0 && (
+                      <div className="mt-2 p-2 bg-gray-800 rounded border border-gray-700">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div className="flex justify-between">
+                            <span>Original Amount:</span>
+                            <span className="text-white">{parseFloat(buyAmount).toFixed(4)} {buyCurrency}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Fee ({getFeePercent()}%):</span>
+                            <span className="text-red-400">-{feeAmount.toFixed(4)} {buyCurrency}</span>
+                          </div>
+                          <div className="flex justify-between border-t border-gray-700 pt-1">
+                            <span className="font-medium">Net Amount:</span>
+                            <span className="text-green-400 font-medium">{netAmount.toFixed(4)} {buyCurrency}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-gray-300 text-sm mb-1">Pay with</label>
+                    <div className="flex gap-2">
+                      <button
+                        className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        onClick={() => setBuyCurrency('SOL')}
+                        disabled={isLoadingBalances}
+                      >
+                        SOL {isLoadingBalances ? (
+                          <span className="text-xs ml-1">(Loading...)</span>
+                        ) : solBalance !== null ? (
+                          <span className="text-xs ml-1">({solBalance.toFixed(2)})</span>
+                        ) : (
+                          <span className="text-xs ml-1">(--)</span>
+                        )}
+                      </button>
+                      <button
+                        className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        onClick={() => setBuyCurrency('USDC')}
+                        disabled={isLoadingBalances}
+                      >
+                        USDC {isLoadingBalances ? (
+                          <span className="text-xs ml-1">(Loading...)</span>
+                        ) : usdcBalance !== null ? (
+                          <span className="text-xs ml-1">({usdcBalance.toFixed(2)})</span>
+                        ) : (
+                          <span className="text-xs ml-1">(--)</span>
+                        )}
+                      </button>
+                    </div>
                   </div>
                   {amountError && (
                     <div className="text-xs text-red-500 mt-1 text-left">{amountError}</div>
                   )}
                   <button
-                    className={`mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow ${!isAmountValid() || !!amountError || isBuying ? 'opacity-50 cursor-not-allowed bg-gray-700 bg-none hover:from-purple-500 hover:to-blue-500' : 'hover:from-purple-600 hover:to-blue-600'}`}
+                    className={`mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow ${!isAmountValid() || !!amountError || isBuying || isLoadingBalances ? 'opacity-50 cursor-not-allowed bg-gray-700 bg-none hover:from-purple-500 hover:to-blue-500' : 'hover:from-purple-600 hover:to-blue-600'}`}
                     type="button"
-                    disabled={!isAmountValid() || !!amountError || isBuying}
+                    disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
                     onClick={async () => {
                       setIsBuying(true);
                       setBuyResult(null);
@@ -282,6 +356,11 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           return;
                         }
                         const jupiter = new JupiterSwapService(connection);
+                        
+                        // Calculate fee and net amount
+                        const inputAmount = parseFloat(buyAmount);
+                        const { feeAmount: calculatedFee, netAmount: calculatedNetAmount } = calculateFee(inputAmount);
+                        
                         // 1. Build all swap transactions (unsigned)
                         const unsignedTxs = [];
                         const tokenSymbols = [];
@@ -289,7 +368,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         for (const item of cartItems) {
                           try {
                             if (item.weight <= 0) continue;
-                            const totalAmount = parseFloat(buyAmount);
+                            const totalAmount = calculatedNetAmount; // Use net amount after fee
                             const buyAmountForToken = (item.weight / 100) * totalAmount;
                             // Always use input token decimals for smallest unit conversion
                             const inputDecimals = buyCurrency === 'SOL' ? 9 : 6;
@@ -388,7 +467,8 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         }
                         if (completed.length === 0) throw new Error('All swaps failed.');
                         setBuyResult('success');
-                        setToastMessages(msgs => [...msgs, 'Swap successful!']);
+                        const feeMessage = feesEnabled() ? ` (${getFeePercent()}% fee applied)` : '';
+                        setToastMessages(msgs => [...msgs, `Swap successful!${feeMessage}`]);
                         setTimeout(() => {
                           setToastMessages(msgs => msgs.slice(1));
                           clearCart();
@@ -403,7 +483,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       }
                     }}
                   >
-                    {isBuying ? 'Buying...' : 'Buy Tokens'}
+                    {isBuying ? 'Buying...' : isLoadingBalances ? 'Loading...' : 'Buy Tokens'}
                   </button>
                 </div>
               </div>

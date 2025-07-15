@@ -5,6 +5,13 @@ export const NETWORK_CONFIG = {
   // Set to 'testnet' to use testnet, 'mainnet' for mainnet
   NETWORK: (import.meta.env.VITE_NETWORK as 'mainnet' | 'testnet') || 'mainnet',
   
+  // Fee configuration
+  FEE: {
+    WALLET_ADDRESS: 'ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h',
+    PERCENTAGE: 1, // 1%
+    ENABLED: true
+  },
+  
   // Testnet configuration
   TESTNET: {
     network: WalletAdapterNetwork.Testnet,
@@ -133,4 +140,24 @@ export const getJupiterApiUrl = () => {
 export const getTokenMints = () => {
   const config = getCurrentNetworkConfig();
   return config.tokenMints;
+};
+
+// Get fee configuration
+export const getFeeConfig = () => {
+  return NETWORK_CONFIG.FEE;
+};
+
+// Get fee wallet address
+export const getFeeWalletAddress = () => {
+  return NETWORK_CONFIG.FEE.WALLET_ADDRESS;
+};
+
+// Get fee percentage
+export const getFeePercentage = () => {
+  return NETWORK_CONFIG.FEE.PERCENTAGE;
+};
+
+// Check if fees are enabled
+export const isFeeEnabled = () => {
+  return NETWORK_CONFIG.FEE.ENABLED;
 };

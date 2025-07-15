@@ -88,7 +88,14 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {location.pathname === '/' ? (
               <>
                 <div className="flex flex-col">
-                  <span className="text-lg sm:text-xl font-bold text-white">solawatch</span>
+                  <div className="flex items-center space-x-2">
+                    <img 
+                      src="/solawatch-logo.svg" 
+                      alt="SolaWatch" 
+                      className="h-5 sm:h-6 w-auto"
+                    />
+                    <span className="text-lg sm:text-xl font-bold text-white">solawatch</span>
+                  </div>
                   {isTestnet() && (
                     <span className="text-xs text-yellow-400 font-medium -mt-1">
                       {getNetworkDisplayName()}
@@ -161,7 +168,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 <ShoppingCart className="w-5 h-5 mr-1" />
                 Cart
                 {(cart?.length ?? 0) > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-purple-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
                 )}
               </button>
               <CartPopover
@@ -176,12 +183,26 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             </div>
           </div>
 
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-2 justify-end w-full">
+            {/* Wallet Button as menu opener (icon only, exactly desktop style) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-300 hover:text-white"
+              className="flex items-center justify-center w-10 h-10 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg font-medium border border-gray-600 text-sm"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {getWalletLogo()}
+            </button>
+            {/* Cart Button for mobile (icon only, desktop style) */}
+            <button
+              ref={cartButtonRef}
+              className="relative bg-purple-600 text-white w-10 h-10 rounded-lg font-bold shadow-md hover:bg-purple-700 transition-all duration-200 flex items-center justify-center text-base border-2 border-purple-400"
+              title="View Cart"
+              onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
+              style={{ zIndex: 2 }}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {(cart?.length ?? 0) > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
+              )}
             </button>
           </div>
         </div>
@@ -190,26 +211,28 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
       {/* Mobile menu */}
       {mobileMenuOpen && location.pathname === '/' && (
         <div className="md:hidden bg-gray-900 border-t border-gray-800">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            <a href="#features" className="block px-3 py-2 text-gray-300 hover:text-white">
-              Features
-            </a>
-            <a href="#leaderboard" className="block px-3 py-2 text-gray-300 hover:text-white">
-              Leaderboard
-            </a>
-            <a href="#signup" className="block px-3 py-2 text-gray-300 hover:text-white">
-              Early Access
-            </a>
-            <button 
-              onClick={connected ? handleDisconnect : onConnectWallet}
-              className={`w-full mt-3 px-4 py-2 rounded-lg font-semibold ${
-                connected 
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-purple-600 hover:bg-purple-700 text-white'
-              }`}
-            >
-              {connected ? 'Disconnect Wallet' : getWalletButtonText()}
-            </button>
+          <div className="px-4 pt-6 pb-6 flex flex-col items-center space-y-4">
+            {connected && publicKey ? (
+              <>
+                <div className="flex items-center space-x-3">
+                  {getWalletLogo()}
+                  <span className="text-white font-mono text-lg">{publicKey.toString().slice(0, 4)}...{publicKey.toString().slice(-4)}</span>
+                </div>
+                <button
+                  onClick={handleDisconnect}
+                  className="w-full mt-3 px-4 py-2 rounded-lg font-semibold bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Disconnect Wallet
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={onConnectWallet}
+                className="w-full mt-3 px-4 py-2 rounded-lg font-semibold bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                Connect Wallet
+              </button>
+            )}
           </div>
         </div>
       )}

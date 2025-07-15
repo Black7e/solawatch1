@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ArrowUpDown, Wallet, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { X as XIcon, ArrowUpDown, Wallet, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { JupiterSwapService, TOKEN_MINTS, TokenSymbol } from '../utils/jupiterSwap';
 import { LAMPORTS_PER_SOL, PublicKey, VersionedTransaction } from '@solana/web3.js';
 import { getSolPrice, getNetworkDisplayName, isTestnet } from '../config/network';
+import { calculateFee, formatFeeInfo, feesEnabled, getFeePercent } from '../utils/feeUtils';
 import CartPopover from './CartPopover';
 import { SolanaTracker } from "solana-swap";
 
@@ -68,6 +70,10 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
   // Add state for grouped error modal
   const [safeCopyErrorSummary, setSafeCopyErrorSummary] = useState<{cartLimit: number, notSwappable: number} | null>(null);
 
+  // Fee calculation
+  const feeCalc = calculateFee(parseFloat(solAmount) || 0);
+  const { feeAmount, netAmount } = feeCalc;
+
   // Fetch wallet SOL balance when modal opens and wallet is connected
   useEffect(() => {
     const fetchWalletBalance = async () => {
@@ -124,11 +130,12 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
     const filteredTokens = getFilteredTokens();
     const totalFilteredValue = filteredTokens.reduce((sum, token) => sum + token.value, 0);
     const solAmountNum = parseFloat(solAmount);
+    const { netAmount: calculatedNetAmount } = calculateFee(solAmountNum);
     
     // Calculate percentage allocation for each filtered token based on their value in the filtered set
     const newAllocations: SwapAllocation[] = filteredTokens.map(token => {
       const percentage = totalFilteredValue > 0 ? (token.value / totalFilteredValue) * 100 : 0;
-      const solAmountForToken = (solAmountNum * percentage) / 100;
+      const solAmountForToken = (calculatedNetAmount * percentage) / 100; // Use net amount after fee
       const estimatedTokens = solAmountForToken / token.price * getSolPrice();
       
       return {
@@ -198,6 +205,11 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
     setFailedSwaps([]);
     setExecutionStep('Building swap transactions...');
     const jupiterService = new JupiterSwapService(connection);
+    
+    // Calculate fee and net amount
+    const inputAmount = parseFloat(solAmount);
+    const { netAmount: calculatedNetAmount } = calculateFee(inputAmount);
+    
     try {
       // 1. Build all swap transactions (unsigned)
       const unsignedTxs: VersionedTransaction[] = [];
@@ -313,7 +325,7 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
               onClick={onClose}
               className="text-gray-400 hover:text-white transition-colors"
             >
-              <X className="w-6 h-6" />
+              <XIcon className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -362,6 +374,50 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
                 </button>
               </div>
             ))}
+          </div>
+        </div>
+        {/* Footer with Amount Input and Copy Button */}
+        <div className="p-6 border-t border-gray-700">
+          <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+            <div className="w-full sm:w-auto">
+              <label className="block text-gray-300 text-sm mb-1">Amount to invest (SOL)</label>
+              <input
+                type="number"
+                min={0}
+                step={0.01}
+                value={solAmount}
+                onChange={e => setSolAmount(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Enter SOL amount"
+              />
+              
+                             {/* Fee Information */}
+               {feesEnabled() && parseFloat(solAmount) > 0 && (
+                 <div className="mt-2 p-2 bg-gray-800 rounded border border-gray-700">
+                   <div className="text-xs text-gray-400 space-y-1">
+                     <div className="flex justify-between">
+                       <span>Original Amount:</span>
+                       <span className="text-white">{parseFloat(solAmount).toFixed(4)} SOL</span>
+                     </div>
+                     <div className="flex justify-between">
+                       <span>Fee ({getFeePercent()}%):</span>
+                       <span className="text-red-400">-{feeAmount.toFixed(4)} SOL</span>
+                     </div>
+                     <div className="flex justify-between border-t border-gray-700 pt-1">
+                       <span className="font-medium">Net Amount:</span>
+                       <span className="text-green-400 font-medium">{netAmount.toFixed(4)} SOL</span>
+                     </div>
+                   </div>
+                 </div>
+               )}
+            </div>
+            <button
+              onClick={handleExecuteSwaps}
+              disabled={isExecuting || !publicKey || !signAllTransactions || !portfolioData || allocations.length === 0}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isExecuting ? 'Executing...' : 'Copy Portfolio'}
+            </button>
           </div>
         </div>
       </div>

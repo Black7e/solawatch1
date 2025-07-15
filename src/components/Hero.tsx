@@ -60,17 +60,11 @@ export default function Hero({ onConnectWallet }: HeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gray-900 py-20 sm:py-32">
+    <section className="relative overflow-hidden bg-gray-900 py-10 sm:py-16">
       <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center">
-          <div className="flex justify-center mb-8">
-            <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-400 text-xs sm:text-sm font-medium">Live on Solana</span>
-            </div>
-          </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
             On-Chain Intelligence for{' '}

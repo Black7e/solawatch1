@@ -1,152 +1,128 @@
-# solawatch1 — On-Chain Intelligence for Real-Time Solana Traders
+# SolaWatch - Solana Portfolio Tracker & Token Swapper
 
-A modern React + TypeScript dApp for tracking, analyzing, and copying high-performance portfolios from smart wallets on Solana.  
-Now optimized for efficient API usage with batching and persistent caching.
+A comprehensive Solana portfolio tracking and token swapping application with trending tokens, cart functionality, and portfolio copying features.
 
----
+## Features
 
-## 🚀 Features
+- **Portfolio Analysis**: Track your Solana portfolio performance
+- **Trending Tokens**: Discover trending tokens with risk analysis
+- **Quick Buy**: Purchase individual tokens with SOL or USDC
+- **Cart System**: Build and execute multi-token purchases
+- **Portfolio Copying**: Copy successful trader portfolios
+- **Wallet Integration**: Support for Phantom and other Solana wallets
+- **Risk Analysis**: Comprehensive risk assessment for tokens
 
-- **Portfolio Analysis**: Real-time analysis of any Solana wallet, including token balances, values, and price changes.
-- **Copy Trading**: One-click portfolio replication using Jupiter DEX.
-- **Smart Wallet Tracking**: Follow and analyze top-performing traders.
-- **Live Data**: Real-time on-chain data from multiple RPC providers.
-- **Efficient API Usage**:  
-  - Token info and prices are fetched in large batches (20 at a time).
-  - Persistent localStorage cache (24h) for token metadata and prices.
-  - Dramatically reduced API calls, even for large portfolios or repeat visits.
+## Fee System
 
----
+The application includes a **1% fee** on all swaps that is automatically sent to the fee wallet address: `ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h`
 
-## 🛠️ Setup
+### How Fees Work
 
-### 1. Install Dependencies
+- **Fee Percentage**: 1% of the total swap amount
+- **Fee Wallet**: `ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h`
+- **Transparency**: Fee calculations are displayed in real-time before each swap
+- **Automatic**: Fees are automatically deducted and sent during swap execution
 
-```bash
-npm install
-```
+### Fee Display
 
-### 2. Configure API Keys
+When you enter an amount to swap, you'll see:
+- **Original Amount**: Your input amount
+- **Fee (1%)**: The fee being deducted
+- **Net Amount**: The amount actually used for the swap
 
-Create a `.env` file in the project root and add your API keys.  
-**At least one API key is required for the app to function.**
+### Supported Operations
 
-```env
-# Solana Tracker Data API Key (Required for primary features)
-VITE_SOLANA_TRACKER_API_KEY=your_solana_tracker_api_key_here
+Fees apply to:
+- Quick Buy modal (individual token purchases)
+- Cart purchases (multi-token purchases)
+- Portfolio copying (batch portfolio replication)
 
-# Solana Tracker RPC API Key (Recommended for best performance)
-VITE_SOLANA_TRACKER_RPC_API_KEY=your_solana_tracker_rpc_api_key_here
+## Installation
 
-# Helius API Key (Recommended - Free tier available)
-VITE_HELIUS_API_KEY=your_helius_api_key_here
-
-# Alchemy API Key (Optional - Alternative RPC provider)
-VITE_ALCHEMY_API_KEY=your_alchemy_api_key_here
-
-# Custom RPC Endpoint (Optional)
-VITE_CUSTOM_RPC_ENDPOINT=https://your-custom-rpc-endpoint.com
-```
-
-### 3. Get Your API Keys
-
-- **Solana Tracker**: [Get API Key](https://docs.solanatracker.io/)
-- **Helius**: [Get API Key](https://helius.xyz)
-- **Alchemy**: [Get API Key](https://alchemy.com)
-
-### 4. Start Development Server
-
-```bash
-npm run dev
-```
-
-### 5. Testing on Testnet (Optional)
-
-Add to your `.env`:
-
-```env
-VITE_NETWORK=testnet
-```
-
-Restart the dev server:
-
-```bash
-npm run dev
-```
-
----
-
-## ⚡️ API Usage Optimization
-
-- **Batch Fetching**: Token metadata and prices are fetched in batches of 20.
-- **Persistent Caching**: All token info and prices are cached in localStorage for 24 hours.
-- **Reduced API Calls**: Only uncached tokens are fetched; repeat visits are much faster and lighter on API usage.
-- **Fallbacks**: If batch endpoints fail, the app gracefully falls back to per-token fetches.
-
----
-
-## 🧩 Tech Stack
-
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **Blockchain**: Solana Web3.js, Wallet Adapter
-- **DEX Integration**: Jupiter Swap API
-- **Data Sources**: Solana Tracker API, Helius, Alchemy, Public RPC
-- **Build Tool**: Vite
-
----
-
-## 🧑‍💻 Environment Variables
-
-| Variable                             | Description                         | Required                       |
-| ------------------------------------ | ----------------------------------- | ------------------------------ |
-| VITE_SOLANA_TRACKER_API_KEY          | Solana Tracker Data API key         | **Required**                   |
-| VITE_SOLANA_TRACKER_RPC_API_KEY      | Solana Tracker RPC API key          | Recommended                    |
-| VITE_HELIUS_API_KEY                  | Helius RPC API key                  | Optional (fallback)            |
-| VITE_ALCHEMY_API_KEY                 | Alchemy RPC API key                 | Optional                       |
-| VITE_CUSTOM_RPC_ENDPOINT             | Custom RPC endpoint URL             | Optional                       |
-| VITE_NETWORK                         | Network to use (mainnet or testnet) | Optional (defaults to mainnet) |
-
----
-
-## 🛠️ Troubleshooting
-
-### 403 Errors
-
-- Ensure your Solana Tracker Data API key is set in `.env`.
-- Add your Solana Tracker RPC API key for best performance.
-- Add fallback API keys (Helius, Alchemy) for redundancy.
-- Restart the dev server after changes.
-
-### Rate Limiting
-
-- Upgrade to a paid API plan if needed.
-- Add multiple API keys for load balancing.
-- Benefit from built-in request batching and persistent caching.
-
----
-
-## 🏗️ Production Deployment
-
-1. Sign up for your own API keys (do not use demo keys).
-2. Set environment variables in your hosting platform.
-3. Build the project:
-
+1. Clone the repository
+2. Install dependencies:
    ```bash
-   npm run build
+   npm install
+   ```
+3. Set up environment variables (see Configuration section)
+4. Start the development server:
+   ```bash
+   npm run dev
    ```
 
-4. Deploy the `dist` folder.
+## Configuration
 
----
+Create a `.env` file with the following variables:
 
-## 📄 License
+```env
+# Network Configuration
+VITE_NETWORK=mainnet
 
-MIT
+# RPC Endpoints
+VITE_HELIUS_API_KEY=your_helius_api_key_here
+VITE_SOLANA_TRACKER_RPC_API_KEY=your_solana_tracker_rpc_api_key_here
+VITE_ALCHEMY_API_KEY=your_alchemy_api_key_here
+VITE_CUSTOM_RPC_ENDPOINT=https://your-custom-rpc-endpoint.com
 
----
+# Fee Configuration (optional - defaults to 1% fee enabled)
+VITE_FEE_ENABLED=true
+VITE_FEE_PERCENTAGE=1
+VITE_FEE_WALLET_ADDRESS=ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h
+```
 
-## 📫 Contact
+## Usage
 
-For questions or support, open an issue or contact the maintainer via [GitHub](https://github.com/Black7e/solawatch1).
+1. **Connect Wallet**: Use Phantom or any Solana wallet
+2. **Browse Trending Tokens**: View trending tokens with risk analysis
+3. **Quick Buy**: Click "Quick Buy" on any token for instant purchase
+4. **Add to Cart**: Use the cart icon to build multi-token purchases
+5. **Portfolio Analysis**: Analyze your current portfolio performance
+6. **Copy Portfolios**: Replicate successful trader portfolios
 
----
+## Technology Stack
+
+- **Frontend**: React + TypeScript + Vite
+- **Styling**: Tailwind CSS
+- **Solana**: @solana/web3.js, @solana/wallet-adapter
+- **Swapping**: Jupiter Aggregator API
+- **Data**: Solana Tracker API, Jupiter Token List
+
+## Development
+
+### Project Structure
+
+```
+src/
+├── components/          # React components
+├── config/             # Configuration files
+├── services/           # API services
+├── utils/              # Utility functions
+│   ├── jupiterSwap.ts  # Jupiter swap service
+│   ├── feeUtils.ts     # Fee calculation utilities
+│   └── rpcFallback.ts  # RPC fallback logic
+└── assets/             # Static assets
+```
+
+### Key Components
+
+- `TrendingTokens.tsx`: Trending tokens display with risk analysis
+- `QuickBuyModal.tsx`: Individual token purchase modal
+- `CartPopover.tsx`: Multi-token cart functionality
+- `PortfolioAnalysis.tsx`: Portfolio tracking and analysis
+- `CopyPortfolioModal.tsx`: Portfolio copying functionality
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support or questions, please open an issue on GitHub.
