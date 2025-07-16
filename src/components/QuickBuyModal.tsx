@@ -54,9 +54,8 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
     return 0;
   };
 
-  // Fee calculation
+  // Fee calculation (hidden from UI but still used for swap logic)
   const feeCalc = calculateFee(parseFloat(buyAmount) || 0);
-  const { feeAmount, netAmount } = feeCalc;
 
   useEffect(() => {
     if (!publicKey || !open) return;
@@ -275,7 +274,7 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
              style={{ minWidth: 340 }}
         >
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 rounded-t-xl">
-            <h3 className="text-white font-semibold text-lg">Quick Buy: {token?.name || token?.symbol}</h3>
+            <h3 className="text-white font-semibold text-lg">Quick Buy</h3>
             <button
               className="text-gray-400 hover:text-white p-2 rounded transition-colors"
               onClick={onClose}
@@ -301,7 +300,6 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
               </div>
             </div>
             <div className="mb-4">
-              <label className="block text-gray-300 text-sm mb-1">Amount</label>
               <input
                 type="number"
                 min={0}
@@ -312,32 +310,11 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
                 placeholder="Enter amount to buy"
               />
               {amountError && <div className="text-xs text-red-400 mt-1">{amountError}</div>}
-              
-              {/* Fee Information */}
-              {feesEnabled() && parseFloat(buyAmount) > 0 && (
-                <div className="mt-2 p-2 bg-gray-800 rounded border border-gray-700">
-                  <div className="text-xs text-gray-400 space-y-1">
-                    <div className="flex justify-between">
-                      <span>Original Amount:</span>
-                      <span className="text-white">{parseFloat(buyAmount).toFixed(4)} {buyCurrency}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Fee ({getFeePercent()}%):</span>
-                      <span className="text-red-400">-{feeAmount.toFixed(4)} {buyCurrency}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-gray-700 pt-1">
-                      <span className="font-medium">Net Amount:</span>
-                      <span className="text-green-400 font-medium">{netAmount.toFixed(4)} {buyCurrency}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
             <div className="mb-4">
-              <label className="block text-gray-300 text-sm mb-1">Pay with</label>
               <div className="flex gap-2">
                 <button
-                  className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                  className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
                   onClick={() => setBuyCurrency('SOL')}
                   disabled={isLoadingBalances}
                 >
@@ -350,7 +327,7 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
                   )}
                 </button>
                 <button
-                  className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                  className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
                   onClick={() => setBuyCurrency('USDC')}
                   disabled={isLoadingBalances}
                 >
@@ -370,7 +347,7 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
                 disabled={!isAmountValid() || isBuying || isLoadingBalances}
                 onClick={handleBuy}
               >
-                {isBuying ? 'Buying...' : isLoadingBalances ? 'Loading...' : 'Confirm Buy'}
+                {isBuying ? 'Buying...' : isLoadingBalances ? 'Loading...' : 'Buy Now'}
               </button>
             </div>
           </div>

@@ -37,7 +37,11 @@ const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 
   );
 };
 
-export default function TrendingTokens() {
+interface TrendingTokensProps {
+  onConnectWallet?: () => void;
+}
+
+export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps) {
   const [tokens, setTokens] = useState<TrendingToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +135,9 @@ export default function TrendingTokens() {
 
   const handleQuickBuy = (token: TrendingToken) => {
     if (!connected || !publicKey) {
-      alert('Please connect your wallet first to buy tokens');
+      if (onConnectWallet) {
+        onConnectWallet();
+      }
       return;
     }
     

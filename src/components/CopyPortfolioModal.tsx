@@ -70,9 +70,8 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
   // Add state for grouped error modal
   const [safeCopyErrorSummary, setSafeCopyErrorSummary] = useState<{cartLimit: number, notSwappable: number} | null>(null);
 
-  // Fee calculation
+  // Fee calculation (hidden from UI but still used for swap logic)
   const feeCalc = calculateFee(parseFloat(solAmount) || 0);
-  const { feeAmount, netAmount } = feeCalc;
 
   // Fetch wallet SOL balance when modal opens and wallet is connected
   useEffect(() => {
@@ -391,25 +390,7 @@ export default function CopyPortfolioModal({ isOpen, onClose, portfolioData, wal
                 placeholder="Enter SOL amount"
               />
               
-                             {/* Fee Information */}
-               {feesEnabled() && parseFloat(solAmount) > 0 && (
-                 <div className="mt-2 p-2 bg-gray-800 rounded border border-gray-700">
-                   <div className="text-xs text-gray-400 space-y-1">
-                     <div className="flex justify-between">
-                       <span>Original Amount:</span>
-                       <span className="text-white">{parseFloat(solAmount).toFixed(4)} SOL</span>
-                     </div>
-                     <div className="flex justify-between">
-                       <span>Fee ({getFeePercent()}%):</span>
-                       <span className="text-red-400">-{feeAmount.toFixed(4)} SOL</span>
-                     </div>
-                     <div className="flex justify-between border-t border-gray-700 pt-1">
-                       <span className="font-medium">Net Amount:</span>
-                       <span className="text-green-400 font-medium">{netAmount.toFixed(4)} SOL</span>
-                     </div>
-                   </div>
-                 </div>
-               )}
+              
             </div>
             <button
               onClick={handleExecuteSwaps}

@@ -24,7 +24,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
   const { updateWeight, cart: cartItems, clearCart } = useCart();
   const [buyAmount, setBuyAmount] = useState('');
   const [buyCurrency, setBuyCurrency] = useState<'SOL' | 'USDC'>('SOL');
-  const { publicKey, signTransaction, signAllTransactions } = useWallet();
+  const { publicKey, signTransaction, signAllTransactions, connect } = useWallet();
   const { connection } = useConnection();
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
@@ -127,9 +127,8 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
     setAmountError(null);
   }, [buyAmount, buyCurrency, solBalance, usdcBalance]);
 
-  // Fee calculation
+  // Fee calculation (hidden from UI but still used for swap logic)
   const feeCalc = calculateFee(parseFloat(buyAmount) || 0);
-  const { feeAmount, netAmount } = feeCalc;
 
   if (!open) return null;
 
@@ -200,6 +199,13 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                   <React.Fragment key={item.token.symbol}>
                     <li className="flex items-center justify-between py-3">
                       <div className="flex items-center flex-1 min-w-0 space-x-2">
+                        <button
+                          onClick={() => handleRemoveFromCart(item.token.symbol)}
+                          className="p-1 rounded hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                          aria-label={`Remove ${item.token.symbol}`}
+                        >
+                          <XIcon className="w-4 h-4" />
+                        </button>
                         <img
                           src={
                             item.token.symbol === 'SOL'
@@ -233,13 +239,6 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           disabled={item.token.symbol === buyCurrency}
                         />
                         <span className="text-gray-400 text-xs ml-1">%</span>
-                        <button
-                          onClick={() => handleRemoveFromCart(item.token.symbol)}
-                          className="ml-2 p-1 rounded hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-colors"
-                          aria-label={`Remove ${item.token.symbol}`}
-                        >
-                          <XIcon className="w-4 h-4" />
-                        </button>
                       </div>
                     </li>
                     {swapErrors[item.token.mint] && (
@@ -253,26 +252,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
             {cartItems.length > 0 && (
               <div className="sticky bottom-0 left-0 w-full bg-gray-900 border-t border-gray-800 px-0 py-4 z-10 mt-4">
                 <div className="flex flex-col gap-2 px-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs text-gray-400" htmlFor="cart-buy-amount">Amount to Buy</label>
-                    <span className="text-xs text-gray-400 flex items-center gap-1">
-                      Balance: {buyCurrency === 'SOL' ? (solBalance !== null ? solBalance.toFixed(4) + ' SOL' : '—') : (usdcBalance !== null ? usdcBalance.toFixed(2) + ' USDC' : '—')}
-                      <button
-                        type="button"
-                        className="ml-1 px-2 py-0.5 rounded bg-gray-800 border border-gray-600 text-xs text-purple-400 hover:bg-gray-700 hover:text-purple-300 transition disabled:opacity-50"
-                        style={{ fontSize: '0.7rem' }}
-                        disabled={buyCurrency === 'SOL' ? !solBalance : !usdcBalance}
-                        onClick={() => {
-                          if (buyCurrency === 'SOL' && solBalance !== null) setBuyAmount(solBalance.toString());
-                          if (buyCurrency === 'USDC' && usdcBalance !== null) setBuyAmount(usdcBalance.toString());
-                        }}
-                      >
-                        Max
-                      </button>
-                    </span>
-                  </div>
                   <div className="mb-4">
-                    <label className="block text-gray-300 text-sm mb-1">Amount</label>
                     <input
                       id="cart-buy-amount"
                       type="number"
@@ -283,32 +263,14 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       placeholder="Enter total amount to buy"
                       className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
-                    
-                    {/* Fee Information */}
-                    {feesEnabled() && parseFloat(buyAmount) > 0 && (
-                      <div className="mt-2 p-2 bg-gray-800 rounded border border-gray-700">
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <div className="flex justify-between">
-                            <span>Original Amount:</span>
-                            <span className="text-white">{parseFloat(buyAmount).toFixed(4)} {buyCurrency}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Fee ({getFeePercent()}%):</span>
-                            <span className="text-red-400">-{feeAmount.toFixed(4)} {buyCurrency}</span>
-                          </div>
-                          <div className="flex justify-between border-t border-gray-700 pt-1">
-                            <span className="font-medium">Net Amount:</span>
-                            <span className="text-green-400 font-medium">{netAmount.toFixed(4)} {buyCurrency}</span>
-                          </div>
-                        </div>
-                      </div>
+                    {amountError && (
+                      <div className="text-xs text-red-500 mt-1 text-left">{amountError}</div>
                     )}
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-300 text-sm mb-1">Pay with</label>
                     <div className="flex gap-2">
                       <button
-                        className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
                         onClick={() => setBuyCurrency('SOL')}
                         disabled={isLoadingBalances}
                       >
@@ -321,7 +283,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         )}
                       </button>
                       <button
-                        className={`px-4 py-2 rounded-lg font-semibold border transition-colors ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
                         onClick={() => setBuyCurrency('USDC')}
                         disabled={isLoadingBalances}
                       >
@@ -335,14 +297,20 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       </button>
                     </div>
                   </div>
-                  {amountError && (
-                    <div className="text-xs text-red-500 mt-1 text-left">{amountError}</div>
-                  )}
-                  <button
-                    className={`mt-2 w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow ${!isAmountValid() || !!amountError || isBuying || isLoadingBalances ? 'opacity-50 cursor-not-allowed bg-gray-700 bg-none hover:from-purple-500 hover:to-blue-500' : 'hover:from-purple-600 hover:to-blue-600'}`}
-                    type="button"
-                    disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
-                    onClick={async () => {
+                  {!publicKey ? (
+                    <button
+                      className="mt-2 w-full bg-gray-600 text-gray-300 font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow opacity-50 cursor-not-allowed"
+                      type="button"
+                      disabled={true}
+                    >
+                      Connect your wallet to buy tokens
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md disabled:opacity-60"
+                      type="button"
+                      disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
+                      onClick={async () => {
                       setIsBuying(true);
                       setBuyResult(null);
                       setSwapErrors({});
@@ -483,8 +451,9 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       }
                     }}
                   >
-                    {isBuying ? 'Buying...' : isLoadingBalances ? 'Loading...' : 'Buy Tokens'}
+                    {isBuying ? 'Buying...' : isLoadingBalances ? 'Loading...' : 'Buy Now'}
                   </button>
+                  )}
                 </div>
               </div>
             )}

@@ -48,7 +48,7 @@ function HomePage() {
       />
       <Hero onConnectWallet={handleConnectWallet} />
       {/* Ensure TrendingTokens is only rendered after Hero, not above Header or Hero */}
-      <TrendingTokens />
+      <TrendingTokens onConnectWallet={handleConnectWallet} />
       <Leaderboard />
       <Features />
       <Footer />
