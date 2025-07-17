@@ -155,10 +155,10 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
         ref={popoverRef}
         className="fixed inset-0 z-50 flex items-center justify-center"
       >
-        <div className="bg-x-bg-secondary border border-x-border shadow-2xl rounded-x-lg w-full max-w-md flex flex-col p-0"
+        <div className="bg-x-bg-secondary border border-x-border shadow-2xl rounded-xl w-full max-w-md flex flex-col p-0"
              style={{ minWidth: 340 }}
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-x-border rounded-t-xl">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-x-border rounded-t-lg">
             <h3 className="text-x-text font-semibold text-lg">Cart</h3>
             <div className="flex items-center gap-2">
               {cartItems.length > 0 && (
@@ -261,7 +261,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       value={buyAmount}
                       onChange={e => setBuyAmount(e.target.value)}
                       placeholder="Enter total amount to buy"
-                      className="w-full px-3 py-2 rounded-x bg-x-bg-tertiary border border-x-border text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple"
+                      className="w-full px-3 py-2 rounded-lg bg-x-bg-tertiary border border-x-border text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple"
                     />
                     {amountError && (
                       <div className="text-xs text-x-red mt-1 text-left">{amountError}</div>
@@ -270,7 +270,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                   <div className="mb-4">
                     <div className="flex gap-2">
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('SOL')}
                         disabled={isLoadingBalances}
                       >
@@ -283,7 +283,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         )}
                       </button>
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('USDC')}
                         disabled={isLoadingBalances}
                       >
@@ -299,7 +299,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                   </div>
                   {!publicKey ? (
                     <button
-                      className="mt-2 w-full bg-x-bg-tertiary text-x-text-secondary font-bold py-2 px-4 rounded-x transition-all duration-200 text-base shadow opacity-50 cursor-not-allowed"
+                      className="mt-2 w-full bg-x-bg-tertiary text-x-text-secondary font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow opacity-50 cursor-not-allowed"
                       type="button"
                       disabled={true}
                     >
@@ -307,7 +307,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                     </button>
                   ) : (
                     <button
-                      className="w-full bg-x-purple hover:bg-x-purple-hover text-white font-semibold px-6 py-3 rounded-x transition-all text-base shadow-md disabled:opacity-60"
+                      className="w-full bg-x-purple hover:bg-x-purple-hover text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md disabled:opacity-60"
                       type="button"
                       disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
                       onClick={async () => {
@@ -512,7 +512,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
           {toastMessages.map((msg, idx) => (
             <div
               key={idx}
-              className={`px-6 py-3 rounded-x shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Swap failed') ? 'bg-x-red' : 'bg-x-green'} text-white`}
+              className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Swap failed') ? 'bg-x-red' : 'bg-x-green'} text-white`}
               style={{ minWidth: 220 }}
             >
               {msg}
