@@ -60,21 +60,21 @@ export default function Hero({ onConnectWallet }: HeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden bg-gray-900 py-10 sm:py-16">
+    <section className="relative overflow-hidden bg-x-bg py-10 sm:py-16">
       <div className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50`}></div>
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center">
           
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-x-text mb-4 sm:mb-6 leading-tight">
             On-Chain Intelligence for{' '}
             <br className="hidden sm:block" />
-            <span className="text-purple-400">
+            <span className="text-x-blue">
               Real-Time Traders
             </span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-2">
+          <p className="text-lg sm:text-xl md:text-2xl text-x-text-secondary mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-2">
             Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
           </p>
           
@@ -86,13 +86,13 @@ export default function Hero({ onConnectWallet }: HeroProps) {
                 onChange={(e) => setWalletAddress(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Enter wallet address to analyze..."
-                className="w-full bg-gray-800/50 border border-gray-600 rounded-lg px-3 py-3 pr-12 sm:px-4 sm:py-4 sm:pr-14 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-lg backdrop-blur-sm"
+                className="w-full bg-x-bg-secondary/50 border border-x-border rounded-x px-3 py-3 pr-12 sm:px-4 sm:py-4 sm:pr-14 text-x-text placeholder-x-text-tertiary focus:outline-none focus:ring-2 focus:ring-x-blue focus:border-transparent text-sm sm:text-lg backdrop-blur-sm"
                 disabled={isValidating}
               />
               <button 
                 onClick={handleAnalyzeWallet}
                 disabled={isValidating}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white p-1.5 sm:p-2 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-blue hover:bg-x-blue-hover text-white p-1.5 sm:p-2 rounded-x transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </button>

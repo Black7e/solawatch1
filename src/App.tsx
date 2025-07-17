@@ -114,7 +114,7 @@ function App() {
       <WalletContextProvider>
         <Router>
           <Suspense fallback={<LoadingSpinner />}>
-            <div className="min-h-screen bg-gray-900">
+            <div className="min-h-screen bg-x-bg font-x">
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />

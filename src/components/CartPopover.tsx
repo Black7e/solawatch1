@@ -146,7 +146,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/40 z-40 transition-opacity"
+        className="fixed inset-0 bg-black/60 z-40 transition-opacity"
         onClick={onClose}
         aria-label="Close cart modal overlay"
       />
@@ -155,15 +155,15 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
         ref={popoverRef}
         className="fixed inset-0 z-50 flex items-center justify-center"
       >
-        <div className="bg-gray-900 border border-gray-800 shadow-2xl rounded-xl w-full max-w-md flex flex-col p-0"
+        <div className="bg-x-bg-secondary border border-x-border shadow-2xl rounded-x-lg w-full max-w-md flex flex-col p-0"
              style={{ minWidth: 340 }}
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 rounded-t-xl">
-            <h3 className="text-white font-semibold text-lg">Cart</h3>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-x-border rounded-t-xl">
+            <h3 className="text-x-text font-semibold text-lg">Cart</h3>
             <div className="flex items-center gap-2">
               {cartItems.length > 0 && (
                 <button
-                  className="text-xs text-purple-400 hover:underline hover:text-purple-300 font-medium px-2 py-1 bg-transparent border-none shadow-none outline-none"
+                  className="text-xs text-x-blue hover:underline hover:text-x-blue-hover font-medium px-2 py-1 bg-transparent border-none shadow-none outline-none"
                   style={{ background: 'none', boxShadow: 'none' }}
                   onClick={clearCart}
                 >
@@ -171,7 +171,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                 </button>
               )}
               <button
-                className="text-gray-400 hover:text-white p-2 rounded transition-colors"
+                className="text-x-text-secondary hover:text-x-text p-2 rounded transition-colors"
                 onClick={onClose}
                 aria-label="Close cart modal"
               >
@@ -192,16 +192,16 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
               </div>
             )}
             {cartItems.length === 0 ? (
-              <p className="text-gray-400 text-sm mt-8">No tokens in cart.</p>
+              <p className="text-x-text-secondary text-sm mt-8">No tokens in cart.</p>
             ) : (
-              <ul className="divide-y divide-gray-700" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
+              <ul className="divide-y divide-x-border" style={{ maxHeight: '40vh', overflowY: 'auto' }}>
                 {cartItems.map((item, idx) => (
                   <React.Fragment key={item.token.symbol}>
                     <li className="flex items-center justify-between py-3">
                       <div className="flex items-center flex-1 min-w-0 space-x-2">
                         <button
                           onClick={() => handleRemoveFromCart(item.token.symbol)}
-                          className="p-1 rounded hover:bg-gray-700 text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                          className="p-1 rounded hover:bg-x-bg-tertiary text-x-text-secondary hover:text-x-red transition-colors flex-shrink-0"
                           aria-label={`Remove ${item.token.symbol}`}
                         >
                           <XIcon className="w-4 h-4" />
@@ -213,16 +213,16 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                               : (item.token.logo || `https://img.jup.ag/tokens/${item.token.mint || ''}.png`)
                           }
                           alt={item.token.symbol}
-                          className="w-7 h-7 rounded-full object-cover border border-gray-600 bg-gray-700 flex-shrink-0"
+                          className="w-7 h-7 rounded-full object-cover border border-x-border bg-x-bg-tertiary flex-shrink-0"
                           onError={e => {
                             const target = e.target as HTMLImageElement;
                             target.style.display = 'none';
                           }}
                         />
                         <div className="flex flex-col min-w-0">
-                          <span className="text-white font-medium truncate">{item.token.symbol}</span>
+                          <span className="text-x-text font-medium truncate">{item.token.symbol}</span>
                           {item.token.symbol === buyCurrency && (
-                            <span className="text-xs text-gray-400 mt-0.5">Cannot buy {buyCurrency} with {buyCurrency}</span>
+                            <span className="text-xs text-x-text-secondary mt-0.5">Cannot buy {buyCurrency} with {buyCurrency}</span>
                           )}
                         </div>
                       </div>
@@ -234,15 +234,15 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           step={0.01}
                           value={item.weight}
                           onChange={e => updateWeight(item.token.symbol, parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded bg-gray-800 text-white border border-gray-600 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500 text-right"
+                          className="w-16 px-2 py-1 rounded bg-x-bg-tertiary text-x-text border border-x-border text-xs focus:outline-none focus:ring-2 focus:ring-x-blue text-right"
                           style={{ textAlign: 'right' }}
                           disabled={item.token.symbol === buyCurrency}
                         />
-                        <span className="text-gray-400 text-xs ml-1">%</span>
+                        <span className="text-x-text-secondary text-xs ml-1">%</span>
                       </div>
                     </li>
                     {swapErrors[item.token.mint] && (
-                      <div className="text-xs text-red-500 mt-1 ml-12">Unable to swap this, remove it to continue.</div>
+                      <div className="text-xs text-x-red mt-1 ml-12">Unable to swap this, remove it to continue.</div>
                     )}
                   </React.Fragment>
                 ))}
@@ -250,7 +250,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
             )}
             {/* Buy section at bottom */}
             {cartItems.length > 0 && (
-              <div className="sticky bottom-0 left-0 w-full bg-gray-900 border-t border-gray-800 px-0 py-4 z-10 mt-4">
+              <div className="sticky bottom-0 left-0 w-full bg-x-bg-secondary border-t border-x-border px-0 py-4 z-10 mt-4">
                 <div className="flex flex-col gap-2 px-2">
                   <div className="mb-4">
                     <input
@@ -261,16 +261,16 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       value={buyAmount}
                       onChange={e => setBuyAmount(e.target.value)}
                       placeholder="Enter total amount to buy"
-                      className="w-full px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 rounded-x bg-x-bg-tertiary border border-x-border text-x-text focus:outline-none focus:ring-2 focus:ring-x-blue"
                     />
                     {amountError && (
-                      <div className="text-xs text-red-500 mt-1 text-left">{amountError}</div>
+                      <div className="text-xs text-x-red mt-1 text-left">{amountError}</div>
                     )}
                   </div>
                   <div className="mb-4">
                     <div className="flex gap-2">
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-x-blue text-white border-x-blue' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('SOL')}
                         disabled={isLoadingBalances}
                       >
@@ -283,7 +283,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         )}
                       </button>
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-lg font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-purple-600 text-white border-purple-600' : 'bg-gray-800 text-gray-300 border-gray-700'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-x-blue text-white border-x-blue' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('USDC')}
                         disabled={isLoadingBalances}
                       >
@@ -299,7 +299,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                   </div>
                   {!publicKey ? (
                     <button
-                      className="mt-2 w-full bg-gray-600 text-gray-300 font-bold py-2 px-4 rounded-lg transition-all duration-200 text-base shadow opacity-50 cursor-not-allowed"
+                      className="mt-2 w-full bg-x-bg-tertiary text-x-text-secondary font-bold py-2 px-4 rounded-x transition-all duration-200 text-base shadow opacity-50 cursor-not-allowed"
                       type="button"
                       disabled={true}
                     >
@@ -307,7 +307,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                     </button>
                   ) : (
                     <button
-                      className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md disabled:opacity-60"
+                      className="w-full bg-x-blue hover:bg-x-blue-hover text-white font-semibold px-6 py-3 rounded-x transition-all text-base shadow-md disabled:opacity-60"
                       type="button"
                       disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
                       onClick={async () => {
@@ -512,7 +512,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
           {toastMessages.map((msg, idx) => (
             <div
               key={idx}
-              className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Swap failed') ? 'bg-red-600' : 'bg-green-600'} text-white`}
+              className={`px-6 py-3 rounded-x shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Swap failed') ? 'bg-x-red' : 'bg-x-green'} text-white`}
               style={{ minWidth: 220 }}
             >
               {msg}
