@@ -42,7 +42,9 @@ export class HyperliquidService {
         throw new Error(`Hyperliquid API error: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('Hyperliquid meta response:', data);
+      return data;
     } catch (error) {
       console.error('Error fetching Hyperliquid perpetuals:', error);
       throw error;
@@ -52,21 +54,35 @@ export class HyperliquidService {
   // Get market data for specific perpetuals
   async getMarketData(assetIds: number[]): Promise<any> {
     try {
-      const response = await fetch(`${this.baseUrl}/exchange`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'allMids'
-        })
-      });
+      // Try multiple endpoints to get market data
+      const endpoints = [
+        { type: 'allMids' },
+        { type: 'marketData' },
+        { type: 'ticker' }
+      ];
 
-      if (!response.ok) {
-        throw new Error(`Hyperliquid API error: ${response.status}`);
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(`${this.baseUrl}/exchange`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(endpoint)
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            console.log(`Hyperliquid ${endpoint.type} response:`, data);
+            return data;
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch ${endpoint.type}:`, error);
+          continue;
+        }
       }
 
-      return await response.json();
+      throw new Error('All market data endpoints failed');
     } catch (error) {
       console.error('Error fetching Hyperliquid market data:', error);
       throw error;
@@ -101,8 +117,65 @@ export class HyperliquidService {
   // Get trending perpetuals based on volume and price change
   async getTrendingPerpetuals(limit: number = 10): Promise<HyperliquidPerpetual[]> {
     try {
-      // Create sample data for demonstration (bypassing API for now)
-      const samplePerpetuals: HyperliquidPerpetual[] = [
+      // Fetch real data from Hyperliquid API
+      const metaInfo = await this.getPerpetualsInfo();
+      
+      if (!metaInfo || !metaInfo.data) {
+        throw new Error('No meta data received');
+      }
+
+      // Get market data
+      const marketData = await this.getMarketData([]);
+
+      if (!marketData || !marketData.data) {
+        throw new Error('No market data received');
+      }
+
+      // Process real data
+      const perpetuals: HyperliquidPerpetual[] = [];
+      
+      // Map the real data structure
+      if (metaInfo.data && Array.isArray(metaInfo.data)) {
+        metaInfo.data.forEach((perpetual: any, index: number) => {
+          const market = marketData.data && marketData.data[index];
+          
+          if (perpetual && perpetual.name) {
+            perpetuals.push({
+              name: perpetual.name,
+              symbol: perpetual.name.replace('-PERP', ''),
+              price: market?.mid || 0,
+              change24h: market?.change24h || 0,
+              volume24h: market?.volume24h || 0,
+              openInterest: market?.openInterest || 0,
+              fundingRate: market?.fundingRate || 0,
+              assetId: perpetual.assetId || index
+            });
+          }
+        });
+      }
+
+      // If no real data, fall back to sample data
+      if (perpetuals.length === 0) {
+        console.warn('No real data available, using sample data');
+        return this.getSamplePerpetuals(limit);
+      }
+
+      // Sort by volume and return trending ones
+      return perpetuals
+        .filter(p => p.volume24h > 0) // Only include active markets
+        .sort((a, b) => b.volume24h - a.volume24h)
+        .slice(0, limit);
+
+    } catch (error) {
+      console.error('Error fetching trending perpetuals:', error);
+      // Fall back to sample data on error
+      return this.getSamplePerpetuals(limit);
+    }
+  }
+
+  // Get sample data as fallback
+  private getSamplePerpetuals(limit: number): HyperliquidPerpetual[] {
+    const samplePerpetuals: HyperliquidPerpetual[] = [
         {
           name: 'BTC-PERP',
           symbol: 'BTC',
@@ -209,11 +282,6 @@ export class HyperliquidService {
       return samplePerpetuals
         .sort((a, b) => b.volume24h - a.volume24h)
         .slice(0, limit);
-
-    } catch (error) {
-      console.error('Error fetching trending perpetuals:', error);
-      throw error;
-    }
   }
 
   // Get popular perpetuals based on open interest
