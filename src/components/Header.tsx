@@ -81,10 +81,11 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
     <header className="bg-x-bg/95 backdrop-blur-sm border-b border-x-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <button 
-            onClick={() => navigate('/')}
-            className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
-          >
+          <div className="flex items-center space-x-6">
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
+            >
             {location.pathname === '/' ? (
               <>
                 <div className="flex flex-col">
@@ -119,6 +120,23 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               </>
             )}
           </button>
+          
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/top-traders')}
+              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
+            >
+              Top Traders
+            </button>
+            <button
+              onClick={() => navigate('/perpetuals')}
+              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
+            >
+              Perpetuals
+            </button>
+          </div>
+          </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
             {/* Cart and Wallet Buttons Grouped */}

@@ -13,7 +13,7 @@ import PortfolioAnalysis from './components/PortfolioAnalysis';
 import TopTradersPage from './components/TopTradersPage';
 import { CartProvider } from './components/CartProvider';
 import TrendingTokens from './components/TrendingTokens';
-import HyperliquidPerpetuals from './components/HyperliquidPerpetuals';
+import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -50,7 +50,6 @@ function HomePage() {
       <Hero onConnectWallet={handleConnectWallet} />
       {/* Ensure TrendingTokens is only rendered after Hero, not above Header or Hero */}
       <TrendingTokens onConnectWallet={handleConnectWallet} />
-      <HyperliquidPerpetuals onConnectWallet={handleConnectWallet} />
       <Leaderboard />
       <Features />
       <Footer />
@@ -121,6 +120,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
                 <Route path="/top-traders" element={<TopTradersPage />} />
+                <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
               </Routes>
             </div>
           </Suspense>
