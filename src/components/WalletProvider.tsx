@@ -78,6 +78,13 @@ class MetaMaskSolanaWalletAdapter {
         return await (window as any).solana.signAllTransactions(transactions);
     }
     
+    async signAndSendAllTransactions(transactions: any[]) {
+        if (!(window as any).solana?.signAndSendAllTransactions) {
+            throw new Error('MetaMask Solana wallet does not support signAndSendAllTransactions');
+        }
+        return await (window as any).solana.signAndSendAllTransactions(transactions);
+    }
+    
     async signMessage(message: Uint8Array) {
         if (!(window as any).solana?.signMessage) {
             throw new Error('MetaMask Solana wallet does not support message signing');

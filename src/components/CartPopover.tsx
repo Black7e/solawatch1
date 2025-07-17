@@ -24,7 +24,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
   const { updateWeight, cart: cartItems, clearCart } = useCart();
   const [buyAmount, setBuyAmount] = useState('');
   const [buyCurrency, setBuyCurrency] = useState<'SOL' | 'USDC'>('SOL');
-  const { publicKey, signTransaction, signAllTransactions, connect } = useWallet();
+  const { publicKey, signTransaction, signAllTransactions, connect, wallet } = useWallet();
   const { connection } = useConnection();
   const [solBalance, setSolBalance] = useState<number | null>(null);
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
@@ -318,7 +318,11 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         if (!publicKey) {
                           throw new Error('Wallet not connected');
                         }
-                        if (!signAllTransactions) {
+                        // Check if wallet supports signAndSendAllTransactions (recommended) or signAllTransactions (fallback)
+                        const supportsSignAndSend = wallet && typeof (wallet as any).signAndSendAllTransactions === 'function';
+                        const supportsSignAll = !!signAllTransactions;
+                        
+                        if (!supportsSignAndSend && !supportsSignAll) {
                           setBuyResult('Your wallet does not support batch signing. Please use Phantom or a compatible wallet.');
                           setIsBuying(false);
                           return;
@@ -416,21 +420,46 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           setIsBuying(false);
                           return;
                         }
-                        // 2. Request signAllTransactions
-                        const signedTxs = await signAllTransactions(unsignedTxs);
-                        // 3. Send each signed transaction
-                        const completed = [];
-                        const failed = [];
-                        for (let i = 0; i < signedTxs.length; i++) {
-                          const tx = signedTxs[i];
-                          const symbol = tokenSymbols[i];
+                        // 2. Use signAndSendAllTransactions if available (recommended), otherwise fallback to signAllTransactions
+                        let completed: string[] = [];
+                        let failed: string[] = [];
+                        
+                        if (supportsSignAndSend) {
+                          // Use the recommended signAndSendAllTransactions method
                           try {
-                            const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
-                            await connection.confirmTransaction(sig, 'confirmed');
-                            completed.push(symbol);
+                            const result = await (wallet as any).signAndSendAllTransactions(unsignedTxs);
+                            console.log('signAndSendAllTransactions result:', result);
+                            
+                            // Handle the result - it should contain signatures for successful transactions
+                            if (result && result.signatures) {
+                              completed = tokenSymbols.slice(0, result.signatures.length);
+                              failed = tokenSymbols.slice(result.signatures.length);
+                            } else {
+                              // If no signatures returned, assume all failed
+                              failed = tokenSymbols;
+                            }
                           } catch (err) {
-                            failed.push(symbol);
-                            setSwapErrors(prev => ({ ...prev, [cartItems[i].token.mint]: `Swap failed for ${symbol}` }));
+                            console.error('signAndSendAllTransactions error:', err);
+                            failed = tokenSymbols;
+                            setSwapErrors(prev => ({ 
+                              ...prev, 
+                              [cartItems[0]?.token.mint || '']: `Batch swap failed: ${err instanceof Error ? err.message : 'Unknown error'}` 
+                            }));
+                          }
+                        } else {
+                          // Fallback to signAllTransactions + manual sending
+                          const signedTxs = await signAllTransactions!(unsignedTxs);
+                          for (let i = 0; i < signedTxs.length; i++) {
+                            const tx = signedTxs[i];
+                            const symbol = tokenSymbols[i];
+                            try {
+                              const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
+                              await connection.confirmTransaction(sig, 'confirmed');
+                              completed.push(symbol);
+                            } catch (err) {
+                              failed.push(symbol);
+                              setSwapErrors(prev => ({ ...prev, [cartItems[i].token.mint]: `Swap failed for ${symbol}` }));
+                            }
                           }
                         }
                         if (completed.length === 0) throw new Error('All swaps failed.');
