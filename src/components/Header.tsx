@@ -141,6 +141,12 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             >
               Copy Trading
             </button>
+            <button
+              onClick={() => navigate('/leaderboard')}
+              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
+            >
+              Leaderboard
+            </button>
           </div>
           </div>
           
