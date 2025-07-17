@@ -39,14 +39,23 @@ export default function HyperliquidPerpetualsPage() {
 
         const service = new HyperliquidService();
         
-        // Fetch trending perpetuals
+        // Fetch all types of perpetuals
         const trendingPerpetuals = await service.getTrendingPerpetuals(20);
+        const popularPerpetuals = await service.getPopularPerpetuals(10);
+        const volatilePerpetuals = await service.getHighVolatilityPerpetuals(10);
+        
+        // Combine and deduplicate perpetuals
+        const allPerpetuals = [...trendingPerpetuals, ...popularPerpetuals, ...volatilePerpetuals];
+        const uniquePerpetuals = allPerpetuals.filter((perpetual, index, self) => 
+          index === self.findIndex(p => p.name === perpetual.name)
+        );
         
         // Add category information
-        const perpetualsWithCategory: PerpetualWithCategory[] = trendingPerpetuals.map(perpetual => ({
+        const perpetualsWithCategory: PerpetualWithCategory[] = uniquePerpetuals.map(perpetual => ({
           ...perpetual,
           displayName: perpetual.symbol,
-          category: 'trending' as 'trending' | 'popular' | 'volatile'
+          category: (trendingPerpetuals.find(p => p.name === perpetual.name) ? 'trending' :
+                   popularPerpetuals.find(p => p.name === perpetual.name) ? 'popular' : 'volatile') as 'trending' | 'popular' | 'volatile'
         }));
         
         setPerpetuals(perpetualsWithCategory);

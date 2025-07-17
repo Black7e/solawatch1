@@ -101,21 +101,7 @@ export class HyperliquidService {
   // Get trending perpetuals based on volume and price change
   async getTrendingPerpetuals(limit: number = 10): Promise<HyperliquidPerpetual[]> {
     try {
-      // Get meta info for perpetuals
-      const metaInfo = await this.getPerpetualsInfo();
-      
-      if (!metaInfo || !metaInfo.data) {
-        throw new Error('No meta data received');
-      }
-
-      // Get market data
-      const marketData = await this.getMarketData([]);
-
-      if (!marketData || !marketData.data) {
-        throw new Error('No market data received');
-      }
-
-      // Create sample data for demonstration
+      // Create sample data for demonstration (bypassing API for now)
       const samplePerpetuals: HyperliquidPerpetual[] = [
         {
           name: 'BTC-PERP',
@@ -176,6 +162,46 @@ export class HyperliquidService {
           openInterest: 120000,
           fundingRate: 0.011,
           assetId: 6
+        },
+        {
+          name: 'DOT-PERP',
+          symbol: 'DOT',
+          price: 6.8,
+          change24h: -3.1,
+          volume24h: 350000,
+          openInterest: 100000,
+          fundingRate: -0.005,
+          assetId: 7
+        },
+        {
+          name: 'UNI-PERP',
+          symbol: 'UNI',
+          price: 8.2,
+          change24h: 7.2,
+          volume24h: 300000,
+          openInterest: 90000,
+          fundingRate: 0.018,
+          assetId: 8
+        },
+        {
+          name: 'AAVE-PERP',
+          symbol: 'AAVE',
+          price: 85,
+          change24h: -1.8,
+          volume24h: 250000,
+          openInterest: 80000,
+          fundingRate: -0.003,
+          assetId: 9
+        },
+        {
+          name: 'SNX-PERP',
+          symbol: 'SNX',
+          price: 3.2,
+          change24h: 12.5,
+          volume24h: 200000,
+          openInterest: 70000,
+          fundingRate: 0.025,
+          assetId: 10
         }
       ];
 
