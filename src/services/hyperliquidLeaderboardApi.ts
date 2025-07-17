@@ -44,12 +44,11 @@ export class HyperliquidLeaderboardService {
         return apiTraders;
       }
 
-      // Fallback to mock data if API fails
-      console.warn('API failed, using mock data');
-      return this.getMockLeaderboard(limit);
+      // If no API data, throw error instead of using mock data
+      throw new Error('No leaderboard data available from Hyperliquid API');
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
-      return this.getMockLeaderboard(limit);
+      throw error; // Re-throw to let the UI handle the error
     }
   }
 
@@ -78,19 +77,46 @@ export class HyperliquidLeaderboardService {
   // Try to fetch from the actual leaderboard page
   private async fetchLeaderboardPage(): Promise<HyperliquidTrader[]> {
     try {
-      // Use a CORS proxy to fetch from the leaderboard page
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
-      const response = await fetch(`${proxyUrl}${encodeURIComponent(this.leaderboardUrl)}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch leaderboard page: ${response.status}`);
+      // Try multiple CORS proxies
+      const proxies = [
+        'https://api.allorigins.win/raw?url=',
+        'https://cors-anywhere.herokuapp.com/',
+        'https://thingproxy.freeboard.io/fetch/'
+      ];
+
+      for (const proxy of proxies) {
+        try {
+          const response = await fetch(`${proxy}${encodeURIComponent(this.leaderboardUrl)}`);
+          
+          if (response.ok) {
+            const html = await response.text();
+            console.log('Leaderboard page fetched, parsing...');
+            
+            // Parse the HTML to extract trader data
+            const traders = this.parseLeaderboardHTML(html);
+            if (traders.length > 0) {
+              return traders;
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch with proxy ${proxy}:`, error);
+          continue;
+        }
       }
 
-      const html = await response.text();
-      console.log('Leaderboard page fetched, parsing...');
-      
-      // Parse the HTML to extract trader data
-      return this.parseLeaderboardHTML(html);
+      // If all proxies fail, try direct fetch (might work in some environments)
+      try {
+        const response = await fetch(this.leaderboardUrl);
+        if (response.ok) {
+          const html = await response.text();
+          console.log('Leaderboard page fetched directly, parsing...');
+          return this.parseLeaderboardHTML(html);
+        }
+      } catch (error) {
+        console.warn('Failed to fetch leaderboard page directly:', error);
+      }
+
+      return [];
     } catch (error) {
       console.warn('Failed to fetch leaderboard page:', error);
       return [];
@@ -102,29 +128,60 @@ export class HyperliquidLeaderboardService {
     const traders: HyperliquidTrader[] = [];
     
     try {
-      // Create a temporary DOM element to parse HTML
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      
-      // Look for trader data in script tags or specific elements
-      const scripts = doc.querySelectorAll('script');
-      for (const script of scripts) {
-        const content = script.textContent || '';
-        if (content.includes('leaderboard') || content.includes('trader')) {
-          // Try to extract JSON data
-          const jsonMatch = content.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            try {
-              const data = JSON.parse(jsonMatch[0]);
-              if (data.traders || Array.isArray(data)) {
-                return this.parseLeaderboardData(data.traders || data, 50);
+      // Look for JSON data in script tags
+      const scriptMatches = html.match(/<script[^>]*>([\s\S]*?)<\/script>/gi);
+      if (scriptMatches) {
+        for (const script of scriptMatches) {
+          const content = script.replace(/<script[^>]*>([\s\S]*?)<\/script>/i, '$1');
+          
+          // Look for leaderboard data patterns
+          const patterns = [
+            /leaderboard.*?\[([\s\S]*?)\]/i,
+            /traders.*?\[([\s\S]*?)\]/i,
+            /users.*?\[([\s\S]*?)\]/i,
+            /window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});/i,
+            /window\.leaderboardData\s*=\s*({[\s\S]*?});/i
+          ];
+
+          for (const pattern of patterns) {
+            const match = content.match(pattern);
+            if (match) {
+              try {
+                const data = JSON.parse(match[1]);
+                if (Array.isArray(data)) {
+                  return this.parseLeaderboardData(data, 50);
+                } else if (data && typeof data === 'object') {
+                  // Try to find trader data in nested objects
+                  const traderData = this.extractTraderDataFromObject(data);
+                  if (traderData.length > 0) {
+                    return traderData;
+                  }
+                }
+              } catch (e) {
+                // Continue to next pattern
               }
-            } catch (e) {
-              // Continue to next script
             }
           }
         }
       }
+
+      // Look for data in JSON-LD scripts
+      const jsonLdMatches = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi);
+      if (jsonLdMatches) {
+        for (const jsonLd of jsonLdMatches) {
+          const content = jsonLd.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i, '$1');
+          try {
+            const data = JSON.parse(content);
+            const traderData = this.extractTraderDataFromObject(data);
+            if (traderData.length > 0) {
+              return traderData;
+            }
+          } catch (e) {
+            // Continue to next JSON-LD
+          }
+        }
+      }
+
     } catch (error) {
       console.warn('Error parsing HTML:', error);
     }
@@ -132,32 +189,91 @@ export class HyperliquidLeaderboardService {
     return traders;
   }
 
+  // Extract trader data from nested objects
+  private extractTraderDataFromObject(obj: any): HyperliquidTrader[] {
+    const traders: HyperliquidTrader[] = [];
+    
+    try {
+      // Recursively search for trader-like data
+      const searchForTraders = (data: any, path: string = ''): void => {
+        if (!data || typeof data !== 'object') return;
+        
+        if (Array.isArray(data)) {
+          // Check if this array contains trader data
+          if (data.length > 0 && data[0] && typeof data[0] === 'object') {
+            const firstItem = data[0];
+            if (firstItem.handle || firstItem.name || firstItem.username || firstItem.address) {
+              const traderData = this.parseLeaderboardData(data, 50);
+              if (traderData.length > 0) {
+                traders.push(...traderData);
+              }
+            }
+          }
+          
+          // Recursively search array items
+          data.forEach((item, index) => {
+            searchForTraders(item, `${path}[${index}]`);
+          });
+        } else {
+          // Search object properties
+          Object.keys(data).forEach(key => {
+            const value = data[key];
+            if (key.toLowerCase().includes('trader') || key.toLowerCase().includes('user') || key.toLowerCase().includes('leaderboard')) {
+              searchForTraders(value, `${path}.${key}`);
+            } else {
+              searchForTraders(value, `${path}.${key}`);
+            }
+          });
+        }
+      };
+      
+      searchForTraders(obj);
+    } catch (error) {
+      console.warn('Error extracting trader data from object:', error);
+    }
+    
+    return traders;
+  }
+
   // Try alternative API endpoints
   private async fetchFromAlternativeEndpoints(): Promise<HyperliquidTrader[]> {
-    // Only try the /info endpoint with meta type since it seems to work
-    try {
-      const response = await fetch(`${this.baseUrl}/info`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ type: 'meta' })
-      });
+    // Try different API endpoints that might contain leaderboard data
+    const endpoints = [
+      { url: '/info', method: 'POST', body: { type: 'meta' } },
+      { url: '/info', method: 'POST', body: { type: 'leaderboard' } },
+      { url: '/info', method: 'POST', body: { type: 'traders' } },
+      { url: '/info', method: 'POST', body: { type: 'users' } },
+      { url: '/leaderboard', method: 'GET' },
+      { url: '/traders', method: 'GET' },
+      { url: '/users', method: 'GET' }
+    ];
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('API response from /info:', data);
-        
-        // Try to extract trader data from response
-        const traders = this.extractTraderData(data);
-        if (traders.length > 0) {
-          return traders;
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${this.baseUrl}${endpoint.url}`, {
+          method: endpoint.method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: endpoint.method === 'POST' ? JSON.stringify(endpoint.body) : undefined
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`API response from ${endpoint.url}:`, data);
+          
+          // Try to extract trader data from response
+          const traders = this.extractTraderData(data);
+          if (traders.length > 0) {
+            return traders;
+          }
+        } else {
+          console.warn(`Failed to fetch from ${endpoint.url}: ${response.status} ${response.statusText}`);
         }
-      } else {
-        console.warn(`Failed to fetch from /info: ${response.status} ${response.statusText}`);
+      } catch (error) {
+        console.warn(`Failed to fetch from ${endpoint.url}:`, error);
+        continue;
       }
-    } catch (error) {
-      console.warn('Failed to fetch from /info:', error);
     }
 
     return [];
@@ -173,6 +289,10 @@ export class HyperliquidLeaderboardService {
         return this.parseLeaderboardData(data, 50);
       } else if (data && data.traders) {
         return this.parseLeaderboardData(data.traders, 50);
+      } else if (data && data.users) {
+        return this.parseLeaderboardData(data.users, 50);
+      } else if (data && data.leaderboard) {
+        return this.parseLeaderboardData(data.leaderboard, 50);
       } else if (data && data.meta && data.meta.universe) {
         // Extract from universe data - this is what we're actually getting
         console.log('Found universe data, attempting to parse...');
@@ -199,8 +319,8 @@ export class HyperliquidLeaderboardService {
       
       // The universe data contains market information, not trader data
       // Since we can't get actual trader data from this endpoint,
-      // we'll return empty array and let it fall back to mock data
-      console.log('Universe data contains market info, not trader data. Using mock data instead.');
+      // we'll return empty array
+      console.log('Universe data contains market info, not trader data.');
       
     } catch (error) {
       console.warn('Error parsing universe data:', error);
@@ -224,16 +344,16 @@ export class HyperliquidLeaderboardService {
 
     data.slice(0, limit).forEach((trader: any, index: number) => {
       const traderData: HyperliquidTrader = {
-        handle: trader.handle || trader.name || `trader_${index + 1}`,
-        name: trader.name || trader.handle || `Trader ${index + 1}`,
-        returnPercent: parseFloat(trader.returnPercent || trader.return || trader.pnlPercent || 0),
-        totalPnL: parseFloat(trader.totalPnL || trader.pnl || trader.profit || 0),
-        volume: parseFloat(trader.volume || trader.tradingVolume || 0),
-        totalTrades: parseInt(trader.totalTrades || trader.trades || trader.tradeCount || 0),
-        walletAddress: trader.walletAddress || trader.address || undefined,
+        handle: trader.handle || trader.name || trader.username || `trader_${index + 1}`,
+        name: trader.name || trader.handle || trader.username || `Trader ${index + 1}`,
+        returnPercent: parseFloat(trader.returnPercent || trader.return || trader.pnlPercent || trader.performance || 0),
+        totalPnL: parseFloat(trader.totalPnL || trader.pnl || trader.profit || trader.totalProfit || 0),
+        volume: parseFloat(trader.volume || trader.tradingVolume || trader.totalVolume || 0),
+        totalTrades: parseInt(trader.totalTrades || trader.trades || trader.tradeCount || trader.numTrades || 0),
+        walletAddress: trader.walletAddress || trader.address || trader.publicKey || undefined,
         isElite: false, // Will be calculated below
-        avatar: trader.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${trader.handle || index}`,
-        description: trader.description || `${trader.name || 'Trader'} on Hyperliquid`
+        avatar: trader.avatar || trader.profileImage || `https://api.dicebear.com/7.x/avataaars/svg?seed=${trader.handle || index}`,
+        description: trader.description || trader.bio || `${trader.name || 'Trader'} on Hyperliquid`
       };
 
       // Calculate if trader is elite
@@ -243,124 +363,6 @@ export class HyperliquidLeaderboardService {
     });
 
     return traders;
-  }
-
-  // Get mock leaderboard data (realistic based on Hyperliquid)
-  private getMockLeaderboard(limit: number): HyperliquidTrader[] {
-    const mockTraders: HyperliquidTrader[] = [
-      {
-        handle: 'cryptobuild',
-        name: 'CryptoBuild',
-        returnPercent: 156.78,
-        totalPnL: 45678.90,
-        volume: 2345678.12,
-        totalTrades: 234,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=cryptobuild',
-        description: 'Professional crypto trader with 5+ years experience'
-      },
-      {
-        handle: 'solana_master',
-        name: 'SolanaMaster',
-        returnPercent: 89.45,
-        totalPnL: 23456.78,
-        volume: 1234567.89,
-        totalTrades: 156,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=solana_master',
-        description: 'Solana ecosystem specialist'
-      },
-      {
-        handle: 'defi_queen',
-        name: 'DeFiQueen',
-        returnPercent: 234.12,
-        totalPnL: 67890.12,
-        volume: 3456789.01,
-        totalTrades: 345,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=defi_queen',
-        description: 'DeFi protocols and yield farming expert'
-      },
-      {
-        handle: 'bitcoin_whale',
-        name: 'BitcoinWhale',
-        returnPercent: 67.89,
-        totalPnL: 123456.78,
-        volume: 5678901.23,
-        totalTrades: 456,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bitcoin_whale',
-        description: 'Bitcoin and major altcoin trader'
-      },
-      {
-        handle: 'meme_trader',
-        name: 'MemeTrader',
-        returnPercent: 345.67,
-        totalPnL: 34567.89,
-        volume: 789012.34,
-        totalTrades: 89,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=meme_trader',
-        description: 'Meme coin and viral token specialist'
-      },
-      {
-        handle: 'stable_trader',
-        name: 'StableTrader',
-        returnPercent: 23.45,
-        totalPnL: 8901.23,
-        volume: 456789.01,
-        totalTrades: 123,
-        isElite: false,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=stable_trader',
-        description: 'Conservative trading with high win rate'
-      },
-      {
-        handle: 'futures_king',
-        name: 'FuturesKing',
-        returnPercent: 178.90,
-        totalPnL: 56789.01,
-        volume: 2345678.90,
-        totalTrades: 234,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=futures_king',
-        description: 'Futures trading specialist'
-      },
-      {
-        handle: 'scalp_master',
-        name: 'ScalpMaster',
-        returnPercent: 45.67,
-        totalPnL: 12345.67,
-        volume: 890123.45,
-        totalTrades: 567,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=scalp_master',
-        description: 'Scalping and high-frequency trading'
-      },
-      {
-        handle: 'trend_follower',
-        name: 'TrendFollower',
-        returnPercent: 89.12,
-        totalPnL: 23456.78,
-        volume: 1234567.89,
-        totalTrades: 178,
-        isElite: true,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=trend_follower',
-        description: 'Trend following and momentum trading'
-      },
-      {
-        handle: 'risk_manager',
-        name: 'RiskManager',
-        returnPercent: 34.56,
-        totalPnL: 6789.01,
-        volume: 345678.90,
-        totalTrades: 234,
-        isElite: false,
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=risk_manager',
-        description: 'Risk management and position sizing expert'
-      }
-    ];
-
-    return mockTraders.slice(0, limit);
   }
 
   // Get trader positions (if wallet address is available)
