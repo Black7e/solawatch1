@@ -163,7 +163,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
             <div className="flex items-center gap-2">
               {cartItems.length > 0 && (
                 <button
-                  className="text-xs text-x-blue hover:underline hover:text-x-blue-hover font-medium px-2 py-1 bg-transparent border-none shadow-none outline-none"
+                  className="text-xs text-x-purple hover:underline hover:text-x-purple-hover font-medium px-2 py-1 bg-transparent border-none shadow-none outline-none"
                   style={{ background: 'none', boxShadow: 'none' }}
                   onClick={clearCart}
                 >
@@ -234,7 +234,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           step={0.01}
                           value={item.weight}
                           onChange={e => updateWeight(item.token.symbol, parseFloat(e.target.value) || 0)}
-                          className="w-16 px-2 py-1 rounded bg-x-bg-tertiary text-x-text border border-x-border text-xs focus:outline-none focus:ring-2 focus:ring-x-blue text-right"
+                          className="w-16 px-2 py-1 rounded bg-x-bg-tertiary text-x-text border border-x-border text-xs focus:outline-none focus:ring-2 focus:ring-x-purple text-right"
                           style={{ textAlign: 'right' }}
                           disabled={item.token.symbol === buyCurrency}
                         />
@@ -261,7 +261,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       value={buyAmount}
                       onChange={e => setBuyAmount(e.target.value)}
                       placeholder="Enter total amount to buy"
-                      className="w-full px-3 py-2 rounded-x bg-x-bg-tertiary border border-x-border text-x-text focus:outline-none focus:ring-2 focus:ring-x-blue"
+                      className="w-full px-3 py-2 rounded-x bg-x-bg-tertiary border border-x-border text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple"
                     />
                     {amountError && (
                       <div className="text-xs text-x-red mt-1 text-left">{amountError}</div>
@@ -270,7 +270,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                   <div className="mb-4">
                     <div className="flex gap-2">
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-x-blue text-white border-x-blue' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'SOL' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('SOL')}
                         disabled={isLoadingBalances}
                       >
@@ -283,7 +283,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         )}
                       </button>
                       <button
-                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-x-blue text-white border-x-blue' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
+                        className={`flex-1 px-3 py-1.5 rounded-x font-semibold border transition-colors text-sm ${buyCurrency === 'USDC' ? 'bg-x-purple text-white border-x-purple' : 'bg-x-bg-tertiary text-x-text-secondary border-x-border'}`}
                         onClick={() => setBuyCurrency('USDC')}
                         disabled={isLoadingBalances}
                       >
@@ -307,7 +307,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                     </button>
                   ) : (
                     <button
-                      className="w-full bg-x-blue hover:bg-x-blue-hover text-white font-semibold px-6 py-3 rounded-x transition-all text-base shadow-md disabled:opacity-60"
+                      className="w-full bg-x-purple hover:bg-x-purple-hover text-white font-semibold px-6 py-3 rounded-x transition-all text-base shadow-md disabled:opacity-60"
                       type="button"
                       disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
                       onClick={async () => {

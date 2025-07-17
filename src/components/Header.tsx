@@ -152,7 +152,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               ) : (
                 <button 
                   onClick={onConnectWallet}
-                  className="bg-x-blue text-white hover:bg-x-blue-hover px-3 py-1.5 sm:px-6 sm:py-2 rounded-x font-semibold transition-all duration-200 text-sm sm:text-base"
+                  className="bg-x-purple text-white hover:bg-x-purple-hover px-3 py-1.5 sm:px-6 sm:py-2 rounded-x font-semibold transition-all duration-200 text-sm sm:text-base"
                 >
                   {getWalletButtonText()}
                 </button>
@@ -160,7 +160,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               {/* Cart View */}
               <button
                 ref={cartButtonRef}
-                className="relative bg-x-blue text-white px-4 py-2 rounded-x font-bold shadow-md hover:bg-x-blue-hover transition-all duration-200 flex items-center text-base border border-x-blue/30"
+                className="relative bg-x-purple text-white px-4 py-2 rounded-x font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center text-base border border-x-purple/30"
                 title="View Cart"
                 onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
                 style={{ zIndex: 2 }}
@@ -194,7 +194,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {/* Cart Button for mobile (icon only, desktop style) */}
             <button
               ref={cartButtonRef}
-              className="relative bg-x-blue text-white w-10 h-10 rounded-x font-bold shadow-md hover:bg-x-blue-hover transition-all duration-200 flex items-center justify-center text-base border border-x-blue/30"
+              className="relative bg-x-purple text-white w-10 h-10 rounded-x font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-base border border-x-purple/30"
               title="View Cart"
               onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
               style={{ zIndex: 2 }}

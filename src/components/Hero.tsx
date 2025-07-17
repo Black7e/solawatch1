@@ -86,13 +86,13 @@ export default function Hero({ onConnectWallet }: HeroProps) {
                 onChange={(e) => setWalletAddress(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Enter wallet address to analyze..."
-                className="w-full bg-x-bg-secondary/50 border border-x-border rounded-x px-3 py-3 pr-12 sm:px-4 sm:py-4 sm:pr-14 text-x-text placeholder-x-text-tertiary focus:outline-none focus:ring-2 focus:ring-x-blue focus:border-transparent text-sm sm:text-lg backdrop-blur-sm"
+                className="w-full bg-x-bg-secondary/50 border border-x-border rounded-x px-3 py-3 pr-12 sm:px-4 sm:py-4 sm:pr-14 text-x-text placeholder-x-text-tertiary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-sm sm:text-lg backdrop-blur-sm"
                 disabled={isValidating}
               />
               <button 
                 onClick={handleAnalyzeWallet}
                 disabled={isValidating}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-blue hover:bg-x-blue-hover text-white p-1.5 sm:p-2 rounded-x transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 sm:p-2 rounded-x transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </button>
