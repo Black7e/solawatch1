@@ -53,39 +53,19 @@ export class HyperliquidLeaderboardService {
     }
   }
 
-  // Try to fetch from Hyperliquid API
+  // Try to fetch from Hyperliquid API using correct endpoints
   private async fetchFromAPI(limit: number): Promise<HyperliquidTrader[]> {
     try {
-      // Try different API endpoints
-      const endpoints = [
-        '/info?type=leaderboard',
-        '/exchange?type=leaderboard',
-        '/leaderboard'
-      ];
+      // Try to fetch from the actual leaderboard page first
+      const pageData = await this.fetchLeaderboardPage();
+      if (pageData.length > 0) {
+        return pageData.slice(0, limit);
+      }
 
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            console.log('Leaderboard API response:', data);
-            
-            if (data && Array.isArray(data)) {
-              return this.parseLeaderboardData(data, limit);
-            } else if (data && data.traders) {
-              return this.parseLeaderboardData(data.traders, limit);
-            }
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch from ${endpoint}:`, error);
-          continue;
-        }
+      // Try alternative API endpoints
+      const apiData = await this.fetchFromAlternativeEndpoints();
+      if (apiData.length > 0) {
+        return apiData.slice(0, limit);
       }
 
       return [];
@@ -93,6 +73,142 @@ export class HyperliquidLeaderboardService {
       console.error('Error fetching from API:', error);
       return [];
     }
+  }
+
+  // Try to fetch from the actual leaderboard page
+  private async fetchLeaderboardPage(): Promise<HyperliquidTrader[]> {
+    try {
+      // Use a CORS proxy to fetch from the leaderboard page
+      const proxyUrl = 'https://api.allorigins.win/raw?url=';
+      const response = await fetch(`${proxyUrl}${encodeURIComponent(this.leaderboardUrl)}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch leaderboard page: ${response.status}`);
+      }
+
+      const html = await response.text();
+      console.log('Leaderboard page fetched, parsing...');
+      
+      // Parse the HTML to extract trader data
+      return this.parseLeaderboardHTML(html);
+    } catch (error) {
+      console.warn('Failed to fetch leaderboard page:', error);
+      return [];
+    }
+  }
+
+  // Parse HTML from leaderboard page
+  private parseLeaderboardHTML(html: string): HyperliquidTrader[] {
+    const traders: HyperliquidTrader[] = [];
+    
+    try {
+      // Create a temporary DOM element to parse HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      
+      // Look for trader data in script tags or specific elements
+      const scripts = doc.querySelectorAll('script');
+      for (const script of scripts) {
+        const content = script.textContent || '';
+        if (content.includes('leaderboard') || content.includes('trader')) {
+          // Try to extract JSON data
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const data = JSON.parse(jsonMatch[0]);
+              if (data.traders || Array.isArray(data)) {
+                return this.parseLeaderboardData(data.traders || data, 50);
+              }
+            } catch (e) {
+              // Continue to next script
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Error parsing HTML:', error);
+    }
+    
+    return traders;
+  }
+
+  // Try alternative API endpoints
+  private async fetchFromAlternativeEndpoints(): Promise<HyperliquidTrader[]> {
+    const endpoints = [
+      { url: '/info', method: 'POST', body: { type: 'meta' } },
+      { url: '/exchange', method: 'POST', body: { type: 'allMids' } },
+      { url: '/info', method: 'POST', body: { type: 'clearinghouseState' } }
+    ];
+
+    for (const endpoint of endpoints) {
+      try {
+        const response = await fetch(`${this.baseUrl}${endpoint.url}`, {
+          method: endpoint.method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: endpoint.method === 'POST' ? JSON.stringify(endpoint.body) : undefined
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`API response from ${endpoint.url}:`, data);
+          
+          // Try to extract trader data from response
+          const traders = this.extractTraderData(data);
+          if (traders.length > 0) {
+            return traders;
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to fetch from ${endpoint.url}:`, error);
+        continue;
+      }
+    }
+
+    return [];
+  }
+
+  // Extract trader data from various API responses
+  private extractTraderData(data: any): HyperliquidTrader[] {
+    const traders: HyperliquidTrader[] = [];
+    
+    try {
+      // Handle different response formats
+      if (data && Array.isArray(data)) {
+        return this.parseLeaderboardData(data, 50);
+      } else if (data && data.traders) {
+        return this.parseLeaderboardData(data.traders, 50);
+      } else if (data && data.meta && data.meta.universe) {
+        // Extract from universe data
+        return this.parseUniverseData(data.meta.universe);
+      } else if (data && data.clearinghouseState) {
+        // Extract from clearinghouse state
+        return this.parseClearinghouseData(data.clearinghouseState);
+      }
+    } catch (error) {
+      console.warn('Error extracting trader data:', error);
+    }
+    
+    return traders;
+  }
+
+  // Parse universe data
+  private parseUniverseData(universe: any[]): HyperliquidTrader[] {
+    const traders: HyperliquidTrader[] = [];
+    
+    // This would need to be adapted based on actual universe data structure
+    // For now, return empty array
+    return traders;
+  }
+
+  // Parse clearinghouse data
+  private parseClearinghouseData(clearinghouse: any): HyperliquidTrader[] {
+    const traders: HyperliquidTrader[] = [];
+    
+    // This would need to be adapted based on actual clearinghouse data structure
+    // For now, return empty array
+    return traders;
   }
 
   // Parse leaderboard data from API response
@@ -243,11 +359,15 @@ export class HyperliquidLeaderboardService {
   // Get trader positions (if wallet address is available)
   async getTraderPositions(walletAddress: string): Promise<TraderPosition[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/info?type=clearinghouseState&user=${walletAddress}`, {
-        method: 'GET',
+      const response = await fetch(`${this.baseUrl}/info`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        body: JSON.stringify({
+          type: 'clearinghouseState',
+          user: walletAddress
+        })
       });
 
       if (!response.ok) {
