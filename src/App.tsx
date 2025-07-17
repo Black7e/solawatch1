@@ -14,6 +14,7 @@ import TopTradersPage from './components/TopTradersPage';
 import { CartProvider } from './components/CartProvider';
 import TrendingTokens from './components/TrendingTokens';
 import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
+import CopyTradingPage from './components/CopyTradingPage';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -121,6 +122,7 @@ function App() {
                 <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
                 <Route path="/top-traders" element={<TopTradersPage />} />
                 <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
+                <Route path="/copy-trading" element={<CopyTradingPage />} />
               </Routes>
             </div>
           </Suspense>
