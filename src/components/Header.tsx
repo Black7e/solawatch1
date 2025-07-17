@@ -124,24 +124,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-4">
             <button
-              onClick={() => navigate('/top-traders')}
-              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
-            >
-              Top Traders
-            </button>
-            <button
-              onClick={() => navigate('/perpetuals')}
-              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
-            >
-              Perpetuals
-            </button>
-            <button
-              onClick={() => navigate('/copy-trading')}
-              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
-            >
-              Copy Trading
-            </button>
-            <button
               onClick={() => navigate('/leaderboard')}
               className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
             >
