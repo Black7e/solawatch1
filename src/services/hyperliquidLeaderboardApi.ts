@@ -134,36 +134,30 @@ export class HyperliquidLeaderboardService {
 
   // Try alternative API endpoints
   private async fetchFromAlternativeEndpoints(): Promise<HyperliquidTrader[]> {
-    const endpoints = [
-      { url: '/info', method: 'POST', body: { type: 'meta' } },
-      { url: '/exchange', method: 'POST', body: { type: 'allMids' } },
-      { url: '/info', method: 'POST', body: { type: 'clearinghouseState' } }
-    ];
+    // Only try the /info endpoint with meta type since it seems to work
+    try {
+      const response = await fetch(`${this.baseUrl}/info`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type: 'meta' })
+      });
 
-    for (const endpoint of endpoints) {
-      try {
-        const response = await fetch(`${this.baseUrl}${endpoint.url}`, {
-          method: endpoint.method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: endpoint.method === 'POST' ? JSON.stringify(endpoint.body) : undefined
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`API response from ${endpoint.url}:`, data);
-          
-          // Try to extract trader data from response
-          const traders = this.extractTraderData(data);
-          if (traders.length > 0) {
-            return traders;
-          }
+      if (response.ok) {
+        const data = await response.json();
+        console.log('API response from /info:', data);
+        
+        // Try to extract trader data from response
+        const traders = this.extractTraderData(data);
+        if (traders.length > 0) {
+          return traders;
         }
-      } catch (error) {
-        console.warn(`Failed to fetch from ${endpoint.url}:`, error);
-        continue;
+      } else {
+        console.warn(`Failed to fetch from /info: ${response.status} ${response.statusText}`);
       }
+    } catch (error) {
+      console.warn('Failed to fetch from /info:', error);
     }
 
     return [];
@@ -180,11 +174,14 @@ export class HyperliquidLeaderboardService {
       } else if (data && data.traders) {
         return this.parseLeaderboardData(data.traders, 50);
       } else if (data && data.meta && data.meta.universe) {
-        // Extract from universe data
+        // Extract from universe data - this is what we're actually getting
+        console.log('Found universe data, attempting to parse...');
         return this.parseUniverseData(data.meta.universe);
       } else if (data && data.clearinghouseState) {
         // Extract from clearinghouse state
         return this.parseClearinghouseData(data.clearinghouseState);
+      } else {
+        console.log('No recognizable data structure found:', data);
       }
     } catch (error) {
       console.warn('Error extracting trader data:', error);
@@ -197,8 +194,18 @@ export class HyperliquidLeaderboardService {
   private parseUniverseData(universe: any[]): HyperliquidTrader[] {
     const traders: HyperliquidTrader[] = [];
     
-    // This would need to be adapted based on actual universe data structure
-    // For now, return empty array
+    try {
+      console.log('Parsing universe data:', universe);
+      
+      // The universe data contains market information, not trader data
+      // Since we can't get actual trader data from this endpoint,
+      // we'll return empty array and let it fall back to mock data
+      console.log('Universe data contains market info, not trader data. Using mock data instead.');
+      
+    } catch (error) {
+      console.warn('Error parsing universe data:', error);
+    }
+    
     return traders;
   }
 
