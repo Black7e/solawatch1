@@ -319,8 +319,18 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                           throw new Error('Wallet not connected');
                         }
                         // Check if wallet supports signAndSendAllTransactions (recommended) or signAllTransactions (fallback)
-                        const supportsSignAndSend = wallet && typeof (wallet as any).signAndSendAllTransactions === 'function';
+                        const supportsSignAndSend = (wallet && typeof (wallet as any).signAndSendAllTransactions === 'function') || 
+                                                   (typeof window !== 'undefined' && (window as any).solana && typeof (window as any).solana.signAndSendAllTransactions === 'function');
                         const supportsSignAll = !!signAllTransactions;
+                        
+                        console.log('Wallet capabilities:', {
+                          wallet: !!wallet,
+                          walletSignAndSend: wallet && typeof (wallet as any).signAndSendAllTransactions === 'function',
+                          windowSolana: typeof window !== 'undefined' && !!(window as any).solana,
+                          windowSignAndSend: typeof window !== 'undefined' && (window as any).solana && typeof (window as any).solana.signAndSendAllTransactions === 'function',
+                          supportsSignAndSend,
+                          supportsSignAll
+                        });
                         
                         if (!supportsSignAndSend && !supportsSignAll) {
                           setBuyResult('Your wallet does not support batch signing. Please use Phantom or a compatible wallet.');
@@ -427,7 +437,15 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         if (supportsSignAndSend) {
                           // Use the recommended signAndSendAllTransactions method
                           try {
-                            const result = await (wallet as any).signAndSendAllTransactions(unsignedTxs);
+                            // Try wallet adapter first, then window.solana
+                            let result;
+                            if (wallet && typeof (wallet as any).signAndSendAllTransactions === 'function') {
+                              result = await (wallet as any).signAndSendAllTransactions(unsignedTxs);
+                            } else if (typeof window !== 'undefined' && (window as any).solana && typeof (window as any).solana.signAndSendAllTransactions === 'function') {
+                              result = await (window as any).solana.signAndSendAllTransactions(unsignedTxs);
+                            } else {
+                              throw new Error('signAndSendAllTransactions not available');
+                            }
                             console.log('signAndSendAllTransactions result:', result);
                             
                             // Handle the result - it should contain signatures for successful transactions
