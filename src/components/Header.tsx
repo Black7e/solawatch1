@@ -128,7 +128,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 <>
                   <button 
                     onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
-                    className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text px-3 py-1.5 sm:px-6 sm:py-2 rounded-x font-medium transition-all duration-200 flex items-center space-x-2 text-sm sm:text-base border border-x-border hover:border-x-border-light"
+                    className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm sm:text-base border border-x-border hover:border-x-border-light"
                   >
                     {getWalletLogo()}
                     <span>{getWalletButtonText()}</span>
@@ -152,7 +152,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               ) : (
                 <button 
                   onClick={onConnectWallet}
-                  className="bg-x-purple text-white hover:bg-x-purple-hover px-3 py-1.5 sm:px-6 sm:py-2 rounded-x font-semibold transition-all duration-200 text-sm sm:text-base"
+                  className="bg-x-purple text-white hover:bg-x-purple-hover px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base"
                 >
                   {getWalletButtonText()}
                 </button>
@@ -160,7 +160,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               {/* Cart View */}
               <button
                 ref={cartButtonRef}
-                className="relative bg-x-purple text-white px-4 py-2 rounded-x font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center text-base border border-x-purple/30"
+                className="relative bg-x-purple text-white px-3 py-1.5 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center text-sm border border-x-purple/30"
                 title="View Cart"
                 onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
                 style={{ zIndex: 2 }}
@@ -187,14 +187,14 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {/* Wallet Button as menu opener (icon only, exactly desktop style) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex items-center justify-center w-10 h-10 bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text rounded-x font-medium border border-x-border text-sm"
+              className="flex items-center justify-center w-9 h-9 bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text rounded-lg font-medium border border-x-border text-sm"
             >
               {getWalletLogo()}
             </button>
             {/* Cart Button for mobile (icon only, desktop style) */}
             <button
               ref={cartButtonRef}
-              className="relative bg-x-purple text-white w-10 h-10 rounded-x font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-base border border-x-purple/30"
+              className="relative bg-x-purple text-white w-9 h-9 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30"
               title="View Cart"
               onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
               style={{ zIndex: 2 }}
