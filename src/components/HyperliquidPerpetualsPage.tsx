@@ -14,7 +14,6 @@ interface PerpetualWithCategory extends HyperliquidPerpetual {
 export default function HyperliquidPerpetualsPage() {
   const navigate = useNavigate();
   const [perpetuals, setPerpetuals] = useState<PerpetualWithCategory[]>([]);
-  const [marketData, setMarketData] = useState<{ [key: string]: any }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,21 +41,12 @@ export default function HyperliquidPerpetualsPage() {
         
         // Fetch trending perpetuals
         const trendingPerpetuals = await service.getTrendingPerpetuals(20);
-        const popularPerpetuals = await service.getPopularPerpetuals(10);
-        const volatilePerpetuals = await service.getHighVolatilityPerpetuals(10);
-        
-        // Combine and deduplicate perpetuals
-        const allPerpetuals = [...trendingPerpetuals, ...popularPerpetuals, ...volatilePerpetuals];
-        const uniquePerpetuals = allPerpetuals.filter((perpetual, index, self) => 
-          index === self.findIndex(p => p.name === perpetual.name)
-        );
         
         // Add category information
-        const perpetualsWithCategory: PerpetualWithCategory[] = uniquePerpetuals.map(perpetual => ({
+        const perpetualsWithCategory: PerpetualWithCategory[] = trendingPerpetuals.map(perpetual => ({
           ...perpetual,
           displayName: perpetual.symbol,
-          category: (trendingPerpetuals.find(p => p.name === perpetual.name) ? 'trending' :
-                   popularPerpetuals.find(p => p.name === perpetual.name) ? 'popular' : 'volatile') as 'trending' | 'popular' | 'volatile'
+          category: 'trending' as 'trending' | 'popular' | 'volatile'
         }));
         
         setPerpetuals(perpetualsWithCategory);
@@ -263,10 +253,6 @@ export default function HyperliquidPerpetualsPage() {
         {/* Perpetuals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPerpetuals.map((perpetual) => {
-            const market = marketData[perpetual.name];
-            const priceChange = market?.priceChange24h || 0;
-            const volume24h = market?.volume24h || 0;
-            
             return (
               <div
                 key={perpetual.name}
@@ -288,33 +274,47 @@ export default function HyperliquidPerpetualsPage() {
                   </div>
                 </div>
 
-                {market && (
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Price</span>
-                      <span className="text-white font-medium">
-                        ${market.currentPrice?.toFixed(4) || 'N/A'}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">24h Change</span>
-                      <span className={`font-medium ${
-                        priceChange > 0 ? 'text-green-400' : 
-                        priceChange < 0 ? 'text-red-400' : 'text-gray-400'
-                      }`}>
-                        {priceChange > 0 ? '+' : ''}{priceChange.toFixed(2)}%
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">24h Volume</span>
-                      <span className="text-white font-medium">
-                        ${volume24h.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                )}
+                                 <div className="space-y-3 mb-4">
+                   <div className="flex justify-between items-center">
+                     <span className="text-gray-400 text-sm">Price</span>
+                     <span className="text-white font-medium">
+                       ${perpetual.price.toFixed(2)}
+                     </span>
+                   </div>
+                   
+                   <div className="flex justify-between items-center">
+                     <span className="text-gray-400 text-sm">24h Change</span>
+                     <span className={`font-medium ${
+                       perpetual.change24h > 0 ? 'text-green-400' : 
+                       perpetual.change24h < 0 ? 'text-red-400' : 'text-gray-400'
+                     }`}>
+                       {perpetual.change24h > 0 ? '+' : ''}{perpetual.change24h.toFixed(2)}%
+                     </span>
+                   </div>
+                   
+                   <div className="flex justify-between items-center">
+                     <span className="text-gray-400 text-sm">24h Volume</span>
+                     <span className="text-white font-medium">
+                       ${perpetual.volume24h.toLocaleString()}
+                     </span>
+                   </div>
+                   
+                   <div className="flex justify-between items-center">
+                     <span className="text-gray-400 text-sm">Open Interest</span>
+                     <span className="text-white font-medium">
+                       ${perpetual.openInterest.toLocaleString()}
+                     </span>
+                   </div>
+                   
+                   <div className="flex justify-between items-center">
+                     <span className="text-gray-400 text-sm">Funding Rate</span>
+                     <span className={`font-medium ${
+                       perpetual.fundingRate > 0 ? 'text-green-400' : 'text-red-400'
+                     }`}>
+                       {(perpetual.fundingRate * 100).toFixed(3)}%
+                     </span>
+                   </div>
+                 </div>
 
                 <div className="flex space-x-2">
                   <button
