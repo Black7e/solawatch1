@@ -69,7 +69,7 @@ export default function Hero({ onConnectWallet }: HeroProps) {
           <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-x-text mb-4 sm:mb-6 leading-tight">
             On-Chain Intelligence for{' '}
             <br className="hidden sm:block" />
-            <span className="text-x-blue">
+            <span className="text-x-purple">
               Real-Time Traders
             </span>
           </h1>
