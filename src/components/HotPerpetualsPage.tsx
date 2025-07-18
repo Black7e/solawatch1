@@ -67,23 +67,20 @@ export default function HotPerpetualsPage() {
         console.log('Hyperliquid API response:', data);
         
         const perpetualsData = await processHyperliquidData(data);
-        setPerpetuals(perpetualsData);
-        setLastRefresh(new Date());
+        if (perpetualsData.length > 0) {
+          setPerpetuals(perpetualsData);
+          setLastRefresh(new Date());
+        } else {
+          setError('No perpetual data available from Hyperliquid API');
+        }
       } else {
         console.warn(`Hyperliquid API failed: ${response.status} ${response.statusText}`);
-        // Fallback to simulated data
-        const fallbackData = generateHotPerpetualsData();
-        setPerpetuals(fallbackData);
-        setLastRefresh(new Date());
+        setError(`API Error: ${response.status} ${response.statusText}`);
       }
 
     } catch (error) {
       console.error('Error fetching hot perpetuals:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch perpetual data');
-      // Fallback to simulated data
-      const fallbackData = generateHotPerpetualsData();
-      setPerpetuals(fallbackData);
-      setLastRefresh(new Date());
     } finally {
       setLoading(false);
     }
@@ -96,10 +93,24 @@ export default function HotPerpetualsPage() {
     try {
       if (data && data.meta && data.meta.universe) {
         const universe = data.meta.universe;
+        console.log('Processing universe data:', universe);
         
+        // Filter and process only items with valid data
+        const validItems = universe.filter((item: any) => {
+          return item.name && 
+                 item.markPrice && 
+                 parseFloat(item.markPrice) > 0 &&
+                 item.volume24h && 
+                 parseFloat(item.volume24h) > 0;
+        });
+
+        if (validItems.length === 0) {
+          console.warn('No valid perpetual data found in API response');
+          return [];
+        }
+
         // Sort by volume and take top 20 as "hot" perpetuals
-        const sortedByVolume = universe
-          .filter((item: any) => item.name && item.markPrice)
+        const sortedByVolume = validItems
           .sort((a: any, b: any) => {
             const volumeA = parseFloat(a.volume24h || 0);
             const volumeB = parseFloat(b.volume24h || 0);
@@ -107,16 +118,20 @@ export default function HotPerpetualsPage() {
           })
           .slice(0, 20);
 
+        console.log('Top 20 perpetuals by volume:', sortedByVolume);
+
         for (const item of sortedByVolume) {
           const price = parseFloat(item.markPrice || 0);
           const volume = parseFloat(item.volume24h || 0);
           const openInterest = parseFloat(item.openInterest || 0);
           
-          // Generate realistic price changes and volatility
-          const priceChangePercent = (Math.random() - 0.5) * 20; // -10% to +10%
+          // Use actual data from API, set defaults for missing fields
+          const priceChangePercent = parseFloat(item.priceChangePercent24h || 0);
           const priceChange = price * (priceChangePercent / 100);
-          const volatility = Math.random() * 5 + 1; // 1-6%
-          const fundingRate = (Math.random() - 0.5) * 0.002; // -0.1% to +0.1%
+          const volatility = parseFloat(item.volatility || 2.5); // Default volatility
+          const fundingRate = parseFloat(item.fundingRate || 0);
+          const high24h = parseFloat(item.high24h || price * 1.05);
+          const low24h = parseFloat(item.low24h || price * 0.95);
           
           perpetuals.push({
             symbol: item.name,
@@ -128,74 +143,25 @@ export default function HotPerpetualsPage() {
             openInterest: openInterest,
             fundingRate: fundingRate,
             nextFundingTime: Date.now() + (8 * 60 * 60 * 1000), // 8 hours from now
-            high24h: price * (1 + Math.random() * 0.1),
-            low24h: price * (1 - Math.random() * 0.1),
+            high24h: high24h,
+            low24h: low24h,
             volatility: volatility,
             isHot: true,
-            volumeChange24h: (Math.random() - 0.5) * 50, // -25% to +25%
-            openInterestChange24h: (Math.random() - 0.5) * 30 // -15% to +15%
+            volumeChange24h: parseFloat(item.volumeChange24h || 0),
+            openInterestChange24h: parseFloat(item.openInterestChange24h || 0)
           });
         }
+      } else {
+        console.warn('Invalid API response structure:', data);
       }
     } catch (error) {
       console.error('Error processing Hyperliquid data:', error);
     }
 
-    return perpetuals.length > 0 ? perpetuals : generateHotPerpetualsData();
+    return perpetuals;
   };
 
-  // Generate fallback hot perpetuals data
-  const generateHotPerpetualsData = (): PerpetualPair[] => {
-    const hotPairs = [
-      { symbol: 'BTC', name: 'Bitcoin', basePrice: 50000 },
-      { symbol: 'ETH', name: 'Ethereum', basePrice: 3200 },
-      { symbol: 'SOL', name: 'Solana', basePrice: 120 },
-      { symbol: 'MATIC', name: 'Polygon', basePrice: 0.8 },
-      { symbol: 'AVAX', name: 'Avalanche', basePrice: 35 },
-      { symbol: 'LINK', name: 'Chainlink', basePrice: 15 },
-      { symbol: 'UNI', name: 'Uniswap', basePrice: 8 },
-      { symbol: 'AAVE', name: 'Aave', basePrice: 250 },
-      { symbol: 'CRV', name: 'Curve', basePrice: 0.6 },
-      { symbol: 'SUSHI', name: 'SushiSwap', basePrice: 1.2 },
-      { symbol: 'COMP', name: 'Compound', basePrice: 60 },
-      { symbol: 'YFI', name: 'Yearn Finance', basePrice: 8000 },
-      { symbol: 'SNX', name: 'Synthetix', basePrice: 3.5 },
-      { symbol: 'BAL', name: 'Balancer', basePrice: 4.2 },
-      { symbol: 'REN', name: 'RenVM', basePrice: 0.1 },
-      { symbol: 'DOGE', name: 'Dogecoin', basePrice: 0.08 },
-      { symbol: 'SHIB', name: 'Shiba Inu', basePrice: 0.00001 },
-      { symbol: 'ADA', name: 'Cardano', basePrice: 0.5 },
-      { symbol: 'DOT', name: 'Polkadot', basePrice: 7 },
-      { symbol: 'LTC', name: 'Litecoin', basePrice: 70 }
-    ];
 
-    return hotPairs.map((pair, index) => {
-      const price = pair.basePrice * (0.9 + Math.random() * 0.2); // ±10% variation
-      const priceChangePercent = (Math.random() - 0.5) * 20; // -10% to +10%
-      const priceChange = price * (priceChangePercent / 100);
-      const volume = pair.basePrice * (1000000 + Math.random() * 5000000); // $1M-$6M base volume
-      const volatility = Math.random() * 5 + 1; // 1-6%
-      const fundingRate = (Math.random() - 0.5) * 0.002; // -0.1% to +0.1%
-
-      return {
-        symbol: pair.symbol,
-        name: pair.name,
-        currentPrice: price,
-        priceChange24h: priceChange,
-        priceChangePercent24h: priceChangePercent,
-        volume24h: volume,
-        openInterest: volume * (0.1 + Math.random() * 0.3), // 10-40% of volume
-        fundingRate: fundingRate,
-        nextFundingTime: Date.now() + (8 * 60 * 60 * 1000), // 8 hours from now
-        high24h: price * (1 + Math.random() * 0.1),
-        low24h: price * (1 - Math.random() * 0.1),
-        volatility: volatility,
-        isHot: index < 10, // Top 10 are "hot"
-        volumeChange24h: (Math.random() - 0.5) * 50, // -25% to +25%
-        openInterestChange24h: (Math.random() - 0.5) * 30 // -15% to +15%
-      };
-    });
-  };
 
   // Get token name from symbol
   const getTokenName = (symbol: string): string => {
@@ -529,12 +495,28 @@ export default function HotPerpetualsPage() {
           ))}
         </div>
 
-        {sortedPerpetuals.length === 0 && (
+        {error && (
+          <div className="text-center py-12">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h3 className="text-xl font-semibold text-white mb-2">Unable to Load Data</h3>
+            <p className="text-gray-400 mb-4 max-w-2xl mx-auto">
+              {error}
+            </p>
+            <button
+              onClick={fetchHotPerpetuals}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {!error && sortedPerpetuals.length === 0 && !loading && (
           <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">📊</div>
-            <h3 className="text-xl font-semibold text-white mb-2">No perpetual pairs found</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">No perpetual pairs available</h3>
             <p className="text-gray-400">
-              Try refreshing the page or check your connection
+              No active perpetual pairs found in the Hyperliquid API response
             </p>
           </div>
         )}
