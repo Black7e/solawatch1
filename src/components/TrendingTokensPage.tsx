@@ -6,6 +6,8 @@ import Footer from './Footer';
 import WalletModal from './WalletModal';
 import { TrendingToken } from '../services/solanaTrackerApi';
 import { useCart } from './CartProvider';
+import { useWallet } from '@solana/wallet-adapter-react';
+import QuickBuyModal from './QuickBuyModal';
 
 type SortBy = 'marketCap' | 'price' | 'change24h' | 'volume24h' | 'liquidity' | 'riskScore';
 
@@ -19,7 +21,10 @@ export default function TrendingTokensPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [limit] = useState(30); // Limit to control API costs
+  const [addingToCart, setAddingToCart] = useState<string | null>(null); // Track which token is being added
+  const [quickBuyToken, setQuickBuyToken] = useState<TrendingToken | null>(null);
   const { addToCart } = useCart();
+  const { connected, publicKey } = useWallet();
 
   const handleConnectWallet = () => {
     setWalletModalOpen(true);
@@ -113,16 +118,33 @@ export default function TrendingTokensPage() {
     fetchTrendingTokens();
   }, [limit]);
 
-  const handleAddToCart = (token: TrendingToken) => {
-    addToCart({
-      token: {
-        symbol: token.symbol,
-        name: token.name,
-        price: token.price,
-        mint: token.mint,
-        logo: token.image
-      }
-    });
+  const handleAddToCart = async (token: TrendingToken) => {
+    setAddingToCart(token.symbol);
+    
+    try {
+      // Add to cart with automatic weight calculation
+      addToCart({
+        token: {
+          symbol: token.symbol,
+          name: token.name,
+          mint: token.mint,
+          logo: token.image
+        }
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setAddingToCart(null);
+    }
+  };
+
+  const handleQuickBuy = (token: TrendingToken) => {
+    if (!connected || !publicKey) {
+      handleConnectWallet();
+      return;
+    }
+    
+    setQuickBuyToken(token);
   };
 
   const formatCurrency = (value: number) => {
@@ -479,21 +501,29 @@ export default function TrendingTokensPage() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleAddToCart(token)}
-                  className="flex-1 bg-x-purple hover:bg-x-purple-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              {/* Quick Buy and Add to Cart buttons at bottom */}
+              <div className="flex gap-2 mt-auto">
+                <button 
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md"
+                  onClick={() => handleQuickBuy(token)}
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  Add to Cart
+                  Quick Buy
                 </button>
-                <button
-                  onClick={() => window.open(`https://solscan.io/token/${token.mint}`, '_blank')}
-                  className="bg-x-bg-tertiary hover:bg-x-bg-quaternary text-x-text px-3 py-2 rounded-lg text-sm transition-colors"
-                  title="View on Solscan"
+                <button 
+                  className={`w-12 h-12 rounded-lg transition-all shadow-md flex items-center justify-center ${
+                    addingToCart === token.symbol 
+                      ? 'bg-gray-600 cursor-not-allowed' 
+                      : 'bg-gray-700 hover:bg-gray-600'
+                  } text-white font-semibold`}
+                  onClick={() => handleAddToCart(token)}
+                  disabled={addingToCart === token.symbol}
+                  title="Add to Cart"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  {addingToCart === token.symbol ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    <ShoppingCart className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -523,6 +553,7 @@ export default function TrendingTokensPage() {
         isOpen={walletModalOpen}
         onClose={handleCloseWalletModal}
       />
+      <QuickBuyModal open={!!quickBuyToken} onClose={() => setQuickBuyToken(null)} token={quickBuyToken} />
     </div>
   );
 } 
