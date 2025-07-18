@@ -119,9 +119,41 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 </div>
               </>
             )}
-                    </button>
-          
+            </button>
 
+            {/* Navigation Links */}
+            <nav className="hidden lg:flex items-center space-x-6">
+              <button
+                onClick={() => navigate('/hot-wallets')}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === '/hot-wallets' 
+                    ? 'text-x-purple' 
+                    : 'text-x-text-secondary hover:text-x-text'
+                }`}
+              >
+                Hot Wallets
+              </button>
+              <button
+                onClick={() => navigate('/trending-tokens')}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === '/trending-tokens' 
+                    ? 'text-x-purple' 
+                    : 'text-x-text-secondary hover:text-x-text'
+                }`}
+              >
+                Trending Tokens
+              </button>
+              <button
+                onClick={() => navigate('/top-traders')}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === '/top-traders' 
+                    ? 'text-x-purple' 
+                    : 'text-x-text-secondary hover:text-x-text'
+                }`}
+              >
+                Top Traders
+              </button>
+            </nav>
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
@@ -213,9 +245,43 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
       </div>
 
       {/* Mobile menu */}
-      {mobileMenuOpen && location.pathname === '/' && (
+      {mobileMenuOpen && (
         <div className="md:hidden bg-gray-900 border-t border-gray-800">
           <div className="px-4 pt-6 pb-6 flex flex-col items-center space-y-4">
+            {/* Navigation Links */}
+            <nav className="w-full space-y-2">
+              <button
+                onClick={() => { navigate('/hot-wallets'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                  location.pathname === '/hot-wallets' 
+                    ? 'bg-x-purple/20 text-x-purple' 
+                    : 'text-x-text-secondary hover:bg-x-bg-secondary'
+                }`}
+              >
+                Hot Wallets
+              </button>
+              <button
+                onClick={() => { navigate('/trending-tokens'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                  location.pathname === '/trending-tokens' 
+                    ? 'bg-x-purple/20 text-x-purple' 
+                    : 'text-x-text-secondary hover:bg-x-bg-secondary'
+                }`}
+              >
+                Trending Tokens
+              </button>
+              <button
+                onClick={() => { navigate('/top-traders'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                  location.pathname === '/top-traders' 
+                    ? 'bg-x-purple/20 text-x-purple' 
+                    : 'text-x-text-secondary hover:bg-x-bg-secondary'
+                }`}
+              >
+                Top Traders
+              </button>
+            </nav>
+
             {connected && publicKey ? (
               <>
                 <div className="flex items-center space-x-3">
