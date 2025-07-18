@@ -82,6 +82,14 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-6">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden flex items-center justify-center w-9 h-9 bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text rounded-lg font-medium border border-x-border text-sm"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
             <button 
               onClick={() => navigate('/')}
               className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
@@ -210,14 +218,23 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
           </div>
 
           <div className="md:hidden flex items-center gap-2 justify-end w-full">
-            {/* Wallet Button as menu opener (icon only, exactly desktop style) */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex items-center justify-center w-9 h-9 bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text rounded-lg font-medium border border-x-border text-sm"
-            >
-              {getWalletLogo()}
-            </button>
-            {/* Cart Button for mobile (icon only, desktop style) */}
+            {/* Wallet Button for mobile */}
+            {connected ? (
+              <button
+                onClick={() => setWalletDropdownOpen(!walletDropdownOpen)}
+                className="flex items-center justify-center w-9 h-9 bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text rounded-lg font-medium border border-x-border text-sm"
+              >
+                {getWalletLogo()}
+              </button>
+            ) : (
+              <button
+                onClick={onConnectWallet}
+                className="flex items-center justify-center w-9 h-9 bg-x-purple hover:bg-x-purple-hover text-white rounded-lg font-medium text-sm"
+              >
+                {getWalletLogo()}
+              </button>
+            )}
+            {/* Cart Button for mobile */}
             <button
               ref={cartButtonRef}
               className="relative bg-x-purple text-white w-9 h-9 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30"
