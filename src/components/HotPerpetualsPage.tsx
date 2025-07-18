@@ -99,20 +99,22 @@ export default function HotPerpetualsPage() {
         return [];
       }
 
-      console.log('Processing universe data:', universe);
-      console.log('First item structure:', universe[0]);
+              console.log('Processing universe data:', universe);
+        console.log('First item structure:', universe[0]);
+        console.log('Available fields in first item:', Object.keys(universe[0] || {}));
         
       // Filter and process only items with valid data
       const validItems = universe.filter((item: any) => {
         const hasName = item.name || item.symbol;
         const hasPrice = item.markPrice || item.price;
-        const hasVolume = item.volume24h || item.volume;
         
-        return hasName && 
-               hasPrice && 
-               parseFloat(hasPrice) > 0 &&
-               hasVolume && 
-               parseFloat(hasVolume) > 0;
+        // Log the first few items to understand the structure
+        if (universe.indexOf(item) < 3) {
+          console.log('Item structure:', item);
+        }
+        
+        // Be more lenient - only require name and price
+        return hasName && hasPrice && parseFloat(hasPrice) > 0;
       });
 
       if (validItems.length === 0) {
@@ -125,8 +127,9 @@ export default function HotPerpetualsPage() {
       // Sort by volume and take top 20 as "hot" perpetuals
       const sortedByVolume = validItems
         .sort((a: any, b: any) => {
-          const volumeA = parseFloat(a.volume24h || a.volume || 0);
-          const volumeB = parseFloat(b.volume24h || b.volume || 0);
+          // Try different volume field names
+          const volumeA = parseFloat(a.volume24h || a.volume || a.vol24h || a.vol || 0);
+          const volumeB = parseFloat(b.volume24h || b.volume || b.vol24h || b.vol || 0);
           return volumeB - volumeA;
         })
         .slice(0, 20);
@@ -136,7 +139,7 @@ export default function HotPerpetualsPage() {
       for (const item of sortedByVolume) {
         const symbol = item.name || item.symbol;
         const price = parseFloat(item.markPrice || item.price || 0);
-        const volume = parseFloat(item.volume24h || item.volume || 0);
+        const volume = parseFloat(item.volume24h || item.volume || item.vol24h || item.vol || 0);
         const openInterest = parseFloat(item.openInterest || 0);
         
         // Use actual data from API, set defaults for missing fields
