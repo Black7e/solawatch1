@@ -17,6 +17,7 @@ import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
 import CopyTradingPage from './components/CopyTradingPage';
 import HyperliquidLeaderboardPage from './components/HyperliquidLeaderboardPage';
 import FuturesGridBot from './components/FuturesGridBot';
+import HotPerpetualsPage from './components/HotPerpetualsPage';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -127,6 +128,7 @@ function App() {
                 <Route path="/copy-trading" element={<CopyTradingPage />} />
                 <Route path="/leaderboard" element={<HyperliquidLeaderboardPage />} />
                 <Route path="/futures-grid" element={<FuturesGridBot />} />
+                <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
               </Routes>
             </div>
           </Suspense>
