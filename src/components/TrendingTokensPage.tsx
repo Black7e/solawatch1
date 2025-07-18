@@ -302,75 +302,180 @@ export default function TrendingTokensPage() {
           </div>
         </div>
 
-        {/* Tokens Grid */}
+                {/* Tokens Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedTokens.map((token, index) => (
             <div
               key={token.mint}
               className="bg-x-bg-secondary border border-x-border rounded-lg p-6 hover:border-x-border-light transition-all duration-200 hover:shadow-lg"
             >
+              {/* Risk tags in top right */}
+              {token.riskData && (
+                <div className="flex flex-wrap gap-1 justify-end z-10 mb-4">
+                  {token.riskData.jupiterVerified && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900/50 text-green-400 border border-green-500/30 cursor-help">
+                        ✓
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700">
+                        Jupiter DEX Verified Token
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                  {token.riskData.rugged && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900/50 text-red-400 border border-red-500/30 cursor-help">
+                        ⚠ Rugged
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700">
+                        Token has been rugged (liquidity removed)
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                  {token.riskData.snipers.count > 0 && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-900/50 text-orange-400 border border-orange-500/30 cursor-help">
+                        🎯 {token.riskData.snipers.count}
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700">
+                        {token.riskData.snipers.count} sniper wallets detected
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                  {token.riskData.insiders.count > 0 && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-900/50 text-purple-400 border border-purple-500/30 cursor-help">
+                        👥 {token.riskData.insiders.count}
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700">
+                        {token.riskData.insiders.count} insider wallets detected
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                  {token.riskData.top10 > 50 && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-900/50 text-yellow-400 border border-yellow-500/30 cursor-help">
+                        🔝 {token.riskData.top10}%
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700">
+                        {token.riskData.top10}% held by top 10 wallets
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                  {token.riskData.risks.length > 0 && (
+                    <div className="relative group">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900/50 text-red-400 border border-red-500/30 cursor-help">
+                        ⚠ {token.riskData.risks.length}
+                      </span>
+                      <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 border border-gray-700 max-w-xs">
+                        <div className="font-semibold mb-1">Risk Factors:</div>
+                        {token.riskData.risks.map((risk, idx) => {
+                          if (typeof risk === 'object' && risk !== null) {
+                            const r = risk as { name?: string; description?: string };
+                            return (
+                              <div key={idx} className="text-gray-300">
+                                • {r.name || r.description || JSON.stringify(r)}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={idx} className="text-gray-300">
+                              • {String(risk)}
+                            </div>
+                          );
+                        })}
+                        <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Token Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-x-bg-tertiary rounded-full flex items-center justify-center">
-                    <img 
-                      src={token.image} 
-                      alt={token.symbol}
-                      className="w-8 h-8 rounded-full"
-                      onError={(e) => {
-                        e.currentTarget.src = '/unknown-logo.png';
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <p className="text-x-text font-medium">{token.symbol}</p>
-                    <p className="text-x-text-secondary text-xs">{token.name}</p>
-                  </div>
-                </div>
-                                 <div className="flex items-center gap-2">
-                   {token.riskData?.jupiterVerified && (
-                     <CheckCircle className="w-4 h-4 text-green-400" />
-                   )}
-                   {token.riskData?.rugged && (
-                     <AlertTriangle className="w-4 h-4 text-red-400" />
-                   )}
-                 </div>
-              </div>
-
-              {/* Price and Change */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-x-text-secondary text-sm">Price</span>
-                  <span className="font-bold text-x-text">{formatPrice(token.price)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-x-text-secondary text-sm">24h Change</span>
-                  <span className={`font-bold flex items-center gap-1 ${token.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    <TrendingUp className={`w-4 h-4 ${token.change24h < 0 ? 'rotate-180' : ''}`} />
-                    {token.change24h >= 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src={token.image}
+                  alt={token.name}
+                  className="w-12 h-12 rounded-full bg-gray-700 border border-gray-600 object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/unknown-logo.png';
+                  }}
+                />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-white font-bold text-lg leading-tight truncate">{token.name}</span>
+                  <span className="text-gray-400 text-sm font-medium">
+                    ${token.marketCap > 1000000 
+                      ? (token.marketCap / 1000000).toFixed(1) + 'M' 
+                      : token.marketCap > 1000 
+                        ? (token.marketCap / 1000).toFixed(1) + 'K' 
+                        : token.marketCap.toFixed(0)
+                    } MC
                   </span>
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-x-text-secondary text-xs">Market Cap</span>
-                  <span className="text-x-text text-sm font-medium">{formatCurrency(token.marketCap)}</span>
+              {/* Price and Volume */}
+              <div className="flex justify-between items-end mb-4 gap-4">
+                <div className="flex-1">
+                  <div className="text-gray-300 text-sm mb-1">24hr Volume</div>
+                  <div className="text-green-400 text-2xl font-bold">
+                    ${token.volume24h > 1000000 
+                      ? (token.volume24h / 1000000).toFixed(1) + 'M' 
+                      : token.volume24h > 1000 
+                        ? (token.volume24h / 1000).toFixed(1) + 'K' 
+                        : token.volume24h.toFixed(0)
+                    }
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-x-text-secondary text-xs">24h Volume</span>
-                  <span className="text-x-text text-sm font-medium">{formatCurrency(token.volume24h)}</span>
+                <div className="flex-1 text-right">
+                  <div className="text-gray-300 text-sm mb-1">24hr Change</div>
+                  <div className={`text-2xl font-bold ${token.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}> 
+                    {token.change24h > 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-x-text-secondary text-xs">Liquidity</span>
-                  <span className="text-x-text text-sm font-medium">{formatCurrency(token.liquidity)}</span>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-4 w-full pt-2 text-sm mb-4">
+                <div>
+                  <div className="text-gray-400 text-xs mb-0.5">Price</div>
+                  <div className="text-white font-semibold">
+                    ${token.price < 0.01 
+                      ? token.price.toFixed(6) 
+                      : token.price < 1 
+                        ? token.price.toFixed(4) 
+                        : token.price.toFixed(2)
+                    }
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-x-text-secondary text-xs">Risk Score</span>
-                  <span className={`text-sm font-medium ${getRiskColor(token.riskScore)}`}>
-                    {getRiskLabel(token.riskScore)} ({token.riskScore})
-                  </span>
+                <div>
+                  <div className="text-gray-400 text-xs mb-0.5">Liquidity</div>
+                  <div className="text-white font-semibold">
+                    ${token.liquidity > 1000000 
+                      ? (token.liquidity / 1000000).toFixed(1) + 'M' 
+                      : token.liquidity > 1000 
+                        ? (token.liquidity / 1000).toFixed(1) + 'K' 
+                        : token.liquidity.toFixed(0)
+                    }
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-400 text-xs mb-0.5">Total Txns</div>
+                  <div className="text-white font-semibold">
+                    {token.txns !== undefined
+                      ? token.txns > 1000000
+                        ? (token.txns / 1000000).toFixed(1) + 'M'
+                        : token.txns > 1000
+                          ? (token.txns / 1000).toFixed(1) + 'K'
+                          : token.txns.toString()
+                      : '--'}
+                  </div>
                 </div>
               </div>
 
@@ -391,18 +496,6 @@ export default function TrendingTokensPage() {
                   <ExternalLink className="w-4 h-4" />
                 </button>
               </div>
-
-              {/* Risk Warnings */}
-              {token.riskData && token.riskData.risks.length > 0 && (
-                <div className="mt-4 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
-                  <p className="text-red-400 text-xs font-medium mb-2">Risk Warnings:</p>
-                  <ul className="text-red-300 text-xs space-y-1">
-                    {token.riskData.risks.slice(0, 3).map((risk, idx) => (
-                      <li key={idx}>• {risk}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           ))}
         </div>
