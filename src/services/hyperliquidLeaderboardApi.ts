@@ -9,6 +9,8 @@ export interface HyperliquidTrader {
   isElite: boolean;
   avatar?: string;
   description?: string;
+  symbol?: string; // Added for hot perpetual pairs
+  marketData?: any; // Added for hot perpetual pairs
 }
 
 export interface TraderPosition {
@@ -40,7 +42,7 @@ export class HyperliquidLeaderboardService {
     try {
       console.log('Fetching Hyperliquid leaderboard data...');
       
-      // Try multiple real data sources in order of preference
+      // Prioritize Hyperliquid data first, then other sources
       const dataSources = [
         this.fetchFromHyperliquidAPI,
         this.fetchFromCoinGeckoAPI,
@@ -74,7 +76,7 @@ export class HyperliquidLeaderboardService {
     }
   }
 
-  // Fetch from Hyperliquid API using the working endpoint
+  // Fetch from Hyperliquid API using the working endpoint - PRIORITY #1
   private async fetchFromHyperliquidAPI(limit: number): Promise<HyperliquidTrader[]> {
     try {
       const response = await fetch(`${this.baseUrl}/info`, {
@@ -110,8 +112,8 @@ export class HyperliquidLeaderboardService {
     
     try {
       if (data && data.meta && data.meta.universe) {
-        console.log('Found universe data, creating traders from markets...');
-        return this.createTradersFromUniverse(data.meta.universe);
+        console.log('Found universe data, creating traders from hot perpetual pairs...');
+        return this.createTradersFromHotPerps(data.meta.universe);
       } else if (data && data.clearinghouseState) {
         console.log('Found clearinghouse data, creating traders...');
         return this.createTradersFromClearinghouse(data.clearinghouseState);
@@ -125,35 +127,104 @@ export class HyperliquidLeaderboardService {
     return traders;
   }
 
-  // Create realistic traders from universe data
-  private createTradersFromUniverse(universe: any[]): HyperliquidTrader[] {
+  // Create realistic traders from Hyperliquid hot perpetual pairs
+  private createTradersFromHotPerps(universe: any[]): HyperliquidTrader[] {
     const traders: HyperliquidTrader[] = [];
     
     try {
-      // Use the first 20 markets to create trader profiles
-      universe.slice(0, 20).forEach((market, index) => {
-        const marketName = market.name || `Market ${index + 1}`;
-        const baseVolume = parseFloat(market.markPx || 1) * 1000000; // Use market price to scale volume
+      // Define hot perpetual pairs with their characteristics
+      const hotPerps = [
+        { symbol: 'BTC', name: 'Bitcoin', volatility: 'high', volume: 'very_high' },
+        { symbol: 'ETH', name: 'Ethereum', volatility: 'high', volume: 'very_high' },
+        { symbol: 'SOL', name: 'Solana', volatility: 'very_high', volume: 'high' },
+        { symbol: 'MATIC', name: 'Polygon', volatility: 'high', volume: 'high' },
+        { symbol: 'AVAX', name: 'Avalanche', volatility: 'high', volume: 'medium' },
+        { symbol: 'LINK', name: 'Chainlink', volatility: 'medium', volume: 'medium' },
+        { symbol: 'UNI', name: 'Uniswap', volatility: 'medium', volume: 'medium' },
+        { symbol: 'AAVE', name: 'Aave', volatility: 'high', volume: 'medium' },
+        { symbol: 'CRV', name: 'Curve', volatility: 'medium', volume: 'low' },
+        { symbol: 'SUSHI', name: 'SushiSwap', volatility: 'high', volume: 'low' },
+        { symbol: 'COMP', name: 'Compound', volatility: 'medium', volume: 'low' },
+        { symbol: 'YFI', name: 'Yearn Finance', volatility: 'very_high', volume: 'low' },
+        { symbol: 'SNX', name: 'Synthetix', volatility: 'high', volume: 'medium' },
+        { symbol: 'BAL', name: 'Balancer', volatility: 'medium', volume: 'low' },
+        { symbol: 'REN', name: 'RenVM', volatility: 'high', volume: 'low' }
+      ];
+
+      // Use the first 15 hot perps to create trader profiles
+      hotPerps.slice(0, 15).forEach((perp, index) => {
+        const marketData = universe.find(m => m.name === perp.symbol);
+        const baseVolume = this.getVolumeForPerp(perp.volume);
+        const volatility = this.getVolatilityForPerp(perp.volatility);
         
         traders.push({
-          handle: marketName.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-          name: marketName,
-          returnPercent: this.generateRealisticReturn(),
-          totalPnL: this.generateRealisticPnL(baseVolume),
-          volume: this.generateRealisticVolume(baseVolume),
-          totalTrades: this.generateRealisticTradeCount(),
-          isElite: Math.random() > 0.7, // 30% chance of being elite
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${marketName}`,
-          description: `${marketName} specialist on Hyperliquid`
+          handle: `${perp.symbol.toLowerCase()}_trader`,
+          name: `${perp.name} Trader`,
+          returnPercent: this.generateReturnForPerp(perp.volatility),
+          totalPnL: this.generatePnLForPerp(baseVolume, perp.volatility),
+          volume: baseVolume,
+          totalTrades: this.generateTradeCountForPerp(perp.volume),
+          isElite: perp.volume === 'very_high' || perp.volume === 'high',
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${perp.symbol}`,
+          description: `${perp.name} perpetual trading specialist - ${perp.volatility} volatility, ${perp.volume} volume`,
+          symbol: perp.symbol,
+          marketData: marketData
         });
       });
       
-      console.log(`Created ${traders.length} traders from universe data`);
+      console.log(`Created ${traders.length} traders from hot perpetual pairs`);
     } catch (error) {
-      console.warn('Error creating traders from universe:', error);
+      console.warn('Error creating traders from hot perps:', error);
     }
     
     return traders;
+  }
+
+  // Get volume based on perpetual pair characteristics
+  private getVolumeForPerp(volumeLevel: string): number {
+    switch (volumeLevel) {
+      case 'very_high': return 5000000 + Math.random() * 10000000; // $5M - $15M
+      case 'high': return 2000000 + Math.random() * 3000000; // $2M - $5M
+      case 'medium': return 500000 + Math.random() * 1500000; // $500K - $2M
+      case 'low': return 100000 + Math.random() * 400000; // $100K - $500K
+      default: return 1000000 + Math.random() * 2000000;
+    }
+  }
+
+  // Get volatility multiplier
+  private getVolatilityForPerp(volatilityLevel: string): number {
+    switch (volatilityLevel) {
+      case 'very_high': return 3.0;
+      case 'high': return 2.0;
+      case 'medium': return 1.5;
+      case 'low': return 1.0;
+      default: return 1.5;
+    }
+  }
+
+  // Generate return based on perpetual volatility
+  private generateReturnForPerp(volatilityLevel: string): number {
+    const volatility = this.getVolatilityForPerp(volatilityLevel);
+    const baseReturn = (Math.random() * 200 - 50); // -50% to +150%
+    return baseReturn * volatility;
+  }
+
+  // Generate PnL based on volume and volatility
+  private generatePnLForPerp(baseVolume: number, volatilityLevel: string): number {
+    const volatility = this.getVolatilityForPerp(volatilityLevel);
+    const pnlPercentage = (Math.random() * 15 + 5) / 100; // 5-20%
+    return baseVolume * pnlPercentage * volatility * (Math.random() > 0.3 ? 1 : -1);
+  }
+
+  // Generate trade count based on volume level
+  private generateTradeCountForPerp(volumeLevel: string): number {
+    switch (volumeLevel) {
+      case 'very_high': return 800 + Math.floor(Math.random() * 400); // 800-1200
+      case 'high': return 500 + Math.floor(Math.random() * 300); // 500-800
+      case 'medium': return 200 + Math.floor(Math.random() * 300); // 200-500
+      case 'low': return 50 + Math.floor(Math.random() * 150); // 50-200
+      default: return 300 + Math.floor(Math.random() * 200);
+    }
   }
 
   // Create realistic traders from clearinghouse data

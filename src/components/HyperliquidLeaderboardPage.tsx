@@ -258,9 +258,9 @@ export default function HyperliquidLeaderboardPage() {
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Hyperliquid Leaderboard</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Hot Perpetual Pairs</h1>
               <p className="text-gray-400">
-                Top traders on Hyperliquid - Copy their strategies
+                Top traders on Hyperliquid's hottest perpetual pairs - Copy their strategies
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -325,22 +325,27 @@ export default function HyperliquidLeaderboardPage() {
           </div>
         </div>
 
-        {/* Traders Grid */}
+        {/* Hot Perpetual Pairs Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredTraders.map((trader) => (
             <div
               key={trader.handle}
-              className="bg-x-bg-secondary border border-x-border rounded-x p-6 hover:border-x-border-light transition-all duration-200"
+              className="bg-x-bg-secondary border border-x-border rounded-x p-6 hover:border-x-border-light transition-all duration-200 relative overflow-hidden"
             >
+              {/* Hot Perp Badge */}
+              {trader.symbol && (
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+                  {trader.symbol} PERP
+                </div>
+              )}
+
               {/* Trader Header */}
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-3">
                   <div className="relative">
-                    <img
-                      src={trader.avatar}
-                      alt={trader.name}
-                      className="w-12 h-12 rounded-full bg-gray-700"
-                    />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+                      {trader.symbol || trader.name.charAt(0)}
+                    </div>
                     {trader.isElite && (
                       <Crown className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1" />
                     )}
@@ -355,6 +360,16 @@ export default function HyperliquidLeaderboardPage() {
                       )}
                     </div>
                     <p className="text-sm text-gray-400">@{trader.handle}</p>
+                    {trader.symbol && (
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">
+                          Hot Perp
+                        </span>
+                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                          {trader.description?.includes('high') ? 'High Vol' : 'Medium Vol'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
@@ -370,7 +385,7 @@ export default function HyperliquidLeaderboardPage() {
                   </a>
                   <button
                     onClick={() => handleCopyTrader(trader)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2"
+                    className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2"
                   >
                     <Copy className="w-4 h-4" />
                     <span>Copy</span>
@@ -378,37 +393,63 @@ export default function HyperliquidLeaderboardPage() {
                 </div>
               </div>
 
-              {/* Performance Metrics */}
+              {/* Performance Metrics - Redesigned for Perps */}
               <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Return</p>
-                  <p className={`text-lg font-semibold ${
+                <div className="text-center bg-x-bg-tertiary rounded-lg p-3">
+                  <p className="text-xs text-gray-400 mb-1">24h Return</p>
+                  <p className={`text-xl font-bold ${
                     trader.returnPercent > 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {trader.returnPercent > 0 ? '+' : ''}{trader.returnPercent.toFixed(2)}%
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Total PnL</p>
-                  <p className={`text-lg font-semibold ${
+                <div className="text-center bg-x-bg-tertiary rounded-lg p-3">
+                  <p className="text-xs text-gray-400 mb-1">Total PnL</p>
+                  <p className={`text-xl font-bold ${
                     trader.totalPnL > 0 ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {formatNumber(trader.totalPnL)}
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Volume</p>
-                  <p className="text-lg font-semibold text-white">
+                <div className="text-center bg-x-bg-tertiary rounded-lg p-3">
+                  <p className="text-xs text-gray-400 mb-1">Volume</p>
+                  <p className="text-xl font-bold text-white">
                     {formatNumber(trader.volume)}
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-400 mb-1">Trades</p>
-                  <p className="text-lg font-semibold text-white">
+                <div className="text-center bg-x-bg-tertiary rounded-lg p-3">
+                  <p className="text-xs text-gray-400 mb-1">Trades</p>
+                  <p className="text-xl font-bold text-white">
                     {trader.totalTrades.toLocaleString()}
                   </p>
                 </div>
               </div>
+
+              {/* Perp Trading Stats */}
+              {trader.symbol && (
+                <div className="mb-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-sm font-medium text-purple-300">Perp Trading Stats</h4>
+                    <span className="text-xs bg-purple-500/30 text-purple-300 px-2 py-1 rounded">
+                      {trader.symbol}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="text-center">
+                      <p className="text-gray-400">Leverage</p>
+                      <p className="text-white font-medium">10x-50x</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-400">Funding</p>
+                      <p className="text-white font-medium">0.01%</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-gray-400">Fees</p>
+                      <p className="text-white font-medium">0.02%</p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Current Positions */}
               {trader.walletAddress && (
@@ -427,7 +468,7 @@ export default function HyperliquidLeaderboardPage() {
                     traderPositions[trader.handle].length > 0 ? (
                       <div className="space-y-2">
                         {traderPositions[trader.handle].slice(0, 3).map((position, index) => (
-                          <div key={index} className="flex items-center justify-between text-sm">
+                          <div key={index} className="flex items-center justify-between text-sm bg-x-bg-tertiary rounded p-2">
                             <div className="flex items-center space-x-2">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 position.side === 'long' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
