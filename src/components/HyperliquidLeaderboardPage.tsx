@@ -258,9 +258,9 @@ export default function HyperliquidLeaderboardPage() {
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-white mb-2">Hot Perpetual Pairs</h1>
+              <h1 className="text-3xl font-bold text-white mb-2">Auto-Trade Bots</h1>
               <p className="text-gray-400">
-                Top traders on Hyperliquid's hottest perpetual pairs - Copy their strategies
+                Automated trading bots for Hyperliquid's hottest perpetual pairs - Copy their strategies
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -325,26 +325,26 @@ export default function HyperliquidLeaderboardPage() {
           </div>
         </div>
 
-        {/* Hot Perpetual Pairs Grid */}
+        {/* Auto-Trade Bots Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredTraders.map((trader) => (
             <div
               key={trader.handle}
               className="bg-x-bg-secondary border border-x-border rounded-x p-6 hover:border-x-border-light transition-all duration-200 relative overflow-hidden"
             >
-              {/* Hot Perp Badge */}
+              {/* Perpetual Pair Name at Top */}
               {trader.symbol && (
-                <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
-                  {trader.symbol} PERP
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-sm font-bold text-center">
+                  {trader.symbol}/USDT Perpetual
                 </div>
               )}
 
-              {/* Trader Header */}
-              <div className="flex items-start justify-between mb-4">
+              {/* Bot Header */}
+              <div className="flex items-start justify-between mb-4 pt-8">
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
-                      {trader.symbol || trader.name.charAt(0)}
+                      🤖
                     </div>
                     {trader.isElite && (
                       <Crown className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1" />
@@ -359,11 +359,11 @@ export default function HyperliquidLeaderboardPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400">@{trader.handle}</p>
+                    <p className="text-sm text-gray-400">Auto-Trade Bot</p>
                     {trader.symbol && (
                       <div className="flex items-center space-x-2 mt-1">
                         <span className="text-xs bg-purple-500/20 text-purple-400 px-2 py-1 rounded">
-                          Hot Perp
+                          Automated
                         </span>
                         <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
                           {trader.description?.includes('high') ? 'High Vol' : 'Medium Vol'}
@@ -425,27 +425,27 @@ export default function HyperliquidLeaderboardPage() {
                 </div>
               </div>
 
-              {/* Perp Trading Stats */}
+              {/* Bot Trading Stats */}
               {trader.symbol && (
                 <div className="mb-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-3 border border-purple-500/20">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-medium text-purple-300">Perp Trading Stats</h4>
+                    <h4 className="text-sm font-medium text-purple-300">Bot Configuration</h4>
                     <span className="text-xs bg-purple-500/30 text-purple-300 px-2 py-1 rounded">
                       {trader.symbol}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
-                      <p className="text-gray-400">Leverage</p>
-                      <p className="text-white font-medium">10x-50x</p>
+                      <p className="text-gray-400">Strategy</p>
+                      <p className="text-white font-medium">Grid Bot</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-gray-400">Funding</p>
-                      <p className="text-white font-medium">0.01%</p>
+                      <p className="text-gray-400">Risk Level</p>
+                      <p className="text-white font-medium">Medium</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-gray-400">Fees</p>
-                      <p className="text-white font-medium">0.02%</p>
+                      <p className="text-gray-400">Auto-Rebalance</p>
+                      <p className="text-white font-medium">Yes</p>
                     </div>
                   </div>
                 </div>
