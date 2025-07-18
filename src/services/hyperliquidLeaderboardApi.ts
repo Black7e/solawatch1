@@ -157,7 +157,7 @@ export class HyperliquidLeaderboardService {
         const baseVolume = this.getVolumeForPerp(perp.volume);
         const volatility = this.getVolatilityForPerp(perp.volatility);
         
-        traders.push({
+        const trader = {
           handle: `${perp.symbol.toLowerCase()}_trader`,
           name: `${perp.name} Trader`,
           returnPercent: this.generateReturnForPerp(perp.volatility),
@@ -169,7 +169,10 @@ export class HyperliquidLeaderboardService {
           description: `${perp.name} perpetual trading specialist - ${perp.volatility} volatility, ${perp.volume} volume`,
           symbol: perp.symbol,
           marketData: marketData
-        });
+        };
+        
+        console.log(`Created trader for ${perp.symbol}:`, trader);
+        traders.push(trader);
       });
       
       console.log(`Created ${traders.length} traders from hot perpetual pairs`);

@@ -43,6 +43,8 @@ export default function HyperliquidLeaderboardPage() {
       setError(null);
 
       const tradersData = await service.getLeaderboard(50);
+      console.log('Received traders data:', tradersData);
+      console.log('First trader symbol:', tradersData[0]?.symbol);
       setTraders(tradersData);
       setLastRefresh(new Date());
 
@@ -333,9 +335,13 @@ export default function HyperliquidLeaderboardPage() {
               className="bg-x-bg-secondary border border-x-border rounded-x p-6 hover:border-x-border-light transition-all duration-200 relative overflow-hidden"
             >
               {/* Perpetual Pair Name at Top */}
-              {trader.symbol && (
+              {trader.symbol ? (
                 <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-sm font-bold text-center">
                   {trader.symbol}/USDT Perpetual
+                </div>
+              ) : (
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-sm font-bold text-center">
+                  {trader.name.split(' ')[0]}/USDT Perpetual
                 </div>
               )}
 
