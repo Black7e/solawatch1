@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Play, TrendingUp, Users, Zap, Target, Copy, Shield, Mail, Twitter, MessageCircle, ExternalLink } from 'lucide-react';
+import { ArrowRight, Play, TrendingUp, Users, Zap, Shield, Mail, Twitter, MessageCircle, ExternalLink, Rocket } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WalletModal from './WalletModal';
+import { BonkApiService, BonkMarketData } from '../services/bonkApi';
 
 export default function BonkPage() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [email, setEmail] = useState('');
+
+  
+  // Market data state
+  const [marketData, setMarketData] = useState<BonkMarketData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
+
+  const bonkApi = new BonkApiService();
 
   const handleConnectWallet = () => {
     setWalletModalOpen(true);
@@ -29,25 +37,30 @@ export default function BonkPage() {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleEmailSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle email signup logic here
-    console.log('Email signup:', email);
-    setEmail('');
+
+
+  const fetchMarketData = async () => {
+    try {
+      setIsLoading(true);
+      setErrors({});
+      
+      const marketData = await bonkApi.getBonkMarketData();
+      setMarketData(marketData);
+    } catch (error) {
+      console.error('Failed to fetch market data:', error);
+      setErrors(prev => ({ ...prev, market: 'Failed to fetch market data' }));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Mock data for live feed
-  const mockTrendingWallets = [
-    { address: '0x1234...5678', change: '+45.2%', volume: '$2.4M' },
-    { address: '0x8765...4321', change: '+23.8%', volume: '$1.8M' },
-    { address: '0x9876...5432', change: '+67.1%', volume: '$3.2M' },
-  ];
-
-  const mockTopSwaps = [
-    { token: 'BONK', action: 'BUY', amount: '$50K', time: '2 min ago' },
-    { token: 'BONK', action: 'SELL', amount: '$25K', time: '5 min ago' },
-    { token: 'BONK', action: 'BUY', amount: '$75K', time: '8 min ago' },
-  ];
+  useEffect(() => {
+    fetchMarketData();
+    
+    // Auto-refresh every 60 seconds
+    const interval = setInterval(fetchMarketData, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-x-bg">
@@ -66,7 +79,7 @@ export default function BonkPage() {
               <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">🐕</span>
               </div>
-              <span className="text-orange-400 font-semibold text-sm">BONK PARTNERSHIP</span>
+              <span className="text-orange-400 font-semibold text-sm">Damn, Let's BONK ❗️❗️❗️</span>
             </div>
 
             {/* Headline */}
@@ -87,22 +100,40 @@ export default function BonkPage() {
               Built for new traders entering Solana. Follow what top wallets are buying, starting with BONK.
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                onClick={handleLaunchApp}
-                className="bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <Play className="w-5 h-5" />
-                Launch App
-              </button>
-              <button
-                onClick={handleLearnMore}
-                className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center gap-2 border border-x-border hover:border-x-border-light"
-              >
-                Learn How It Works
-                <ArrowRight className="w-5 h-5" />
-              </button>
+            {/* Token Card */}
+            <div className="flex justify-center mb-8">
+              <div className="relative w-64 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-3xl p-0.5 shadow-2xl">
+                <div className="w-full bg-black rounded-3xl overflow-hidden">
+                  {/* Main image area */}
+                  <div className="w-64 h-64 bg-gray-900/50 border-b border-white/20 flex items-center justify-center p-4">
+                    <img 
+                      src="/soladog3.png" 
+                      alt="Soladog Logo" 
+                      className="w-full h-full object-contain rounded-xl"
+                    />
+                  </div>
+                  
+                  {/* Bottom section */}
+                  <div className="bg-black p-4 relative">
+                    <div className="flex items-start justify-between mb-12">
+                      <div className="flex flex-col items-start">
+                        <h3 className="text-white text-xl font-bold mb-1">$•••••</h3>
+                        <p className="text-gray-400 text-sm">A solawatch's memecoin</p>
+                      </div>
+                      
+                      <div className="flex flex-col items-end space-y-2">
+                        <ArrowRight className="w-5 h-5 text-orange-400" />
+                        <span className="text-2xl">🚀</span>
+                      </div>
+                    </div>
+                    
+                    {/* Quick Buy Button */}
+                    <button className="w-full bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl">
+                      Quick Buy Coming Soon
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -114,54 +145,7 @@ export default function BonkPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-x-bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-x-text mb-4">
-              How It Works
-            </h2>
-            <p className="text-x-text-secondary text-lg max-w-2xl mx-auto">
-              Three simple steps to start tracking smart money on Solana
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Step 1 */}
-            <div className="text-center p-8 bg-x-bg rounded-lg border border-x-border hover:border-orange-500/30 transition-all duration-200">
-              <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white font-bold text-2xl">1</span>
-              </div>
-              <h3 className="text-xl font-bold text-x-text mb-4">Enter a wallet or pick from trending wallets</h3>
-              <p className="text-x-text-secondary">
-                Start with any wallet address or choose from our curated list of top-performing traders
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center p-8 bg-x-bg rounded-lg border border-x-border hover:border-purple-500/30 transition-all duration-200">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white font-bold text-2xl">2</span>
-              </div>
-              <h3 className="text-xl font-bold text-x-text mb-4">See what they hold, swap, or farm</h3>
-              <p className="text-x-text-secondary">
-                Get real-time insights into their portfolio, recent trades, and yield farming strategies
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center p-8 bg-x-bg rounded-lg border border-x-border hover:border-orange-500/30 transition-all duration-200">
-              <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white font-bold text-2xl">3</span>
-              </div>
-              <h3 className="text-xl font-bold text-x-text mb-4">Copy smart moves, avoid dumb ones</h3>
-              <p className="text-x-text-secondary">
-                Follow successful strategies and learn from mistakes with our risk analysis
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Why BONK Section */}
       <section className="py-20 bg-x-bg">
@@ -174,6 +158,41 @@ export default function BonkPage() {
               The perfect partnership for tracking smart money on Solana
             </p>
           </div>
+
+          {/* Market Overview */}
+          {marketData ? (
+            <div className="mb-12 bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-lg border border-orange-500/20 p-6">
+              <h3 className="text-xl font-bold text-x-text mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-orange-500" />
+                BONK Market Overview
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <p className="text-x-text-secondary text-sm">Price</p>
+                  <p className="text-x-text font-bold text-lg">${marketData.price.toFixed(8)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-x-text-secondary text-sm">24h Change</p>
+                  <p className={`font-bold text-lg ${marketData.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {bonkApi.formatPercentage(marketData.change24h)}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-x-text-secondary text-sm">24h Volume</p>
+                  <p className="text-x-text font-bold text-lg">{bonkApi.formatCurrency(marketData.volume24h)}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-x-text-secondary text-sm">Market Cap</p>
+                  <p className="text-x-text font-bold text-lg">{bonkApi.formatCurrency(marketData.marketCap)}</p>
+                </div>
+              </div>
+            </div>
+          ) : errors.market && (
+            <div className="mb-12 bg-red-500/10 rounded-lg border border-red-500/20 p-6">
+              <h3 className="text-xl font-bold text-red-400 mb-2">Market Data Error</h3>
+              <p className="text-red-300 text-sm">{errors.market}</p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Viral Token */}
@@ -212,147 +231,66 @@ export default function BonkPage() {
         </div>
       </section>
 
-      {/* Live Feed Section */}
-      <section className="py-20 bg-x-bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-x-text mb-4">
-              Live Feed
-            </h2>
-            <p className="text-x-text-secondary text-lg max-w-2xl mx-auto">
-              Real-time BONK trading activity from top wallets
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Trending Wallets */}
-            <div className="bg-x-bg rounded-lg border border-x-border p-6">
-              <h3 className="text-xl font-bold text-x-text mb-6 flex items-center gap-2">
-                <Target className="w-5 h-5 text-orange-500" />
-                Trending BONK Wallets
-              </h3>
-              <div className="space-y-4">
-                {mockTrendingWallets.map((wallet, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-x-bg-secondary rounded-lg border border-x-border">
-                    <div>
-                      <p className="text-x-text font-medium">{wallet.address}</p>
-                      <p className="text-x-text-secondary text-sm">24h Volume: {wallet.volume}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-green-400 font-bold">{wallet.change}</p>
-                      <p className="text-x-text-secondary text-sm">Today</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Top Swaps */}
-            <div className="bg-x-bg rounded-lg border border-x-border p-6">
-              <h3 className="text-xl font-bold text-x-text mb-6 flex items-center gap-2">
-                <Copy className="w-5 h-5 text-purple-500" />
-                Top Swaps Today
-              </h3>
-              <div className="space-y-4">
-                {mockTopSwaps.map((swap, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-x-bg-secondary rounded-lg border border-x-border">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${swap.action === 'BUY' ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                      <div>
-                        <p className="text-x-text font-medium">{swap.token} {swap.action}</p>
-                        <p className="text-x-text-secondary text-sm">{swap.time}</p>
+      {/* Dog Inspiration Section */}
+      <section className="py-20 bg-gradient-to-br from-orange-500/10 via-purple-500/10 to-orange-500/5">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Dog Photo */}
+            <div className="order-2 lg:order-1">
+              <div className="relative max-w-sm mx-auto lg:mx-0">
+                <div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl p-2 shadow-2xl">
+                  <div className="bg-white rounded-xl overflow-hidden">
+                    <img 
+                      src="/solawatch-bonk.png" 
+                      alt="Shiba Inu dog wearing BONK hoodie and cap, sitting at desk with laptop"
+                      className="w-full h-auto object-cover"
+                      onError={(e) => {
+                        // Fallback to a placeholder if image doesn't exist
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    {/* Placeholder fallback */}
+                    <div className="hidden w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
+                      <div className="text-center">
+                        <span className="text-6xl mb-4 block">🐕</span>
+                        <p className="text-orange-600 font-semibold">BONK Dog Photo</p>
+                        <p className="text-orange-500 text-sm">Add bonk-dog.jpg to public folder</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-x-text font-bold">{swap.amount}</p>
-                      <p className={`text-sm font-medium ${swap.action === 'BUY' ? 'text-green-400' : 'text-red-400'}`}>
-                        {swap.action}
-                      </p>
-                    </div>
                   </div>
-                ))}
+                </div>
               </div>
+            </div>
+            
+            {/* Text Content */}
+            <div className="order-1 lg:order-2 text-left space-y-6">
+              <div className="mb-8">
+                <span className="text-6xl mb-4 block">🐶</span>
+                <h2 className="text-3xl sm:text-4xl font-bold text-x-text mb-6">
+                  Inspired by my dog
+                  <br />
+                  <span className="text-orange-400">Powered by BONK</span>
+                </h2>
+              </div>
+              
+              <p className="text-x-text-secondary text-lg leading-relaxed">
+                Every project needs a reason. Mine barks.
+              </p>
+              
+              <p className="text-x-text-secondary text-lg leading-relaxed">
+                This little guy isn't just my dog — he's my motivation, my late-night coding buddy, and the reason I believe memes can move mountains. Launching on BONK isn't just about hype — it's about bringing real energy (and maybe some dog hair) into web3.
+              </p>
+              
+              <p className="text-x-text-secondary text-lg leading-relaxed">
+                Welcome to Solawatch. Built with love, memes, and one very loud dog.
+              </p>
             </div>
           </div>
 
-          {/* Funding Rate */}
-          <div className="mt-8 bg-x-bg rounded-lg border border-x-border p-6">
-            <h3 className="text-xl font-bold text-x-text mb-6 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-orange-500" />
-              BONK Funding Rate
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 bg-x-bg-secondary rounded-lg">
-                <p className="text-x-text-secondary text-sm">Current Rate</p>
-                <p className="text-green-400 font-bold text-2xl">+0.0234%</p>
-              </div>
-              <div className="text-center p-4 bg-x-bg-secondary rounded-lg">
-                <p className="text-x-text-secondary text-sm">24h Change</p>
-                <p className="text-orange-400 font-bold text-2xl">+0.0156%</p>
-              </div>
-              <div className="text-center p-4 bg-x-bg-secondary rounded-lg">
-                <p className="text-x-text-secondary text-sm">Next Funding</p>
-                <p className="text-x-text font-bold text-2xl">2h 34m</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Join the Mission Section */}
-      <section className="py-20 bg-gradient-to-br from-orange-500/10 via-purple-500/10 to-orange-500/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-x-text mb-6">
-            Join the Mission
-          </h2>
-          <p className="text-x-text-secondary text-lg mb-10 max-w-2xl mx-auto">
-            Be the first to know about new features, BONK insights, and exclusive trading opportunities
-          </p>
-
-          {/* Email Signup */}
-          <form onSubmit={handleEmailSignup} className="max-w-md mx-auto mb-10">
-            <div className="flex gap-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-x-bg border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                Subscribe
-              </button>
-            </div>
-          </form>
-
-          {/* Social Links */}
-          <div className="flex justify-center gap-6">
-            <a
-              href="https://twitter.com/solawatch"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-x-bg hover:bg-x-bg-secondary text-x-text px-4 py-2 rounded-lg transition-all duration-200 border border-x-border hover:border-x-border-light"
-            >
-              <Twitter className="w-4 h-4" />
-              Twitter
-              <ExternalLink className="w-3 h-3" />
-            </a>
-            <a
-              href="https://discord.gg/solawatch"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-x-bg hover:bg-x-bg-secondary text-x-text px-4 py-2 rounded-lg transition-all duration-200 border border-x-border hover:border-x-border-light"
-            >
-              <MessageCircle className="w-4 h-4" />
-              Discord
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
         </div>
       </section>
 

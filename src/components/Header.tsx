@@ -151,6 +151,17 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               >
                 Trending Tokens
               </button>
+              <button
+                onClick={() => navigate('/bonk')}
+                className={`text-sm font-medium transition-colors flex items-center gap-1 ${
+                  location.pathname === '/bonk' 
+                    ? 'text-orange-400' 
+                    : 'text-orange-400 hover:text-orange-300'
+                }`}
+              >
+                <span className="text-lg">🔥</span>
+                BONK Launch 🚀
+              </button>
             </nav>
           </div>
           
@@ -276,6 +287,17 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 }`}
               >
                 Trending Tokens
+              </button>
+              <button
+                onClick={() => { navigate('/bonk'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  location.pathname === '/bonk' 
+                    ? 'bg-orange-500/20 text-orange-400' 
+                    : 'text-orange-400 hover:bg-orange-500/10'
+                }`}
+              >
+                <span className="text-lg">🔥</span>
+                BONK Launch 🚀
               </button>
             </nav>
 

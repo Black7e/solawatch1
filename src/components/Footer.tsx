@@ -3,7 +3,7 @@ import { Twitter, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 border-t border-gray-800 py-12">
+    <footer className="bg-black border-t border-gray-800 py-12">
       <div className="max-w-xl mx-auto px-4 flex flex-col items-center text-center">
         <div className="flex flex-col items-center mb-6">
           <img 
