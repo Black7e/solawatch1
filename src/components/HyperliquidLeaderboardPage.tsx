@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, TrendingUp, Copy, X, ChevronDown, Search, ExternalLink, Crown, Users, DollarSign, Activity, RefreshCw } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Copy, X, ChevronDown, Search, ExternalLink, Crown, Users, DollarSign, Activity, RefreshCw, Settings } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WalletModal from './WalletModal';
@@ -387,13 +387,22 @@ export default function HyperliquidLeaderboardPage() {
                   >
                     <ExternalLink className="w-4 h-4" />
                   </a>
-                  <button
-                    onClick={() => handleCopyTrader(trader)}
-                    className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2"
-                  >
-                    <Copy className="w-4 h-4" />
-                    <span>Copy</span>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => navigate('/futures-grid')}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-1"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Grid Bot</span>
+                    </button>
+                    <button
+                      onClick={() => handleCopyTrader(trader)}
+                      className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center space-x-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>Copy</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 

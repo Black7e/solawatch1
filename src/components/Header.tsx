@@ -121,15 +121,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             )}
           </button>
           
-          {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/leaderboard')}
-              className="text-x-text-secondary hover:text-x-text transition-colors px-3 py-2 rounded-lg hover:bg-x-bg-secondary"
-            >
-              Leaderboard
-            </button>
-          </div>
+
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
