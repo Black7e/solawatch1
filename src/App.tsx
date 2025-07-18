@@ -20,6 +20,7 @@ import FuturesGridBot from './components/FuturesGridBot';
 import HotPerpetualsPage from './components/HotPerpetualsPage';
 import HotWalletsPage from './components/HotWalletsPage';
 import TrendingTokensPageComponent from './components/TrendingTokensPage';
+import BonkPage from './components/BonkPage';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -133,6 +134,7 @@ function App() {
                 <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
                 <Route path="/hot-wallets" element={<HotWalletsPage />} />
                 <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
+                <Route path="/bonk" element={<BonkPage />} />
               </Routes>
             </div>
           </Suspense>
