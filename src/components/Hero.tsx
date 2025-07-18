@@ -70,7 +70,7 @@ export default function Hero({ onConnectWallet }: HeroProps) {
             On-Chain Intelligence for{' '}
             <br className="hidden sm:block" />
             <span className="text-x-purple">
-              Real-Time Traders
+              New Investors
             </span>
           </h1>
           
