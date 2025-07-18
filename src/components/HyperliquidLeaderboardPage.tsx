@@ -43,8 +43,6 @@ export default function HyperliquidLeaderboardPage() {
       setError(null);
 
       const tradersData = await service.getLeaderboard(50);
-      console.log('Received traders data:', tradersData);
-      console.log('First trader symbol:', tradersData[0]?.symbol);
       setTraders(tradersData);
       setLastRefresh(new Date());
 

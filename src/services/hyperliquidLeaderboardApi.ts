@@ -171,7 +171,6 @@ export class HyperliquidLeaderboardService {
           marketData: marketData
         };
         
-        console.log(`Created trader for ${perp.symbol}:`, trader);
         traders.push(trader);
       });
       
@@ -264,23 +263,23 @@ export class HyperliquidLeaderboardService {
   private createRealisticSimulatedData(limit: number): HyperliquidTrader[] {
     const traders: HyperliquidTrader[] = [];
     
-    // Realistic trader names and profiles
+    // Realistic trader names and profiles with symbols
     const traderProfiles = [
-      { name: 'CryptoWhale', description: 'Bitcoin and major altcoin specialist', isElite: true },
-      { name: 'DeFiMaster', description: 'DeFi protocols and yield farming expert', isElite: true },
-      { name: 'SolanaTrader', description: 'Solana ecosystem specialist', isElite: true },
-      { name: 'MemeHunter', description: 'Meme coin and viral token trader', isElite: true },
-      { name: 'FuturesKing', description: 'Futures and derivatives specialist', isElite: true },
-      { name: 'ScalpMaster', description: 'High-frequency scalping trader', isElite: true },
-      { name: 'TrendFollower', description: 'Trend following and momentum trading', isElite: false },
-      { name: 'RiskManager', description: 'Conservative risk management approach', isElite: false },
-      { name: 'ArbitragePro', description: 'Cross-exchange arbitrage specialist', isElite: true },
-      { name: 'OptionsTrader', description: 'Options and volatility trading expert', isElite: true },
-      { name: 'StableTrader', description: 'Stablecoin and low-risk strategies', isElite: false },
-      { name: 'LeverageLord', description: 'High-leverage trading specialist', isElite: true },
-      { name: 'GridTrader', description: 'Grid trading and bot strategies', isElite: false },
-      { name: 'NewsTrader', description: 'News-driven trading strategies', isElite: false },
-      { name: 'TechnicalPro', description: 'Technical analysis and chart patterns', isElite: true }
+      { name: 'CryptoWhale', description: 'Bitcoin and major altcoin specialist', isElite: true, symbol: 'BTC' },
+      { name: 'DeFiMaster', description: 'DeFi protocols and yield farming expert', isElite: true, symbol: 'ETH' },
+      { name: 'SolanaTrader', description: 'Solana ecosystem specialist', isElite: true, symbol: 'SOL' },
+      { name: 'MemeHunter', description: 'Meme coin and viral token trader', isElite: true, symbol: 'DOGE' },
+      { name: 'FuturesKing', description: 'Futures and derivatives specialist', isElite: true, symbol: 'MATIC' },
+      { name: 'ScalpMaster', description: 'High-frequency scalping trader', isElite: true, symbol: 'AVAX' },
+      { name: 'TrendFollower', description: 'Trend following and momentum trading', isElite: false, symbol: 'LINK' },
+      { name: 'RiskManager', description: 'Conservative risk management approach', isElite: false, symbol: 'UNI' },
+      { name: 'ArbitragePro', description: 'Cross-exchange arbitrage specialist', isElite: true, symbol: 'AAVE' },
+      { name: 'OptionsTrader', description: 'Options and volatility trading expert', isElite: true, symbol: 'CRV' },
+      { name: 'StableTrader', description: 'Stablecoin and low-risk strategies', isElite: false, symbol: 'SUSHI' },
+      { name: 'LeverageLord', description: 'High-leverage trading specialist', isElite: true, symbol: 'COMP' },
+      { name: 'GridTrader', description: 'Grid trading and bot strategies', isElite: false, symbol: 'YFI' },
+      { name: 'NewsTrader', description: 'News-driven trading strategies', isElite: false, symbol: 'SNX' },
+      { name: 'TechnicalPro', description: 'Technical analysis and chart patterns', isElite: true, symbol: 'BAL' }
     ];
 
     traderProfiles.slice(0, limit).forEach((profile, index) => {
@@ -295,7 +294,8 @@ export class HyperliquidLeaderboardService {
         totalTrades: this.generateRealisticTradeCount(),
         isElite: profile.isElite,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.name}`,
-        description: profile.description
+        description: profile.description,
+        symbol: profile.symbol
       });
     });
     
