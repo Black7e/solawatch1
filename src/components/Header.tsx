@@ -143,16 +143,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               >
                 Trending Tokens
               </button>
-              <button
-                onClick={() => navigate('/top-traders')}
-                className={`text-sm font-medium transition-colors ${
-                  location.pathname === '/top-traders' 
-                    ? 'text-x-purple' 
-                    : 'text-x-text-secondary hover:text-x-text'
-                }`}
-              >
-                Top Traders
-              </button>
             </nav>
           </div>
           
@@ -269,16 +259,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 }`}
               >
                 Trending Tokens
-              </button>
-              <button
-                onClick={() => { navigate('/top-traders'); setMobileMenuOpen(false); }}
-                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
-                  location.pathname === '/top-traders' 
-                    ? 'bg-x-purple/20 text-x-purple' 
-                    : 'text-x-text-secondary hover:bg-x-bg-secondary'
-                }`}
-              >
-                Top Traders
               </button>
             </nav>
 
