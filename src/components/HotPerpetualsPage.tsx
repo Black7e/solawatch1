@@ -91,68 +91,79 @@ export default function HotPerpetualsPage() {
     const perpetuals: PerpetualPair[] = [];
     
     try {
-      if (data && data.meta && data.meta.universe) {
-        const universe = data.meta.universe;
-        console.log('Processing universe data:', universe);
+      // Check for the correct API response structure
+      const universe = data?.universe || data?.meta?.universe;
+      
+      if (!universe || !Array.isArray(universe)) {
+        console.warn('No universe data found in API response:', data);
+        return [];
+      }
+
+      console.log('Processing universe data:', universe);
+      console.log('First item structure:', universe[0]);
         
-        // Filter and process only items with valid data
-        const validItems = universe.filter((item: any) => {
-          return item.name && 
-                 item.markPrice && 
-                 parseFloat(item.markPrice) > 0 &&
-                 item.volume24h && 
-                 parseFloat(item.volume24h) > 0;
+      // Filter and process only items with valid data
+      const validItems = universe.filter((item: any) => {
+        const hasName = item.name || item.symbol;
+        const hasPrice = item.markPrice || item.price;
+        const hasVolume = item.volume24h || item.volume;
+        
+        return hasName && 
+               hasPrice && 
+               parseFloat(hasPrice) > 0 &&
+               hasVolume && 
+               parseFloat(hasVolume) > 0;
+      });
+
+      if (validItems.length === 0) {
+        console.warn('No valid perpetual data found in API response');
+        return [];
+      }
+
+      console.log(`Found ${validItems.length} valid perpetuals`);
+
+      // Sort by volume and take top 20 as "hot" perpetuals
+      const sortedByVolume = validItems
+        .sort((a: any, b: any) => {
+          const volumeA = parseFloat(a.volume24h || a.volume || 0);
+          const volumeB = parseFloat(b.volume24h || b.volume || 0);
+          return volumeB - volumeA;
+        })
+        .slice(0, 20);
+
+      console.log('Top 20 perpetuals by volume:', sortedByVolume);
+
+      for (const item of sortedByVolume) {
+        const symbol = item.name || item.symbol;
+        const price = parseFloat(item.markPrice || item.price || 0);
+        const volume = parseFloat(item.volume24h || item.volume || 0);
+        const openInterest = parseFloat(item.openInterest || 0);
+        
+        // Use actual data from API, set defaults for missing fields
+        const priceChangePercent = parseFloat(item.priceChangePercent24h || item.priceChangePercent || 0);
+        const priceChange = price * (priceChangePercent / 100);
+        const volatility = parseFloat(item.volatility || 2.5); // Default volatility
+        const fundingRate = parseFloat(item.fundingRate || 0);
+        const high24h = parseFloat(item.high24h || price * 1.05);
+        const low24h = parseFloat(item.low24h || price * 0.95);
+        
+        perpetuals.push({
+          symbol: symbol,
+          name: getTokenName(symbol),
+          currentPrice: price,
+          priceChange24h: priceChange,
+          priceChangePercent24h: priceChangePercent,
+          volume24h: volume,
+          openInterest: openInterest,
+          fundingRate: fundingRate,
+          nextFundingTime: Date.now() + (8 * 60 * 60 * 1000), // 8 hours from now
+          high24h: high24h,
+          low24h: low24h,
+          volatility: volatility,
+          isHot: true,
+          volumeChange24h: parseFloat(item.volumeChange24h || 0),
+          openInterestChange24h: parseFloat(item.openInterestChange24h || 0)
         });
-
-        if (validItems.length === 0) {
-          console.warn('No valid perpetual data found in API response');
-          return [];
-        }
-
-        // Sort by volume and take top 20 as "hot" perpetuals
-        const sortedByVolume = validItems
-          .sort((a: any, b: any) => {
-            const volumeA = parseFloat(a.volume24h || 0);
-            const volumeB = parseFloat(b.volume24h || 0);
-            return volumeB - volumeA;
-          })
-          .slice(0, 20);
-
-        console.log('Top 20 perpetuals by volume:', sortedByVolume);
-
-        for (const item of sortedByVolume) {
-          const price = parseFloat(item.markPrice || 0);
-          const volume = parseFloat(item.volume24h || 0);
-          const openInterest = parseFloat(item.openInterest || 0);
-          
-          // Use actual data from API, set defaults for missing fields
-          const priceChangePercent = parseFloat(item.priceChangePercent24h || 0);
-          const priceChange = price * (priceChangePercent / 100);
-          const volatility = parseFloat(item.volatility || 2.5); // Default volatility
-          const fundingRate = parseFloat(item.fundingRate || 0);
-          const high24h = parseFloat(item.high24h || price * 1.05);
-          const low24h = parseFloat(item.low24h || price * 0.95);
-          
-          perpetuals.push({
-            symbol: item.name,
-            name: getTokenName(item.name),
-            currentPrice: price,
-            priceChange24h: priceChange,
-            priceChangePercent24h: priceChangePercent,
-            volume24h: volume,
-            openInterest: openInterest,
-            fundingRate: fundingRate,
-            nextFundingTime: Date.now() + (8 * 60 * 60 * 1000), // 8 hours from now
-            high24h: high24h,
-            low24h: low24h,
-            volatility: volatility,
-            isHot: true,
-            volumeChange24h: parseFloat(item.volumeChange24h || 0),
-            openInterestChange24h: parseFloat(item.openInterestChange24h || 0)
-          });
-        }
-      } else {
-        console.warn('Invalid API response structure:', data);
       }
     } catch (error) {
       console.error('Error processing Hyperliquid data:', error);
