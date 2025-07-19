@@ -336,7 +336,8 @@ export default function PortfolioAnalysis() {
                     const startIdx = (currentPage - 1) * tokensPerPage;
                     const tokensToAdd = portfolioData.tokens.slice(startIdx, startIdx + tokensPerPage).filter(token => !cart.some(item => item.token.mint === token.mint));
                     if (cart.length + tokensToAdd.length > 10) {
-                      setSafeCopySummary({ cartLimit: 10 - cart.length, notSwappable: 0, added: 0 });
+                      setToastMessages(msgs => [...msgs, `Cart limit reached! You can only add up to 10 tokens for bulk swapping.`]);
+                      setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 3000);
                       return;
                     }
                     setSafeCopyLoading(true);
@@ -462,6 +463,13 @@ export default function PortfolioAnalysis() {
                     <td className="text-right py-4 pr-0 align-middle">
                       <button
                           onClick={async () => {
+                            // Check cart limit first
+                            if (cart.length >= 10) {
+                              setToastMessages(msgs => [...msgs, `Cart limit reached! You can only add up to 10 tokens for bulk swapping.`]);
+                              setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 3000);
+                              return;
+                            }
+                            
                             setCheckingToken(token.symbol);
                             try {
                               const jupiter = new JupiterSwapService(connection);
@@ -591,7 +599,11 @@ export default function PortfolioAnalysis() {
           {toastMessages.map((msg, idx) => (
             <div
               key={idx}
-              className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold animate-fade-in-out ${msg.startsWith('Failed fetch quote') ? 'bg-red-600' : 'bg-green-600'} text-white`}
+              className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold animate-fade-in-out ${
+                msg.startsWith('Failed fetch quote') || msg.includes('Cart limit reached') 
+                  ? 'bg-red-600' 
+                  : 'bg-green-600'
+              } text-white`}
               style={{ minWidth: 220 }}
             >
               {msg}

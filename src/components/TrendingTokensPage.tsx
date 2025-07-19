@@ -16,14 +16,15 @@ export default function TrendingTokensPage() {
   const [trendingTokens, setTrendingTokens] = useState<TrendingToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<SortBy>('marketCap');
+  const [sortBy, setSortBy] = useState<SortBy>('change24h');
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [limit] = useState(30); // Limit to control API costs
   const [addingToCart, setAddingToCart] = useState<string | null>(null); // Track which token is being added
   const [quickBuyToken, setQuickBuyToken] = useState<TrendingToken | null>(null);
-  const { addToCart } = useCart();
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { addToCart, cart } = useCart();
   const { connected, publicKey } = useWallet();
 
   const handleConnectWallet = () => {
@@ -119,6 +120,13 @@ export default function TrendingTokensPage() {
   }, [limit]);
 
   const handleAddToCart = async (token: TrendingToken) => {
+    // Check cart limit first
+    if (cart.length >= 10) {
+      setToastMessage('Cart limit reached! You can only add up to 10 tokens for bulk swapping.');
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+    
     setAddingToCart(token.symbol);
     
     try {
@@ -131,8 +139,12 @@ export default function TrendingTokensPage() {
           logo: token.image
         }
       });
+      setToastMessage(`${token.symbol} added to cart successfully!`);
+      setTimeout(() => setToastMessage(null), 2000);
     } catch (error) {
       console.error('Error adding to cart:', error);
+      setToastMessage(`Failed to add ${token.symbol} to cart. Please try again.`);
+      setTimeout(() => setToastMessage(null), 3000);
     } finally {
       setAddingToCart(null);
     }
@@ -288,7 +300,7 @@ export default function TrendingTokensPage() {
             <h1 className="text-3xl font-bold text-x-text">Trending Tokens</h1>
           </div>
           <p className="text-x-text-secondary">
-            Discover the hottest tokens on Solana with real-time market data and risk analysis. Showing top {limit} trending tokens.
+            Discover the hottest tokens on Solana with real-time market data and risk analysis.
           </p>
         </div>
 
@@ -430,7 +442,15 @@ export default function TrendingTokensPage() {
                   }}
                 />
                 <div className="flex flex-col min-w-0">
-                  <span className="text-white font-bold text-lg leading-tight truncate">{token.name}</span>
+                  <a
+                    href={`https://solscan.io/token/${token.mint}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white font-bold text-lg leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer"
+                    title={`View ${token.name} on Solscan`}
+                  >
+                    {token.name}
+                  </a>
                   <span className="text-gray-400 text-sm font-medium">
                     ${token.marketCap > 1000000 
                       ? (token.marketCap / 1000000).toFixed(1) + 'M' 
@@ -540,12 +560,23 @@ export default function TrendingTokensPage() {
         {/* Info */}
         <div className="mt-8 text-center">
           <p className="text-x-text-secondary text-sm">
-            Data is limited to top {limit} trending tokens to control API costs. 
-            <br />
             Last updated: {new Date().toLocaleString()}
           </p>
         </div>
       </div>
+
+      {/* Toast notification */}
+      {toastMessage && (
+        <div className="fixed right-8 top-20 z-50">
+          <div className={`px-6 py-3 rounded-lg shadow-lg text-sm font-semibold ${
+            toastMessage.includes('Cart limit reached') || toastMessage.includes('Failed to add')
+              ? 'bg-red-600'
+              : 'bg-green-600'
+          } text-white`} style={{ minWidth: 220 }}>
+            {toastMessage}
+          </div>
+        </div>
+      )}
 
       <Footer />
       

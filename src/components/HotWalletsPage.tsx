@@ -41,7 +41,7 @@ export default function HotWalletsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [limit] = useState(20); // Limit to control API costs
+  const [limit] = useState(23); // Limit to control API costs
 
   const handleConnectWallet = () => {
     setWalletModalOpen(true);
@@ -231,7 +231,7 @@ export default function HotWalletsPage() {
             <h1 className="text-3xl font-bold text-x-text">Hot Wallets</h1>
           </div>
           <p className="text-x-text-secondary">
-            Discover the most active and profitable traders on Solana. Showing top {limit} wallets by performance.
+            Discover the most active and profitable traders on Solana.
           </p>
         </div>
 
@@ -358,8 +358,6 @@ export default function HotWalletsPage() {
         {/* Info */}
         <div className="mt-8 text-center">
           <p className="text-x-text-secondary text-sm">
-            Data is limited to top {limit} wallets to control API costs. 
-            <br />
             Last updated: {new Date().toLocaleString()}
           </p>
         </div>

@@ -180,17 +180,6 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-6 pb-4 pt-2">
-            {/* Add All Results message */}
-            {safeCopySummary && (
-              <div className="mb-2 text-center">
-                {safeCopySummary.cartLimit === 0 && safeCopySummary.added === 0 && (
-                  <div className="text-xs text-red-400">Cart already has 10 tokens. Remove some to add more.</div>
-                )}
-                {safeCopySummary.cartLimit > 0 && (
-                  <div className="text-xs text-yellow-400">Cart limit reached. You can only add up to <b>10</b> tokens for bulk swapping.</div>
-                )}
-              </div>
-            )}
             {cartItems.length === 0 ? (
               <p className="text-x-text-secondary text-sm mt-8">No tokens in cart.</p>
             ) : (
