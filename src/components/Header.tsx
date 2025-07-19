@@ -94,39 +94,21 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               onClick={() => navigate('/')}
               className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
             >
-            {location.pathname === '/' ? (
-              <>
-                <div className="flex flex-col">
-                  <div className="flex items-center space-x-2">
-                    <img 
-                      src="/solawatch-logo.svg" 
-                      alt="SolaWatch" 
-                      className="h-5 sm:h-6 w-auto"
-                    />
-                    <span className="text-lg sm:text-xl font-bold text-x-text">solawatch</span>
-                  </div>
-                  {isTestnet() && (
-                    <span className="text-xs text-yellow-400 font-medium -mt-1">
-                      {getNetworkDisplayName()}
-                    </span>
-                  )}
+              <div className="flex flex-col">
+                <div className="flex items-center space-x-2">
+                  <img 
+                    src="/solawatch-logo.svg" 
+                    alt="SolaWatch" 
+                    className="h-5 sm:h-6 w-auto"
+                  />
+                  <span className="text-lg sm:text-xl font-bold text-x-text">solawatch</span>
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center space-x-3">
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                  <div className="flex flex-col">
-                    <span className="text-sm sm:text-base text-x-text-secondary hover:text-x-text transition-colors">Back to Home</span>
-                    {isTestnet() && (
-                      <span className="text-xs text-yellow-400 font-medium -mt-1">
-                        {getNetworkDisplayName()}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+                {isTestnet() && (
+                  <span className="text-xs text-yellow-400 font-medium -mt-1">
+                    {getNetworkDisplayName()}
+                  </span>
+                )}
+              </div>
             </button>
 
             {/* Navigation Links */}
