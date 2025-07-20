@@ -182,8 +182,8 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
       const inputMint = buyCurrency === 'SOL' ? TOKEN_MINTS.SOL : TOKEN_MINTS.USDC;
       const outputMint = token.mint;
       const amount = buyCurrency === 'SOL'
-        ? Math.round(inputAmount * 1e9) // SOL to lamports (original amount for fee calculation)
-        : Math.round(inputAmount * 1e6); // USDC to 6 decimals (original amount for fee calculation)
+        ? Math.round(calculatedNetAmount * 1e9) // SOL to lamports (net amount after fee)
+        : Math.round(calculatedNetAmount * 1e6); // USDC to 6 decimals (net amount after fee)
       const slippageBps = 300; // 3% (matching CartPopover)
       
       const jupiter = new JupiterSwapService(swapConnection);

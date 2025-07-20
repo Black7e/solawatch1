@@ -37,6 +37,11 @@ export default function BonkPage() {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleBuyOnBonk = () => {
+    console.log('Buy on BONK button clicked!');
+    window.open('https://letsbonk.fun/token/BysAdmQmg1NDJM7akDrMHMhTr6eM4wLeWMyCrg74bonk', '_blank', 'noopener,noreferrer');
+  };
+
 
 
   const fetchMarketData = async () => {
@@ -107,8 +112,8 @@ export default function BonkPage() {
                   {/* Main image area */}
                   <div className="w-64 h-64 bg-gray-900/50 border-b border-white/20 flex items-center justify-center p-4">
                     <img 
-                      src="/soladog3.png" 
-                      alt="Soladog Logo" 
+                      src="/solawatch-logo.svg" 
+                      alt="Solawatch Logo" 
                       className="w-full h-full object-contain rounded-xl"
                     />
                   </div>
@@ -117,7 +122,7 @@ export default function BonkPage() {
                   <div className="bg-black p-4 relative">
                     <div className="flex items-start justify-between mb-12">
                       <div className="flex flex-col items-start">
-                        <h3 className="text-white text-xl font-bold mb-1">$•••••</h3>
+                        <h3 className="text-white text-xl font-bold mb-1">$SWAT</h3>
                         <p className="text-gray-400 text-sm">A solawatch's memecoin</p>
                       </div>
                       
@@ -127,9 +132,13 @@ export default function BonkPage() {
                       </div>
                     </div>
                     
-                    {/* Quick Buy Button */}
-                    <button className="w-full bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl">
-                      Quick Buy Coming Soon
+                    {/* Buy on BONK Button */}
+                    <button 
+                      onClick={handleBuyOnBonk}
+                      className="w-full bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center shadow-lg hover:shadow-xl cursor-pointer relative z-10"
+                      style={{ zIndex: 10 }}
+                    >
+                      Buy on BONK
                     </button>
                   </div>
                 </div>
