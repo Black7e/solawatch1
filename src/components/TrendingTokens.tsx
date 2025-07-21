@@ -146,7 +146,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   };
 
   const handleShare = (token: TrendingToken) => {
-    const shareText = `🚀 ${token.symbol} is trending on Solana! 📈\n\n💰 Price: $${token.price < 0.01 ? token.price.toFixed(6) : token.price < 1 ? token.price.toFixed(4) : token.price.toFixed(2)}\n📊 24h Change: ${token.change24h > 0 ? '+' : ''}${token.change24h.toFixed(2)}%\n💎 Market Cap: $${token.marketCap > 1000000 ? (token.marketCap / 1000000).toFixed(1) + 'M' : token.marketCap > 1000 ? (token.marketCap / 1000).toFixed(1) + 'K' : token.marketCap.toFixed(0)}\n\nCheck it out on SolaWatch! 🔥\n\n#Solana #${token.symbol} #Crypto #DeFi`;
+    const shareText = `🚀 $${token.symbol} is trending on Solana! 📈\n\n💰 Price: $${token.price < 0.01 ? token.price.toFixed(6) : token.price < 1 ? token.price.toFixed(4) : token.price.toFixed(2)}\n📊 24h Change: ${token.change24h > 0 ? '+' : ''}${token.change24h.toFixed(2)}%\n💎 Market Cap: $${token.marketCap > 1000000 ? (token.marketCap / 1000000).toFixed(1) + 'M' : token.marketCap > 1000 ? (token.marketCap / 1000).toFixed(1) + 'K' : token.marketCap.toFixed(0)}\n\nCheck it out on SolaWatch! 🔥\n\n#Solana #${token.symbol} #Crypto #DeFi`;
     
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     
