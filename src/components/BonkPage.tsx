@@ -112,8 +112,8 @@ export default function BonkPage() {
                   {/* Main image area */}
                   <div className="w-64 h-64 bg-gray-900/50 border-b border-white/20 flex items-center justify-center p-4">
                     <img 
-                      src="/solawatch-logo.svg" 
-                      alt="Solawatch Logo" 
+                      src="/soladog3.png" 
+                      alt="Soladog Logo" 
                       className="w-full h-full object-contain rounded-xl"
                     />
                   </div>

@@ -19,8 +19,8 @@ const features = [
   },
   {
     icon: Zap,
-    title: "No Signup Required",
-    description: "Connect your wallet and start copying immediately. No lengthy registration or KYC process.",
+    title: "Hyperliquid Perpetuals",
+    description: "Real-time perpetual futures trading with up to 40x leverage. Professional-grade market data and analytics.",
   }
 ];
 

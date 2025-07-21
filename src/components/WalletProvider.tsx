@@ -42,14 +42,19 @@ class MetaMaskSolanaWalletAdapter {
     }
     
     async connect() {
-        if (typeof window === 'undefined' || !(window as any).solana?.isMetaMask) {
-            throw new Error('MetaMask Solana wallet not found');
+        if (typeof window === 'undefined') {
+            throw new Error('MetaMask Solana wallet not found - window not available');
+        }
+        
+        if (!(window as any).solana?.isMetaMask) {
+            throw new Error('MetaMask Solana wallet not found - extension not detected');
         }
         
         try {
             const response = await (window as any).solana.connect();
             return response;
         } catch (error) {
+            console.warn('MetaMask connection failed:', error);
             throw new Error(`Failed to connect to MetaMask Solana wallet: ${error}`);
         }
     }
@@ -134,12 +139,35 @@ export const WalletContextProvider: FC<Props> = ({ children }) => {
                     return [new PhantomWalletAdapter()];
                 }
                 
-                return [
-                    new PhantomWalletAdapter(),
-                    new MetaMaskSolanaWalletAdapter() as any,
-                    new SolflareWalletAdapter(),
-                    new TorusWalletAdapter(),
-                ];
+                const walletAdapters: any[] = [new PhantomWalletAdapter()];
+                
+                // Only add MetaMask if it's available
+                try {
+                    if (typeof window !== 'undefined' && (window as any).solana?.isMetaMask) {
+                        walletAdapters.push(new MetaMaskSolanaWalletAdapter() as any);
+                    }
+                } catch (error) {
+                    console.warn('MetaMask wallet adapter not available:', error);
+                }
+                
+                // Only add Solflare if it's available
+                try {
+                    if (typeof window !== 'undefined' && (window as any).solflare) {
+                        walletAdapters.push(new SolflareWalletAdapter());
+                    }
+                } catch (error) {
+                    console.warn('Solflare wallet adapter not available:', error);
+                }
+                
+                // Add Torus (web-based, always available)
+                try {
+                    walletAdapters.push(new TorusWalletAdapter());
+                } catch (error) {
+                    console.warn('Torus wallet adapter not available:', error);
+                }
+                
+                console.log(`Initialized ${walletAdapters.length} wallet adapters`);
+                return walletAdapters;
             } catch (error) {
                 console.error('Error initializing wallets:', error);
                 // Return minimal wallet setup
@@ -151,7 +179,7 @@ export const WalletContextProvider: FC<Props> = ({ children }) => {
 
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect>
+            <WalletProvider wallets={wallets} autoConnect={false}>
                 {children}
             </WalletProvider>
         </ConnectionProvider>

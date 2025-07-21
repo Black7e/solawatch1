@@ -84,7 +84,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         try {
           const metamaskSolana = (window as any).solana;
           if (!metamaskSolana?.isMetaMask) {
-            throw new Error('MetaMask Solana wallet not found');
+            // Don't throw error, just show installation message
+            alert('MetaMask Solana wallet not found. Please install the MetaMask extension and enable Solana support.');
+            return;
           }
           
           // Connect to MetaMask Solana wallet directly

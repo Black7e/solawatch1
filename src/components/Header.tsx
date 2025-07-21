@@ -134,6 +134,17 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 Trending Tokens
               </button>
               <button
+                onClick={() => navigate('/perps')}
+                className={`text-sm font-medium transition-colors flex items-center gap-1 ${
+                  location.pathname === '/perps' 
+                    ? 'text-blue-400' 
+                    : 'text-blue-400 hover:text-blue-300'
+                }`}
+              >
+                <span className="text-lg">⚡</span>
+                Perpetuals
+              </button>
+              <button
                 onClick={() => navigate('/bonk')}
                 className={`text-sm font-medium transition-colors flex items-center gap-1 ${
                   location.pathname === '/bonk' 
@@ -269,6 +280,17 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 }`}
               >
                 Trending Tokens
+              </button>
+              <button
+                onClick={() => { navigate('/perps'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                  location.pathname === '/perps' 
+                    ? 'bg-blue-500/20 text-blue-400' 
+                    : 'text-blue-400 hover:bg-blue-500/10'
+                }`}
+              >
+                <span className="text-lg">⚡</span>
+                Perpetuals
               </button>
               <button
                 onClick={() => { navigate('/bonk'); setMobileMenuOpen(false); }}

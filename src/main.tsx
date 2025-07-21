@@ -21,15 +21,39 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     const handleError = (event: ErrorEvent) => {
-      console.error('Error caught by boundary:', event.error);
-      setError(event.error);
-      setHasError(true);
+      // Filter out wallet-related errors
+      const errorMessage = event.error?.message || event.error?.toString() || '';
+      const isWalletError = errorMessage.includes('MetaMask') || 
+                           errorMessage.includes('wallet') || 
+                           errorMessage.includes('extension') ||
+                           errorMessage.includes('solflare') ||
+                           errorMessage.includes('not found');
+      
+      if (!isWalletError) {
+        console.error('Error caught by boundary:', event.error);
+        setError(event.error);
+        setHasError(true);
+      } else {
+        console.warn('Wallet error (filtered from error boundary):', errorMessage);
+      }
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      console.error('Promise rejection caught by boundary:', event.reason);
-      setError(new Error(String(event.reason)));
-      setHasError(true);
+      // Filter out wallet-related errors to prevent showing error page
+      const errorMessage = event.reason?.message || event.reason?.toString() || '';
+      const isWalletError = errorMessage.includes('MetaMask') || 
+                           errorMessage.includes('wallet') || 
+                           errorMessage.includes('extension') ||
+                           errorMessage.includes('solflare') ||
+                           errorMessage.includes('not found');
+      
+      if (!isWalletError) {
+        console.error('Promise rejection caught by boundary:', event.reason);
+        setError(new Error(String(event.reason)));
+        setHasError(true);
+      } else {
+        console.warn('Wallet connection error (filtered from error boundary):', errorMessage);
+      }
     };
 
     window.addEventListener('error', handleError);
