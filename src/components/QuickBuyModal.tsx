@@ -6,6 +6,7 @@ import { PublicKey, Connection } from '@solana/web3.js';
 import { TOKEN_MINTS, JupiterSwapService } from '../utils/jupiterSwap';
 import { getBalanceWithFallback, getTokenAccountsWithFallback } from '../utils/rpcFallback';
 import { calculateFee, formatFeeInfo, feesEnabled, getFeePercent } from '../utils/feeUtils';
+import { getPrimaryRpcEndpoint } from '../config/network';
 
 interface QuickBuyModalProps {
   open: boolean;
@@ -36,7 +37,7 @@ const QuickBuyModal: React.FC<QuickBuyModalProps> = ({ open, onClose, token }) =
   const { connection } = useConnection();
   
   // Create a new connection instance to match CartPopover approach
-  const [swapConnection] = useState(() => new Connection('https://api.mainnet-beta.solana.com'));
+  const [swapConnection] = useState(() => new Connection(getPrimaryRpcEndpoint()));
   const [buyAmount, setBuyAmount] = useState('');
   const [buyCurrency, setBuyCurrency] = useState<'SOL' | 'USDC'>('SOL');
   const [solBalance, setSolBalance] = useState<number | null>(null);

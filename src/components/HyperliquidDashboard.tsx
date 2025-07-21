@@ -186,6 +186,18 @@ export default function HyperliquidDashboard() {
     return 'text-green-400';
   };
 
+  const handleTradeAction = (marketName: string, action: 'buy' | 'sell') => {
+    // For now, redirect to Hyperliquid with pre-filled action
+    const actionParam = action === 'buy' ? 'side=buy' : 'side=sell';
+    const url = `https://app.hyperliquid.xyz/trade/${marketName}?${actionParam}`;
+    
+    // Show confirmation dialog
+    const confirmMessage = `Are you sure you want to ${action} ${marketName}? This will open Hyperliquid trading interface.`;
+    if (window.confirm(confirmMessage)) {
+      window.open(url, '_blank');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -431,16 +443,28 @@ export default function HyperliquidDashboard() {
                   </div>
                 </div>
                 
-                {/* Action Button */}
-                <div className="mt-6">
+                {/* Action Buttons */}
+                <div className="mt-6 space-y-2">
+                  {/* Buy Button */}
                   <button
-                    onClick={() => window.open(`https://app.hyperliquid.xyz/trade/${market.name}`, '_blank')}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 transform group-hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                    onClick={() => handleTradeAction(market.name, 'buy')}
+                    className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform group-hover:scale-105 shadow-lg flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
                     </svg>
-                    Trade Now
+                    Buy Long
+                  </button>
+                  
+                  {/* Sell Button */}
+                  <button
+                    onClick={() => handleTradeAction(market.name, 'sell')}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 transform group-hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                    </svg>
+                    Sell Short
                   </button>
                 </div>
               </div>

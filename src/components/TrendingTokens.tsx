@@ -6,6 +6,7 @@ import { SolanaTrackerService, TrendingToken } from '../services/solanaTrackerAp
 import { Connection } from '@solana/web3.js';
 import QuickBuyModal from './QuickBuyModal';
 import { useCart } from './CartProvider';
+import { getPrimaryRpcEndpoint } from '../config/network';
 
 // Add marquee animation CSS
 const marqueeStyle = `
@@ -60,7 +61,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
         if (!apiKey || apiKey === 'your_solana_tracker_api_key_here') {
           throw new Error('Solana Tracker API key is required. Please add VITE_SOLANA_TRACKER_API_KEY to your .env file');
         }
-        const connection = new Connection('https://api.mainnet-beta.solana.com');
+        const connection = new Connection(getPrimaryRpcEndpoint());
         const service = new SolanaTrackerService(connection, apiKey);
         const trendingTokens = await service.getTrendingTokens(6);
         setTokens(trendingTokens);
