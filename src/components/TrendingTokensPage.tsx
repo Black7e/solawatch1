@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, Search, Filter, Flame, AlertTriangle, CheckCircle, ShoppingCart } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, Search, Filter, Flame, AlertTriangle, CheckCircle, ShoppingCart, Share2 } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WalletModal from './WalletModal';
@@ -157,6 +157,14 @@ export default function TrendingTokensPage() {
     }
     
     setQuickBuyToken(token);
+  };
+
+  const handleShare = (token: TrendingToken) => {
+    const shareText = `🚀 ${token.symbol} is trending on Solana! 📈\n\n💰 Price: $${token.price < 0.01 ? token.price.toFixed(6) : token.price < 1 ? token.price.toFixed(4) : token.price.toFixed(2)}\n📊 24h Change: ${token.change24h > 0 ? '+' : ''}${token.change24h.toFixed(2)}%\n💎 Market Cap: $${token.marketCap > 1000000 ? (token.marketCap / 1000000).toFixed(1) + 'M' : token.marketCap > 1000 ? (token.marketCap / 1000).toFixed(1) + 'K' : token.marketCap.toFixed(0)}\n📈 24h Volume: $${token.volume24h > 1000000 ? (token.volume24h / 1000000).toFixed(1) + 'M' : token.volume24h > 1000 ? (token.volume24h / 1000).toFixed(1) + 'K' : token.volume24h.toFixed(0)}\n\nCheck it out on SolaWatch! 🔥\n\n#Solana #${token.symbol} #Crypto #DeFi`;
+    
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   const formatCurrency = (value: number) => {
@@ -521,7 +529,7 @@ export default function TrendingTokensPage() {
                 </div>
               </div>
 
-              {/* Quick Buy and Add to Cart buttons at bottom */}
+              {/* Quick Buy, Add to Cart, and Share buttons at bottom */}
               <div className="flex gap-2 mt-auto">
                 <button 
                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md"
@@ -544,6 +552,13 @@ export default function TrendingTokensPage() {
                   ) : (
                     <ShoppingCart className="w-4 h-4" />
                   )}
+                </button>
+                <button 
+                  className="w-12 h-12 rounded-lg transition-all shadow-md flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  onClick={() => handleShare(token)}
+                  title="Share on Twitter"
+                >
+                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
             </div>

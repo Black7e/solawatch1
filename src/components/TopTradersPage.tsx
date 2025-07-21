@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Share2 } from 'lucide-react';
 import Header from './Header';
 import Footer from './Footer';
 import WalletModal from './WalletModal';
@@ -102,6 +102,15 @@ export default function TopTradersPage() {
 
   const handleAnalyzeWallet = (walletAddress: string) => {
     navigate(`/portfolio/${walletAddress}`);
+  };
+
+  const handleShare = (trader: TopTrader, index: number) => {
+    const roi = calculateROI(trader.summary.total, trader.summary.totalInvested);
+    const shareText = `🏆 Top Solana Trader #${index + 1}! 📈\n\n💰 Total PnL: $${formatCurrency(trader.summary.total)}\n📊 ROI: ${formatROI(trader.summary.total, trader.summary.totalInvested)}\n🎯 Win Rate: ${trader.summary.winPercentage.toFixed(1)}%\n💼 Total Trades: ${trader.summary.totalWins + trader.summary.totalLosses}\n\nWallet: ${trader.wallet.slice(0, 8)}...${trader.wallet.slice(-8)}\n\nCheck out this trader on SolaWatch! 🔥\n\n#Solana #Trading #DeFi #Crypto`;
+    
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   const formatCurrency = (value: number) => {
@@ -363,6 +372,14 @@ export default function TopTradersPage() {
                           >
                             <TrendingUp className="w-3 h-3" />
                             <span>Analyze</span>
+                          </button>
+                          <button
+                            onClick={() => handleShare(trader, index)}
+                            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 flex items-center space-x-1 text-sm"
+                            title="Share on Twitter"
+                          >
+                            <Share2 className="w-3 h-3" />
+                            <span>Share</span>
                           </button>
                         </div>
                       </td>
