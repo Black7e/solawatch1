@@ -23,18 +23,6 @@ export default function Hero({ onConnectWallet }: HeroProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center">
           
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-x-text mb-4 sm:mb-6 leading-tight">
-            On-Chain Intelligence for{' '}
-            <br className="hidden sm:block" />
-            <span className="text-x-purple">
-              New Investors
-            </span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl md:text-2xl text-x-text-secondary mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-2">
-            Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
-          </p>
-          
         </div>
       </div>
     </section>
