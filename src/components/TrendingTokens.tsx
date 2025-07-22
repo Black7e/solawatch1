@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, ShoppingCart, Share2, Flame } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { SolanaTrackerService, TrendingToken } from '../services/solanaTrackerApi';
@@ -30,6 +31,7 @@ interface TrendingTokensProps {
 }
 
 export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps) {
+  const navigate = useNavigate();
   const [tokens, setTokens] = useState<TrendingToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,10 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { addToCart, cart } = useCart();
   const { connected, publicKey } = useWallet();
+
+  const handleViewAll = () => {
+    navigate('/trending-tokens');
+  };
 
   useEffect(() => {
     async function fetchTrendingTokens() {
@@ -129,13 +135,23 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   return (
     <section className="w-full px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Flame className="w-8 h-8 text-x-purple" />
-          <h2 className="text-3xl font-bold text-x-text">Trending Tokens</h2>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <Flame className="w-8 h-8 text-x-purple" />
+              <h2 className="text-3xl font-bold text-x-text">Trending Tokens</h2>
+            </div>
+            <p className="text-x-text-secondary">
+              Discover the hottest tokens on Solana with real-time market data and risk analysis.
+            </p>
+          </div>
+          <button
+            onClick={handleViewAll}
+            className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text border border-x-border hover:border-x-border-light px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            View All
+          </button>
         </div>
-        <p className="text-x-text-secondary">
-          Discover the hottest tokens on Solana with real-time market data and risk analysis.
-        </p>
       </div>
       
       {loading && (
