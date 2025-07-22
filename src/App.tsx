@@ -4,7 +4,6 @@ import { useEffect, Suspense } from 'react';
 import { WalletContextProvider } from './components/WalletProvider';
 import { SafariFallback } from './components/SafariFallback';
 import Header from './components/Header';
-import Hero from './components/Hero';
 import Features from './components/Features';
 import Leaderboard from './components/Leaderboard';
 import Footer from './components/Footer';
@@ -61,8 +60,6 @@ function HomePage() {
         setMobileMenuOpen={setMobileMenuOpen}
         onConnectWallet={handleConnectWallet}
       />
-      <Hero onConnectWallet={handleConnectWallet} />
-      {/* Ensure TrendingTokens is only rendered after Hero, not above Header or Hero */}
       <TrendingTokens onConnectWallet={handleConnectWallet} />
       <Leaderboard />
       <Features />
