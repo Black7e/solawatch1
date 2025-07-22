@@ -136,22 +136,31 @@ export default function Leaderboard() {
 
   if (loading) {
     return (
-      <section id="leaderboard" className="hidden md:block py-12 sm:py-20 bg-gradient-to-br from-gray-900 via-purple-900/10 to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-              Top Performing Smart Wallets
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
-              Follow and copy the strategies of the most successful traders on Solana.
-            </p>
-          </div>
-          
-          <div className="flex items-center justify-center">
-            <div className="text-center">
-              <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
-              <p className="text-gray-400">Loading top traders...</p>
+      <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-8">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <TrendingUp className="w-8 h-8 text-x-purple" />
+                <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+              </div>
+              <p className="text-x-text-secondary">
+                Follow and copy the strategies of the most successful traders on Solana.
+              </p>
             </div>
+            <button
+              onClick={handleLoadMore}
+              className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text border border-x-border hover:border-x-border-light px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+            >
+              View All
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Loading top traders...</p>
           </div>
         </div>
       </section>
@@ -160,28 +169,37 @@ export default function Leaderboard() {
 
   if (error) {
     return (
-      <section id="leaderboard" className="hidden md:block py-12 sm:py-20 bg-gradient-to-br from-gray-900 via-purple-900/10 to-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-              Top Performing Smart Wallets
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
-              Follow and copy the strategies of the most successful traders on Solana.
-            </p>
-          </div>
-          
-          <div className="text-center">
-            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md mx-auto">
-              <p className="text-red-400 mb-2">Failed to load top traders</p>
-              <p className="text-gray-400 text-sm">{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-              >
-                Retry
-              </button>
+      <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-8">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <TrendingUp className="w-8 h-8 text-x-purple" />
+                <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+              </div>
+              <p className="text-x-text-secondary">
+                Follow and copy the strategies of the most successful traders on Solana.
+              </p>
             </div>
+            <button
+              onClick={handleLoadMore}
+              className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text border border-x-border hover:border-x-border-light px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+            >
+              View All
+            </button>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center py-12">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md">
+            <p className="text-red-400 mb-2">Failed to load top traders</p>
+            <p className="text-gray-400 text-sm">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              Retry
+            </button>
           </div>
         </div>
       </section>
