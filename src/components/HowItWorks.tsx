@@ -84,8 +84,9 @@ const HowItWorks: React.FC = () => {
                 How do I prepare my wallet for trading?
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Before trading, ensure your wallet has sufficient SOL for transaction fees (recommended 0.1-0.5 SOL) and the tokens you want to purchase. 
-                You can buy SOL from exchanges like Coinbase, Binance, or FTX and transfer it to your Solana wallet.
+                Before trading, ensure your wallet has sufficient SOL for the tokens you want to purchase. 
+                You can buy SOL from exchanges like Coinbase, Binance, or FTX and transfer it to your Solana wallet. 
+                SolaWatch charges a 1% fee on all purchases, which is automatically included in your transaction.
               </p>
             </div>
 
