@@ -189,47 +189,7 @@ export default function PortfolioAnalysis() {
         setSafeCopySummary={setSafeCopySummary}
       />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Wallet Input for Quick Analysis */}
-        <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 mb-8 sticky top-20 z-40">
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
-            <div className="flex-1 w-full">
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const input = e.currentTarget.querySelector('input') as HTMLInputElement;
-                const newAddress = input.value.trim();
-                if (newAddress && newAddress !== walletAddress) {
-                  try {
-                    new PublicKey(newAddress);
-                    navigate(`/portfolio/${newAddress}`);
-                  } catch {
-                    alert('Please enter a valid Solana wallet address');
-                  }
-                }
-              }}>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Enter wallet address to analyze..."
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }
-                  }}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 pr-14 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition-all duration-200 group"
-                >
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              </div>
-              </form>
-            </div>
-          </div>
-        </div>
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
 
         {/* Wallet Header */}
         <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 mb-8">
