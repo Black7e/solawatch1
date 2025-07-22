@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { TrendingUp, ShoppingCart, Share2 } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -8,7 +8,7 @@ import QuickBuyModal from './QuickBuyModal';
 import { useCart } from './CartProvider';
 import { getPrimaryRpcEndpoint } from '../config/network';
 
-// Add marquee animation CSS
+// Enhanced marquee animation CSS with pause functionality
 const marqueeStyle = `
 @keyframes marquee {
   0% { transform: translateX(0); }
@@ -18,6 +18,37 @@ const marqueeStyle = `
   display: flex;
   width: 200%;
   animation: marquee 32s linear infinite;
+  cursor: grab;
+  user-select: none;
+}
+.trending-marquee.paused {
+  animation-play-state: paused;
+}
+.trending-marquee.dragging {
+  cursor: grabbing;
+  animation-play-state: paused;
+}
+.trending-marquee-container {
+  overflow-x: hidden;
+  position: relative;
+}
+.trending-marquee-container::before,
+.trending-marquee-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  z-index: 10;
+  pointer-events: none;
+}
+.trending-marquee-container::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(17, 24, 39, 1), rgba(17, 24, 39, 0));
+}
+.trending-marquee-container::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(17, 24, 39, 1), rgba(17, 24, 39, 0));
 }
 `;
 
@@ -51,6 +82,14 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const { addToCart, cart } = useCart();
   const { connected, publicKey } = useWallet();
+  
+  // Marquee interaction state
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState(0);
+  const [dragStartScroll, setDragStartScroll] = useState(0);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchTrendingTokens() {
@@ -147,11 +186,78 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
 
   const handleShare = (token: TrendingToken) => {
     const shareText = `🚀 $${token.symbol} is trending on Solana! 📈\n\n💰 Price: $${token.price < 0.01 ? token.price.toFixed(6) : token.price < 1 ? token.price.toFixed(4) : token.price.toFixed(2)}\n📊 24h Change: ${token.change24h > 0 ? '+' : ''}${token.change24h.toFixed(2)}%\n💎 Market Cap: $${token.marketCap > 1000000 ? (token.marketCap / 1000000).toFixed(1) + 'M' : token.marketCap > 1000 ? (token.marketCap / 1000).toFixed(1) + 'K' : token.marketCap.toFixed(0)}\n\nCheck it out on SolaWatch! 🔥\n\n#Solana #${token.symbol} #Crypto #DeFi`;
-    
     const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-    
     window.open(shareUrl, '_blank', 'width=600,height=400');
   };
+
+  // Marquee interaction handlers
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isDragging) {
+      setIsPaused(false);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!marqueeRef.current) return;
+    
+    setIsDragging(true);
+    setIsPaused(true);
+    setDragStartX(e.clientX);
+    setDragStartScroll(marqueeRef.current.scrollLeft);
+    
+    // Prevent text selection during drag
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !marqueeRef.current) return;
+    
+    const deltaX = e.clientX - dragStartX;
+    marqueeRef.current.scrollLeft = dragStartScroll - deltaX;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    // Don't resume animation immediately, let user decide
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!marqueeRef.current) return;
+    
+    setIsDragging(true);
+    setIsPaused(true);
+    setDragStartX(e.touches[0].clientX);
+    setDragStartScroll(marqueeRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging || !marqueeRef.current) return;
+    
+    const deltaX = e.touches[0].clientX - dragStartX;
+    marqueeRef.current.scrollLeft = dragStartScroll - deltaX;
+    
+    // Prevent default to avoid page scrolling
+    e.preventDefault();
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  // Resume animation after a delay when not dragging
+  useEffect(() => {
+    if (!isDragging) {
+      const timer = setTimeout(() => {
+        setIsPaused(false);
+      }, 1000); // Resume after 1 second of no interaction
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isDragging]);
 
   return (
     <section className="w-full px-0 py-1">
@@ -163,7 +269,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
           <span className="text-purple-400 text-xs font-medium">Trending on Solana</span>
         </div>
       </div>
-      <div className="overflow-x-hidden w-full">
+      <div className="trending-marquee-container" ref={containerRef}>
         {loading && (
           <div className="text-center text-gray-400 py-8">Loading trending tokens...</div>
         )}
@@ -179,12 +285,25 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
         )}
         {!loading && !error && tokens.length > 0 && (
           <div className="relative w-full pt-8" style={{ height: 350 }}>
-            <div className="trending-marquee">
+            <div 
+              ref={marqueeRef}
+              className={`trending-marquee ${isPaused ? 'paused' : ''} ${isDragging ? 'dragging' : ''}`}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               {marqueeTokens.map((token, idx) => (
                 <div
                   key={idx}
-                  className="bg-gray-900 border border-gray-700 rounded-xl p-5 flex flex-col h-full shadow-lg min-w-[320px] relative mx-3"
+                  className="bg-gray-900 border border-gray-700 rounded-xl p-5 flex flex-col h-full shadow-lg min-w-[320px] relative mx-3 token-card hover:border-purple-500/50 hover:shadow-purple-500/10 transition-all duration-300 hover:scale-[1.02]"
                 >
+                  {/* Add token symbol class for identification */}
+                  <div className="token-symbol hidden">{token.symbol}</div>
                   {/* Risk tags in top right */}
                   {token.riskData && (
                     <div className="absolute top-5 right-5 flex flex-wrap gap-1 justify-end z-10">
