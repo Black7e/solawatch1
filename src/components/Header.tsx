@@ -360,7 +360,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
       {/* Wallet Analysis Input - Full Width Below Header */}
       <div className="w-full bg-x-bg-secondary border-b border-x-border">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
-          <form onSubmit={handleFormSubmit} className="relative max-w-4xl mx-auto">
+          <form onSubmit={handleFormSubmit} className="relative w-full">
             <input
               type="text"
               value={walletAddress}
