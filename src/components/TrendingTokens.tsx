@@ -50,7 +50,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
         }
         const connection = new Connection(getPrimaryRpcEndpoint());
         const service = new SolanaTrackerService(connection, apiKey);
-        const trendingTokens = await service.getTrendingTokens(9); // Show 9 tokens for 3x3 grid
+        const trendingTokens = await service.getTrendingTokens(12); // Show 12 tokens for 4x3 grid
         setTokens(trendingTokens);
       } catch (err: any) {
         console.error('Error fetching trending tokens:', err);
@@ -149,7 +149,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
         </div>
       )}
       {!loading && !error && tokens.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {tokens.map((token, idx) => (
             <div
               key={idx}
