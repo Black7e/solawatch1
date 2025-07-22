@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { TrendingUp, ShoppingCart, Share2 } from 'lucide-react';
+import { TrendingUp, ShoppingCart, Share2, Flame } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { SolanaTrackerService, TrendingToken } from '../services/solanaTrackerApi';
 import { Connection } from '@solana/web3.js';
@@ -136,7 +136,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
       </div>
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <TrendingUp className="w-8 h-8 text-x-purple" />
+          <Flame className="w-8 h-8 text-x-purple" />
           <h2 className="text-3xl font-bold text-x-text">Trending Tokens</h2>
         </div>
         <p className="text-x-text-secondary">
