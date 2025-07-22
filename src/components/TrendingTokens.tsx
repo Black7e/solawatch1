@@ -300,13 +300,13 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
               {marqueeTokens.map((token, idx) => (
                 <div
                   key={idx}
-                  className="bg-gray-900 border border-gray-700 rounded-xl p-5 flex flex-col h-full shadow-lg min-w-[320px] relative mx-3 token-card hover:border-purple-500/50 hover:shadow-purple-500/10 transition-all duration-300 hover:scale-[1.02]"
+                  className="bg-x-bg-secondary border border-x-border rounded-lg p-6 flex flex-col h-full shadow-lg min-w-[320px] relative mx-3 token-card hover:border-x-border-light transition-all duration-200 hover:shadow-lg"
                 >
                   {/* Add token symbol class for identification */}
                   <div className="token-symbol hidden">{token.symbol}</div>
                   {/* Risk tags in top right */}
                   {token.riskData && (
-                    <div className="absolute top-5 right-5 flex flex-wrap gap-1 justify-end z-10">
+                    <div className="flex flex-wrap gap-1 justify-end z-10 mb-4">
                       {token.riskData.jupiterVerified && (
                         <div className="relative group">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900/50 text-green-400 border border-green-500/30 cursor-help">
@@ -401,7 +401,15 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
                       }}
                     />
                     <div className="flex flex-col min-w-0">
-                      <span className="text-white font-bold text-lg leading-tight truncate">{token.name}</span>
+                      <a
+                        href={`https://solscan.io/token/${token.mint}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white font-bold text-lg leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer"
+                        title={`View ${token.name} on Solscan`}
+                      >
+                        {token.name}
+                      </a>
                       <span className="text-gray-400 text-sm font-medium">
                         ${token.marketCap > 1000000 
                           ? (token.marketCap / 1000000).toFixed(1) + 'M' 

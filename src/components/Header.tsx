@@ -180,7 +180,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               ) : (
                 <button 
                   onClick={onConnectWallet}
-                  className="bg-x-purple text-white hover:bg-x-purple-hover px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base"
+                  className="bg-x-purple text-white hover:bg-x-purple-hover px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base h-9 sm:h-10"
                 >
                   {getWalletButtonText()}
                 </button>
@@ -188,7 +188,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               {/* Cart View */}
               <button
                 ref={cartButtonRef}
-                className="relative bg-x-purple text-white px-3 py-1.5 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center text-sm border border-x-purple/30"
+                className="relative bg-x-purple text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30 h-9 sm:h-10"
                 title="View Cart"
                 onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
                 style={{ zIndex: 2 }}
