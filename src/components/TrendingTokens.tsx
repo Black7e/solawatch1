@@ -127,8 +127,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   };
 
   return (
-    <section className="py-8 bg-gradient-to-br from-gray-900 via-purple-900/10 to-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-center mb-6">
         <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
           <TrendingUp className="w-4 h-4 text-purple-400" />
@@ -378,7 +377,6 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
           onClose={() => setToast(null)} 
         />
       )}
-      </div>
     </section>
   );
 }
