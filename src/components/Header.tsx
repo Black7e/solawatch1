@@ -192,25 +192,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               </button>
             </nav>
 
-            {/* Wallet Analysis Input */}
-            <form onSubmit={handleFormSubmit} className="hidden lg:block relative flex-1 max-w-md mx-8">
-              <input
-                type="text"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter wallet address to analyze..."
-                className="w-full pl-4 pr-12 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-sm"
-                disabled={isValidating}
-              />
-              <button 
-                onClick={handleAnalyzeWallet}
-                disabled={isValidating}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </form>
+
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
@@ -374,6 +356,30 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
           </div>
         </div>
       )}
+
+      {/* Wallet Analysis Input - Full Width Below Header */}
+      <div className="w-full bg-x-bg-secondary border-b border-x-border">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-4">
+          <form onSubmit={handleFormSubmit} className="relative max-w-4xl mx-auto">
+            <input
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter wallet address to analyze..."
+              className="w-full pl-4 pr-12 py-3 bg-x-bg border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-base"
+              disabled={isValidating}
+            />
+            <button 
+              onClick={handleAnalyzeWallet}
+              disabled={isValidating}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-2 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </form>
+        </div>
+      </div>
     </header>
   );
 }
