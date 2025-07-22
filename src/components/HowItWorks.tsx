@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from './Header';
+import Footer from './Footer';
 import WalletModal from './WalletModal';
 
 const HowItWorks: React.FC = () => {
@@ -63,6 +64,8 @@ const HowItWorks: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
       
       <WalletModal 
         isOpen={walletModalOpen}
