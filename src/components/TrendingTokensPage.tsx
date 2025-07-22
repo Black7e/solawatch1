@@ -300,7 +300,7 @@ export default function TrendingTokensPage() {
         onConnectWallet={handleConnectWallet}
       />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
@@ -345,7 +345,7 @@ export default function TrendingTokensPage() {
         </div>
 
                 {/* Tokens Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {sortedTokens.map((token, index) => (
             <div
               key={token.mint}
@@ -439,11 +439,11 @@ export default function TrendingTokensPage() {
               )}
 
               {/* Token Header */}
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <img
                   src={token.image}
                   alt={token.name}
-                  className="w-12 h-12 rounded-full bg-gray-700 border border-gray-600 object-cover"
+                  className="w-8 h-8 rounded-full bg-gray-700 border border-gray-600 object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = '/unknown-logo.png';
@@ -454,12 +454,12 @@ export default function TrendingTokensPage() {
                     href={`https://solscan.io/token/${token.mint}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white font-bold text-lg leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer"
+                    className="text-white font-medium text-sm leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer"
                     title={`View ${token.name} on Solscan`}
                   >
                     {token.name}
                   </a>
-                  <span className="text-gray-400 text-sm font-medium">
+                  <span className="text-gray-400 text-xs">
                     ${token.marketCap > 1000000 
                       ? (token.marketCap / 1000000).toFixed(1) + 'M' 
                       : token.marketCap > 1000 
@@ -470,54 +470,54 @@ export default function TrendingTokensPage() {
                 </div>
               </div>
 
-              {/* Price and Volume */}
-              <div className="flex justify-between items-end mb-4 gap-4">
-                <div className="flex-1">
-                  <div className="text-gray-300 text-sm mb-1">24hr Volume</div>
-                  <div className="text-green-400 text-2xl font-bold">
+              {/* Stats */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">24hr Volume</span>
+                  <span className="text-green-400 font-bold">
                     ${token.volume24h > 1000000 
                       ? (token.volume24h / 1000000).toFixed(1) + 'M' 
                       : token.volume24h > 1000 
                         ? (token.volume24h / 1000).toFixed(1) + 'K' 
                         : token.volume24h.toFixed(0)
                     }
-                  </div>
+                  </span>
                 </div>
-                <div className="flex-1 text-right">
-                  <div className="text-gray-300 text-sm mb-1">24hr Change</div>
-                  <div className={`text-2xl font-bold ${token.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}> 
-                    {token.change24h > 0 ? '+' : ''}{token.change24h.toFixed(2)}%
-                  </div>
-                </div>
-              </div>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-4 w-full pt-2 text-sm mb-4">
-                <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Price</div>
-                  <div className="text-white font-semibold">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">24hr Change</span>
+                  <span className={`font-bold ${token.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}> 
+                    {token.change24h > 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Price</span>
+                  <span className="font-bold text-white">
                     ${token.price < 0.01 
                       ? token.price.toFixed(6) 
                       : token.price < 1 
                         ? token.price.toFixed(4) 
                         : token.price.toFixed(2)
                     }
-                  </div>
+                  </span>
                 </div>
-                <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Liquidity</div>
-                  <div className="text-white font-semibold">
+
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Liquidity</span>
+                  <span className="font-bold text-white">
                     ${token.liquidity > 1000000 
                       ? (token.liquidity / 1000000).toFixed(1) + 'M' 
                       : token.liquidity > 1000 
                         ? (token.liquidity / 1000).toFixed(1) + 'K' 
                         : token.liquidity.toFixed(0)
                     }
-                  </div>
+                  </span>
                 </div>
-                <div>
-                  <div className="text-gray-400 text-xs mb-0.5">Total Txns</div>
-                  <div className="text-white font-semibold">
+
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400 text-sm">Total Txns</span>
+                  <span className="font-bold text-white">
                     {token.txns !== undefined
                       ? token.txns > 1000000
                         ? (token.txns / 1000000).toFixed(1) + 'M'
@@ -525,24 +525,24 @@ export default function TrendingTokensPage() {
                           ? (token.txns / 1000).toFixed(1) + 'K'
                           : token.txns.toString()
                       : '--'}
-                  </div>
+                  </span>
                 </div>
               </div>
 
-              {/* Quick Buy, Add to Cart, and Share buttons at bottom */}
-              <div className="flex gap-2 mt-auto">
+              {/* Actions */}
+              <div className="flex gap-2 mt-6">
                 <button 
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md"
+                  className="flex-1 bg-x-purple hover:bg-x-purple-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                   onClick={() => handleQuickBuy(token)}
                 >
                   Quick Buy
                 </button>
                 <button 
-                  className={`w-12 h-12 rounded-lg transition-all shadow-md flex items-center justify-center ${
+                  className={`w-10 h-10 rounded-lg transition-all flex items-center justify-center ${
                     addingToCart === token.symbol 
                       ? 'bg-gray-600 cursor-not-allowed' 
                       : 'bg-gray-700 hover:bg-gray-600'
-                  } text-white font-semibold`}
+                  } text-white`}
                   onClick={() => handleAddToCart(token)}
                   disabled={addingToCart === token.symbol}
                   title="Add to Cart"
@@ -554,7 +554,7 @@ export default function TrendingTokensPage() {
                   )}
                 </button>
                 <button 
-                  className="w-12 h-12 rounded-lg transition-all shadow-md flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+                  className="w-10 h-10 rounded-lg transition-all flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => handleShare(token)}
                   title="Share on Twitter"
                 >
