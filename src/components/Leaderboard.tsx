@@ -191,13 +191,24 @@ export default function Leaderboard() {
     return (
     <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <TrendingUp className="w-8 h-8 text-x-purple" />
-          <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-3 mb-4">
+              <TrendingUp className="w-8 h-8 text-x-purple" />
+              <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+            </div>
+            <p className="text-x-text-secondary">
+              Follow and copy the strategies of the most successful traders on Solana.
+            </p>
+          </div>
+          <button
+            onClick={handleLoadMore}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2"
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span>View All</span>
+          </button>
         </div>
-        <p className="text-x-text-secondary">
-          Follow and copy the strategies of the most successful traders on Solana.
-        </p>
       </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -285,17 +296,6 @@ export default function Leaderboard() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Load More Button */}
-        <div className="text-center">
-          <button
-            onClick={handleLoadMore}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 mx-auto"
-          >
-            <TrendingUp className="w-5 h-5" />
-            <span>View All</span>
-          </button>
         </div>
     </section>
   );
