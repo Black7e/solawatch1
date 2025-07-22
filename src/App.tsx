@@ -8,7 +8,7 @@ import Leaderboard from './components/Leaderboard';
 import Footer from './components/Footer';
 import WalletModal from './components/WalletModal';
 import PortfolioAnalysis from './components/PortfolioAnalysis';
-import TopTradersPage from './components/TopTradersPage';
+import HotWalletsPage from './components/HotWalletsPage';
 import { CartProvider } from './components/CartProvider';
 import TrendingTokens from './components/TrendingTokens';
 // Perpetuals imports temporarily disabled
@@ -17,7 +17,6 @@ import CopyTradingPage from './components/CopyTradingPage';
 import HyperliquidLeaderboardPage from './components/HyperliquidLeaderboardPage';
 import FuturesGridBot from './components/FuturesGridBot';
 // import HotPerpetualsPage from './components/HotPerpetualsPage';
-import HotWalletsPage from './components/HotWalletsPage';
 import TrendingTokensPageComponent from './components/TrendingTokensPage';
 import BonkPage from './components/BonkPage';
 import HowItWorks from './components/HowItWorks';
@@ -233,7 +232,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
-                <Route path="/top-traders" element={<TopTradersPage />} />
+                <Route path="/top-traders" element={<HotWalletsPage />} />
                 {/* Perpetuals routes temporarily disabled
                 <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
                 <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
