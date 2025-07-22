@@ -4,7 +4,6 @@ import { useEffect, Suspense } from 'react';
 import { WalletContextProvider } from './components/WalletProvider';
 import { SafariFallback } from './components/SafariFallback';
 import Header from './components/Header';
-import Features from './components/Features';
 import Leaderboard from './components/Leaderboard';
 import Footer from './components/Footer';
 import WalletModal from './components/WalletModal';
@@ -62,7 +61,6 @@ function HomePage() {
       />
       <Leaderboard />
       <TrendingTokens onConnectWallet={handleConnectWallet} />
-      <Features />
       
       {/* Hyperliquid Perpetuals CTA Section - TEMPORARILY DISABLED */}
       {/* 
