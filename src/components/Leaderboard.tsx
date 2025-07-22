@@ -182,9 +182,15 @@ export default function Leaderboard() {
     );
   }
 
-  return (
+    return (
     <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
-        <div className="text-center mb-12 sm:mb-16">
+      <div className="flex justify-center mb-6">
+        <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
+          <TrendingUp className="w-4 h-4 text-purple-400" />
+          <span className="text-purple-400 text-xs font-medium">Top Traders on Solana</span>
+        </div>
+      </div>
+      <div className="text-center mb-12 sm:mb-16">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
             Top Performing Smart Wallets
           </h2>
