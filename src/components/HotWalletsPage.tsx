@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Filter, Zap, ArrowRight } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Filter, Zap, ArrowRight, Share2 } from 'lucide-react';
 import { PublicKey } from '@solana/web3.js';
 import Header from './Header';
 import Footer from './Footer';
@@ -140,6 +140,12 @@ export default function HotWalletsPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleAnalyzeWallet();
+  };
+
+  const handleShare = (trader: TopTrader, index: number) => {
+    const shareText = `🔥 Top Trader #${index + 1} on Solana! 📈\n\n💰 Total PnL: ${formatCurrency(trader.summary.total)}\n📊 ROI: ${formatROI(trader.summary.total, trader.summary.totalInvested)}\n🎯 Win Rate: ${trader.summary.winPercentage.toFixed(1)}%\n💎 Total Invested: ${formatCurrency(trader.summary.totalInvested)}\n📈 Total Trades: ${trader.summary.totalWins + trader.summary.totalLosses}\n\nWallet: ${trader.wallet.slice(0, 4)}...${trader.wallet.slice(-4)}\n\nCheck out this trader on SolaWatch! 🔥\n\n#Solana #Trading #Crypto #DeFi`;
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    window.open(shareUrl, '_blank', 'width=600,height=400');
   };
 
   const formatCurrency = (value: number) => {
@@ -410,6 +416,13 @@ export default function HotWalletsPage() {
                   title="View on Solscan"
                 >
                   <ExternalLink className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleShare(trader, index)}
+                  className="w-10 h-10 rounded-lg transition-all flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white"
+                  title="Share on Twitter"
+                >
+                  <Share2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
