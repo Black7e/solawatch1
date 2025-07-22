@@ -117,8 +117,8 @@ const HowItWorks: React.FC = () => {
                 Why can't I add a token to my cart?
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                Common reasons include: insufficient SOL for transaction fees, token not having enough liquidity, or the token being temporarily unavailable. 
-                Make sure you have at least 0.1 SOL for fees and try refreshing the page. If the issue persists, the token may be experiencing technical difficulties.
+                Common reasons include: token not having enough liquidity, the token being temporarily unavailable, or technical issues with the token. 
+                Try refreshing the page. If the issue persists, the token may be experiencing technical difficulties. Note: You don't need SOL balance to add tokens to your cart - SOL is only required when purchasing.
               </p>
             </div>
 
