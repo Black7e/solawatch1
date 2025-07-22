@@ -46,7 +46,7 @@ const HowItWorks: React.FC = () => {
             {/* Step 2 */}
             <div className="text-center">
               <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
-                <h3 className="text-xl font-bold text-white mb-3">Add to Cart</h3>
+                <h3 className="text-xl font-bold text-white mb-3">One-Click Purchase</h3>
                 <p className="text-gray-300">
                   Add up to 10 tokens to your cart — ape in all in one-click.
                 </p>
