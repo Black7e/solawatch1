@@ -33,35 +33,35 @@ const HowItWorks: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Step 1 */}
-          <div className="text-center">
-            <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
-              <h3 className="text-xl font-bold text-white mb-3">Discover Tokens</h3>
-              <p className="text-gray-300">
-                Browse trending tokens and analyze top-performing wallets to find the best opportunities.
-              </p>
+                      {/* Step 1 */}
+            <div className="text-center">
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
+                <h3 className="text-xl font-bold text-white mb-3">Discover Tokens</h3>
+                <p className="text-gray-300">
+                  Find trending tokens and top-performing wallets.
+                </p>
+              </div>
             </div>
-          </div>
-          
-          {/* Step 2 */}
-          <div className="text-center">
-            <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
-              <h3 className="text-xl font-bold text-white mb-3">Add to Cart</h3>
-              <p className="text-gray-300">
-                Add up to 10 tokens to your cart from any trending token or wallet analysis.
-              </p>
+            
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
+                <h3 className="text-xl font-bold text-white mb-3">Add to Cart</h3>
+                <p className="text-gray-300">
+                  Add up to 10 tokens to your cart.
+                </p>
+              </div>
             </div>
-          </div>
-          
-          {/* Step 3 */}
-          <div className="text-center">
-            <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
-              <h3 className="text-xl font-bold text-white mb-3">One-Click Purchase</h3>
-              <p className="text-gray-300">
-                Purchase all your selected tokens with a single click using Jupiter's best routes.
-              </p>
+            
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
+                <h3 className="text-xl font-bold text-white mb-3">One-Click Purchase</h3>
+                <p className="text-gray-300">
+                  Buy all tokens with one click.
+                </p>
+              </div>
             </div>
-          </div>
         </div>
       </div>
       
