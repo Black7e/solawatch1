@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Filter, Zap } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Filter, Zap, ArrowRight } from 'lucide-react';
+import { PublicKey } from '@solana/web3.js';
 import Header from './Header';
 import Footer from './Footer';
 import WalletModal from './WalletModal';
@@ -42,6 +43,7 @@ export default function HotWalletsPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [limit] = useState(23); // Limit to control API costs
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleConnectWallet = () => {
     setWalletModalOpen(true);
@@ -101,8 +103,43 @@ export default function HotWalletsPage() {
     fetchHotWallets();
   }, [limit]);
 
-  const handleAnalyzeWallet = (walletAddress: string) => {
-    navigate(`/portfolio/${walletAddress}`);
+  const validateSolanaAddress = (address: string): boolean => {
+    try {
+      new PublicKey(address);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleAnalyzeWallet = async () => {
+    if (!searchTerm.trim()) {
+      return; // Don't do anything if search is empty
+    }
+
+    // Check if it's a valid Solana address
+    if (validateSolanaAddress(searchTerm.trim())) {
+      setIsAnalyzing(true);
+      // Navigate to portfolio analysis page
+      navigate(`/portfolio/${searchTerm.trim()}`);
+      return;
+    }
+
+    // If not a valid address, continue with normal search filtering
+    // (existing functionality remains the same)
+  };
+
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAnalyzeWallet();
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleAnalyzeWallet();
   };
 
   const formatCurrency = (value: number) => {
@@ -131,8 +168,8 @@ export default function HotWalletsPage() {
   const getSortedAndFilteredTraders = () => {
     let filtered = topTraders;
 
-    // Filter by search term
-    if (searchTerm) {
+    // Filter by search term (only if it's not a valid Solana address)
+    if (searchTerm && !validateSolanaAddress(searchTerm.trim())) {
       filtered = filtered.filter(trader => 
         trader.wallet.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -214,6 +251,7 @@ export default function HotWalletsPage() {
   }
 
   const sortedTraders = getSortedAndFilteredTraders();
+  const isSearchingWallet = searchTerm && validateSolanaAddress(searchTerm.trim());
 
   return (
     <div className="min-h-screen bg-x-bg">
@@ -231,23 +269,36 @@ export default function HotWalletsPage() {
             <h1 className="text-3xl font-bold text-x-text">Hot Wallets</h1>
           </div>
           <p className="text-x-text-secondary">
-            Discover the most active and profitable traders on Solana.
+            Discover the most active and profitable traders on Solana, or analyze any wallet address.
           </p>
         </div>
 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           {/* Search */}
-          <div className="relative flex-1">
+          <form onSubmit={handleSearchSubmit} className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-x-text-secondary w-4 h-4" />
             <input
               type="text"
-              placeholder="Search wallets..."
+              placeholder="Search wallets or enter wallet address to analyze..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
+              onKeyPress={handleSearchKeyPress}
+              className="w-full pl-10 pr-12 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
+              disabled={isAnalyzing}
             />
-          </div>
+            {isSearchingWallet && (
+              <button 
+                type="submit"
+                onClick={handleAnalyzeWallet}
+                disabled={isAnalyzing}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Analyze this wallet"
+              >
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
+          </form>
 
           {/* Sort */}
           <div className="flex items-center gap-2">
@@ -266,6 +317,23 @@ export default function HotWalletsPage() {
             </select>
           </div>
         </div>
+
+        {/* Search Status */}
+        {isSearchingWallet && (
+          <div className="mb-6 p-4 bg-x-purple/10 border border-x-purple/20 rounded-lg">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-5 h-5 text-x-purple" />
+              <div>
+                <p className="text-x-text font-medium">
+                  Analyzing wallet: {searchTerm.slice(0, 8)}...{searchTerm.slice(-8)}
+                </p>
+                <p className="text-x-text-secondary text-sm">
+                  Press Enter or click the arrow to analyze this wallet's portfolio
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Wallets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -331,7 +399,7 @@ export default function HotWalletsPage() {
               {/* Actions */}
               <div className="flex gap-2 mt-6">
                 <button
-                  onClick={() => handleAnalyzeWallet(trader.wallet)}
+                  onClick={() => navigate(`/portfolio/${trader.wallet}`)}
                   className="flex-1 bg-x-purple hover:bg-x-purple-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   Analyze
