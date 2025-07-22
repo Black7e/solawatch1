@@ -102,7 +102,7 @@ export default function Leaderboard() {
   };
 
   const handleLoadMore = () => {
-    navigate('/hot-wallets');
+    navigate('/top-traders');
   };
 
   const handleShare = (trader: TopTrader, index: number) => {

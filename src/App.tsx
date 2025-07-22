@@ -242,7 +242,7 @@ function App() {
                 <Route path="/copy-trading" element={<CopyTradingPage />} />
                 <Route path="/leaderboard" element={<HyperliquidLeaderboardPage />} />
                 <Route path="/futures-grid" element={<FuturesGridBot />} />
-                <Route path="/hot-wallets" element={<HotWalletsPage />} />
+                <Route path="/top-traders" element={<HotWalletsPage />} />
                 <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/bonk" element={<BonkPage />} />

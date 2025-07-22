@@ -159,9 +159,9 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {/* Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-6">
               <button
-                onClick={() => navigate('/hot-wallets')}
+                onClick={() => navigate('/top-traders')}
                 className={`text-sm font-medium transition-colors ${
-                  location.pathname === '/hot-wallets' 
+                  location.pathname === '/top-traders' 
                     ? 'text-x-purple' 
                     : 'text-x-text-secondary hover:text-x-text'
                 }`}
@@ -319,9 +319,9 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {/* Navigation Links */}
             <nav className="w-full space-y-2">
               <button
-                onClick={() => { navigate('/hot-wallets'); setMobileMenuOpen(false); }}
+                onClick={() => { navigate('/top-traders'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
-                  location.pathname === '/hot-wallets' 
+                  location.pathname === '/top-traders' 
                     ? 'bg-x-purple/20 text-x-purple' 
                     : 'text-x-text-secondary hover:bg-x-bg-secondary'
                 }`}
