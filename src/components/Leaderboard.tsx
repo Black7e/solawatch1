@@ -189,7 +189,7 @@ export default function Leaderboard() {
   }
 
     return (
-    <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-2">
+    <section id="leaderboard" className="w-full px-4 sm:px-6 lg:px-8 py-6">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <TrendingUp className="w-8 h-8 text-x-purple" />
