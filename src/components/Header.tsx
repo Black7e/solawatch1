@@ -79,7 +79,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
 
   return (
     <header className="bg-x-bg/95 backdrop-blur-sm border-b border-x-border sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-6">
             {/* Mobile Menu Button */}
