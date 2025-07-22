@@ -128,12 +128,12 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
 
   return (
     <section className="w-full px-4 sm:px-6 lg:px-8 py-8">
-      <div className="flex justify-center mb-6">
-        <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
-          <TrendingUp className="w-4 h-4 text-purple-400" />
-          <span className="text-purple-400 text-xs font-medium">Trending on Solana</span>
+              <div className="flex justify-center mb-6">
+          <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
+            <TrendingUp className="w-4 h-4 text-purple-400" />
+            <span className="text-purple-400 text-xs font-medium">Trending Tokens on Solana</span>
+          </div>
         </div>
-      </div>
       
       {loading && (
         <div className="text-center text-gray-400 py-8">Loading trending tokens...</div>
