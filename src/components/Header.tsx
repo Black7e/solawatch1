@@ -166,7 +166,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                     : 'text-x-text-secondary hover:text-x-text'
                 }`}
               >
-                Hot Wallets
+                Top Traders
               </button>
               <button
                 onClick={() => navigate('/trending-tokens')}
@@ -326,7 +326,7 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                     : 'text-x-text-secondary hover:bg-x-bg-secondary'
                 }`}
               >
-                Hot Wallets
+                Top Traders
               </button>
               <button
                 onClick={() => { navigate('/trending-tokens'); setMobileMenuOpen(false); }}

@@ -142,7 +142,7 @@ export default function Leaderboard() {
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <TrendingUp className="w-8 h-8 text-x-purple" />
-                <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+                <h2 className="text-3xl font-bold text-x-text">Top Traders</h2>
               </div>
               <p className="text-x-text-secondary">
                 Follow and copy the strategies of the most successful traders on Solana.
@@ -175,7 +175,7 @@ export default function Leaderboard() {
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <TrendingUp className="w-8 h-8 text-x-purple" />
-                <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+                <h2 className="text-3xl font-bold text-x-text">Top Traders</h2>
               </div>
               <p className="text-x-text-secondary">
                 Follow and copy the strategies of the most successful traders on Solana.
@@ -213,7 +213,7 @@ export default function Leaderboard() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <TrendingUp className="w-8 h-8 text-x-purple" />
-              <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
+              <h2 className="text-3xl font-bold text-x-text">Top Traders</h2>
             </div>
             <p className="text-x-text-secondary">
               Follow and copy the strategies of the most successful traders on Solana.

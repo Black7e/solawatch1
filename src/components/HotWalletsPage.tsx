@@ -93,8 +93,8 @@ export default function HotWalletsPage() {
           throw new Error('Unexpected API response format. Expected wallets array.');
         }
       } catch (err) {
-        console.error('Error fetching hot wallets:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch hot wallets');
+        console.error('Error fetching top traders:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch top traders');
       } finally {
         setLoading(false);
       }
@@ -215,7 +215,7 @@ export default function HotWalletsPage() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <Loader2 className="w-12 h-12 text-x-purple animate-spin mx-auto mb-4" />
-            <p className="text-x-text-secondary">Loading hot wallets...</p>
+                              <p className="text-x-text-secondary">Loading top traders...</p>
           </div>
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function HotWalletsPage() {
         <div className="flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md mx-auto">
-              <p className="text-red-400 mb-2">Failed to load hot wallets</p>
+                              <p className="text-red-400 mb-2">Failed to load top traders</p>
               <p className="text-x-text-secondary text-sm">{error}</p>
               <div className="flex gap-2 mt-4 justify-center">
                 <button
@@ -274,7 +274,7 @@ export default function HotWalletsPage() {
             <div>
               <div className="flex items-center gap-3 mb-4">
                 <Zap className="w-8 h-8 text-x-purple" />
-                <h1 className="text-3xl font-bold text-x-text">Hot Wallets</h1>
+                <h1 className="text-3xl font-bold text-x-text">Top Traders</h1>
               </div>
               <p className="text-x-text-secondary">
                 Discover the most active and profitable traders on Solana, or analyze any wallet address.
