@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check } from 'lucide-react';
+import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check, ArrowRight } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNetworkDisplayName, isTestnet } from '../config/network';
+import { PublicKey } from '@solana/web3.js';
 import CartPopover from './CartPopover';
 import { useCart } from './CartProvider';
 import phantomLogo from '../assets/phantom-logo.jpeg';
@@ -26,6 +27,8 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
   const { connected, disconnect, publicKey } = useWallet();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
   const [cartPopoverOpenLocal, setCartPopoverOpenLocal] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
   const cartPopoverOpen = typeof cartPopoverOpenProp === 'boolean' ? cartPopoverOpenProp : cartPopoverOpenLocal;
   const setCartPopoverOpen = setCartPopoverOpenProp || setCartPopoverOpenLocal;
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -67,6 +70,48 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
   const handleDisconnect = () => {
     disconnect();
     setWalletDropdownOpen(false);
+  };
+
+  const validateSolanaAddress = (address: string): boolean => {
+    try {
+      new PublicKey(address);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleAnalyzeWallet = async () => {
+    if (!walletAddress.trim()) {
+      alert('Please enter a wallet address');
+      return;
+    }
+
+    if (!validateSolanaAddress(walletAddress.trim())) {
+      alert('Please enter a valid Solana wallet address');
+      return;
+    }
+
+    setIsValidating(true);
+    
+    // Navigate to portfolio analysis page
+    navigate(`/portfolio/${walletAddress.trim()}`);
+    setWalletAddress('');
+    setIsValidating(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAnalyzeWallet();
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleAnalyzeWallet();
   };
 
 
@@ -146,6 +191,26 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 BONK Launch 🚀
               </button>
             </nav>
+
+            {/* Wallet Analysis Input */}
+            <form onSubmit={handleFormSubmit} className="hidden lg:block relative flex-1 max-w-md mx-8">
+              <input
+                type="text"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter wallet address to analyze..."
+                className="w-full pl-4 pr-12 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-sm"
+                disabled={isValidating}
+              />
+              <button 
+                onClick={handleAnalyzeWallet}
+                disabled={isValidating}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </form>
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>

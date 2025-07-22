@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, TrendingUp } from 'lucide-react';
-import { PublicKey } from '@solana/web3.js';
+import { TrendingUp } from 'lucide-react';
 
 interface HeroProps {
   onConnectWallet: () => void;
@@ -9,54 +8,12 @@ interface HeroProps {
 
 export default function Hero({ onConnectWallet }: HeroProps) {
   const navigate = useNavigate();
-  const [walletAddress, setWalletAddress] = React.useState('');
-  const [isValidating, setIsValidating] = React.useState(false);
 
   const scrollToSignup = () => {
     const signupSection = document.getElementById('signup');
     if (signupSection) {
       signupSection.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  const validateSolanaAddress = (address: string): boolean => {
-    try {
-      new PublicKey(address);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const handleAnalyzeWallet = async () => {
-    if (!walletAddress.trim()) {
-      alert('Please enter a wallet address');
-      return;
-    }
-
-    if (!validateSolanaAddress(walletAddress.trim())) {
-      alert('Please enter a valid Solana wallet address');
-      return;
-    }
-
-    setIsValidating(true);
-    
-    // Navigate to portfolio analysis page
-    navigate(`/portfolio/${walletAddress.trim()}`);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      e.stopPropagation();
-      handleAnalyzeWallet();
-    }
-  };
-
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleAnalyzeWallet();
   };
 
   return (
@@ -77,27 +34,6 @@ export default function Hero({ onConnectWallet }: HeroProps) {
           <p className="text-lg sm:text-xl md:text-2xl text-x-text-secondary mb-6 sm:mb-8 max-w-4xl mx-auto leading-relaxed px-2">
             Track, analyze, and copy high-performance portfolios from smart wallets on Solana.
           </p>
-          
-          <form onSubmit={handleFormSubmit} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <div className="w-full max-w-sm sm:max-w-md relative px-4 sm:px-0">
-              <input
-                type="text"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Enter wallet address to analyze..."
-                className="w-full bg-x-bg-secondary/50 border border-x-border rounded-lg px-3 py-3 pr-12 sm:px-4 sm:py-4 sm:pr-14 text-x-text placeholder-x-text-tertiary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-sm sm:text-lg backdrop-blur-sm"
-                disabled={isValidating}
-              />
-              <button 
-                onClick={handleAnalyzeWallet}
-                disabled={isValidating}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 sm:p-2 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </form>
           
         </div>
       </div>
