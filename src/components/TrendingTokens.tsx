@@ -127,7 +127,7 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
   };
 
   return (
-    <section className="w-full px-4 sm:px-6 lg:px-8 py-4">
+    <section className="w-full px-4 sm:px-6 lg:px-8 py-2">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Flame className="w-8 h-8 text-x-purple" />
