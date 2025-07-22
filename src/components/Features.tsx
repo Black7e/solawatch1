@@ -1,5 +1,5 @@
 import React from 'react';
-import { Copy, Activity, Shield, Zap } from 'lucide-react';
+import { Copy, Activity, Shield, TrendingUp } from 'lucide-react';
 
 const features = [
   {
@@ -18,9 +18,9 @@ const features = [
     description: "Comprehensive risk assessment and return analysis for every wallet and trading strategy.",
   },
   {
-    icon: Zap,
-    title: "Hyperliquid Perpetuals",
-    description: "Real-time perpetual futures trading with up to 40x leverage. Professional-grade market data and analytics.",
+    icon: TrendingUp,
+    title: "Trending Tokens",
+    description: "Discover the hottest tokens on Solana with real-time price data, volume analysis, and risk assessment.",
   }
 ];
 

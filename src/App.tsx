@@ -13,15 +13,16 @@ import PortfolioAnalysis from './components/PortfolioAnalysis';
 import TopTradersPage from './components/TopTradersPage';
 import { CartProvider } from './components/CartProvider';
 import TrendingTokens from './components/TrendingTokens';
-import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
+// Perpetuals imports temporarily disabled
+// import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
 import CopyTradingPage from './components/CopyTradingPage';
 import HyperliquidLeaderboardPage from './components/HyperliquidLeaderboardPage';
 import FuturesGridBot from './components/FuturesGridBot';
-import HotPerpetualsPage from './components/HotPerpetualsPage';
+// import HotPerpetualsPage from './components/HotPerpetualsPage';
 import HotWalletsPage from './components/HotWalletsPage';
 import TrendingTokensPageComponent from './components/TrendingTokensPage';
 import BonkPage from './components/BonkPage';
-import HyperliquidDashboardPage from './components/HyperliquidDashboardPage';
+// import HyperliquidDashboardPage from './components/HyperliquidDashboardPage';
 
 // Loading component for Suspense fallback
 function LoadingSpinner() {
@@ -66,7 +67,8 @@ function HomePage() {
       <Leaderboard />
       <Features />
       
-      {/* Hyperliquid Perpetuals CTA Section */}
+      {/* Hyperliquid Perpetuals CTA Section - TEMPORARILY DISABLED */}
+      {/* 
       <section className="py-20 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-blue-900/20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -106,6 +108,7 @@ function HomePage() {
           </div>
         </div>
       </section>
+      */}
       
       {/* Dog Inspiration Section */}
       <section className="py-20 bg-gradient-to-br from-orange-500/10 via-purple-500/10 to-orange-500/5">
@@ -127,48 +130,30 @@ function HomePage() {
                         target.nextElementSibling?.classList.remove('hidden');
                       }}
                     />
-                    {/* Placeholder fallback */}
-                    <div className="hidden w-full h-64 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
-                      <div className="text-center">
-                        <span className="text-6xl mb-4 block">🐕</span>
-                        <p className="text-orange-600 font-semibold">BONK Dog Photo</p>
-                        <p className="text-orange-500 text-sm">Add bonk-dog.jpg to public folder</p>
-                      </div>
+                    <div className="hidden bg-gradient-to-br from-orange-400 to-orange-600 p-8 flex items-center justify-center">
+                      <span className="text-white text-2xl">🐕</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            {/* Text Content */}
-            <div className="order-1 lg:order-2 text-left space-y-6">
-              <div className="mb-8">
-                <span className="text-6xl mb-4 block">🐶</span>
-                <h2 className="text-3xl sm:text-4xl font-bold text-x-text mb-6">
-                  Inspired by my dog
-                  <br />
-                  <span className="text-orange-400">Powered by BONK</span>
-                </h2>
+
+            {/* Content */}
+            <div className="order-1 lg:order-2 text-center lg:text-left">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+                Ready to <span className="text-orange-400">BONK</span> the Market? 🚀
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-300 mb-8 leading-relaxed">
+                Join the BONK revolution! Our AI-powered analysis helps you identify the best entry points and track the most successful BONK traders on Solana.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <button
+                  onClick={handleLetsBonk}
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  Let's BONK! 🐕
+                </button>
               </div>
-              
-              <p className="text-x-text-secondary text-lg leading-relaxed">
-                Every project needs a reason. Mine barks.
-              </p>
-              
-              <p className="text-x-text-secondary text-lg leading-relaxed">
-                This little guy isn't just my dog — he's my motivation, my late-night coding buddy, and the reason I believe memes can move mountains. Launching on BONK isn't just about hype — it's about bringing real energy (and maybe some dog hair) into web3.
-              </p>
-              
-              <p className="text-x-text-secondary text-lg leading-relaxed">
-                Welcome to Solawatch. Built with love, memes, and one very loud dog.
-              </p>
-              
-              <button 
-                onClick={handleLetsBonk}
-                className="bg-gradient-to-r from-orange-500 to-purple-600 hover:from-orange-600 hover:to-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-              >
-                Let's BONK 🚀
-              </button>
             </div>
           </div>
         </div>
@@ -253,15 +238,17 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
                 <Route path="/top-traders" element={<TopTradersPage />} />
+                {/* Perpetuals routes temporarily disabled
                 <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
+                <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
+                <Route path="/perps" element={<HyperliquidDashboardPage />} />
+                */}
                 <Route path="/copy-trading" element={<CopyTradingPage />} />
                 <Route path="/leaderboard" element={<HyperliquidLeaderboardPage />} />
                 <Route path="/futures-grid" element={<FuturesGridBot />} />
-                <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
                 <Route path="/hot-wallets" element={<HotWalletsPage />} />
                 <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
                 <Route path="/bonk" element={<BonkPage />} />
-                <Route path="/perps" element={<HyperliquidDashboardPage />} />
               </Routes>
             </div>
           </Suspense>
