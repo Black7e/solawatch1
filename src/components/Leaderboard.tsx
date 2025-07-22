@@ -102,7 +102,7 @@ export default function Leaderboard() {
   };
 
   const handleLoadMore = () => {
-    navigate('/top-traders');
+    navigate('/hot-wallets');
   };
 
   const formatCurrency = (value: number) => {
@@ -286,7 +286,7 @@ export default function Leaderboard() {
             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 mx-auto"
           >
             <TrendingUp className="w-5 h-5" />
-            <span>View All Top Traders</span>
+            <span>View All</span>
           </button>
         </div>
     </section>
