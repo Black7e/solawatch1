@@ -134,11 +134,12 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
           <span className="text-purple-400 text-xs font-medium">Trending Tokens on Solana</span>
         </div>
       </div>
-      <div className="text-center mb-12 sm:mb-16">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-          Trending Tokens
-        </h2>
-        <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="w-8 h-8 text-x-purple" />
+          <h2 className="text-3xl font-bold text-x-text">Trending Tokens</h2>
+        </div>
+        <p className="text-x-text-secondary">
           Discover the hottest tokens on Solana with real-time market data and risk analysis.
         </p>
       </div>

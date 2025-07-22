@@ -196,14 +196,15 @@ export default function Leaderboard() {
           <span className="text-purple-400 text-xs font-medium">Top Traders on Solana</span>
         </div>
       </div>
-      <div className="text-center mb-12 sm:mb-16">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
-            Top Performing Smart Wallets
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
-            Follow and copy the strategies of the most successful traders on Solana.
-          </p>
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <TrendingUp className="w-8 h-8 text-x-purple" />
+          <h2 className="text-3xl font-bold text-x-text">Top Performing Smart Wallets</h2>
         </div>
+        <p className="text-x-text-secondary">
+          Follow and copy the strategies of the most successful traders on Solana.
+        </p>
+      </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {topTraders.map((trader, index) => (
