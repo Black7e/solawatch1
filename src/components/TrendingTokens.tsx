@@ -273,15 +273,13 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
                   }}
                 />
                 <div className="flex flex-col min-w-0">
-                  <a
-                    href={`https://solscan.io/token/${token.mint}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white font-medium text-sm leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer"
-                    title={`View ${token.name} on Solscan`}
+                  <button
+                    onClick={() => navigate(`/token/${token.mint}`)}
+                    className="text-white font-medium text-sm leading-tight truncate hover:text-purple-400 transition-colors cursor-pointer text-left"
+                    title={`View ${token.name} details`}
                   >
                     {token.name}
-                  </a>
+                  </button>
                   <span className="text-gray-400 text-xs">
                     ${token.marketCap > 1000000 
                       ? (token.marketCap / 1000000).toFixed(1) + 'M' 

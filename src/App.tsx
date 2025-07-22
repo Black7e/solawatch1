@@ -20,6 +20,7 @@ import FuturesGridBot from './components/FuturesGridBot';
 import TrendingTokensPageComponent from './components/TrendingTokensPage';
 import BonkPage from './components/BonkPage';
 import HowItWorks from './components/HowItWorks';
+import TokenDetailPage from './components/TokenDetailPage';
 // import HyperliquidDashboardPage from './components/HyperliquidDashboardPage';
 
 // Loading component for Suspense fallback
@@ -243,6 +244,7 @@ function App() {
                 <Route path="/futures-grid" element={<FuturesGridBot />} />
                 <Route path="/top-traders" element={<HotWalletsPage />} />
                 <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
+                <Route path="/token/:tokenMint" element={<TokenDetailPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/bonk" element={<BonkPage />} />
               </Routes>
