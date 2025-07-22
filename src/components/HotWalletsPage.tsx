@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Filter, Zap, Share2 } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, ArrowLeft, Search, Filter, Zap, ArrowRight, Share2 } from 'lucide-react';
 import { PublicKey } from '@solana/web3.js';
 import Header from './Header';
 import Footer from './Footer';
@@ -55,13 +55,6 @@ export default function HotWalletsPage() {
   };
 
   useEffect(() => {
-    // Check for search parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchParam = urlParams.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
-
     const fetchHotWallets = async () => {
       try {
         setLoading(true);
@@ -136,7 +129,18 @@ export default function HotWalletsPage() {
     // (existing functionality remains the same)
   };
 
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAnalyzeWallet();
+    }
+  };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleAnalyzeWallet();
+  };
 
   const handleShare = (trader: TopTrader, index: number) => {
     const shareText = `🔥 Top Trader #${index + 1} on Solana! 📈\n\n💰 Total PnL: ${formatCurrency(trader.summary.total)}\n📊 ROI: ${formatROI(trader.summary.total, trader.summary.totalInvested)}\n🎯 Win Rate: ${trader.summary.winPercentage.toFixed(1)}%\n💎 Total Invested: ${formatCurrency(trader.summary.totalInvested)}\n📈 Total Trades: ${trader.summary.totalWins + trader.summary.totalLosses}\n\nWallet: ${trader.wallet.slice(0, 4)}...${trader.wallet.slice(-4)}\n\nCheck out this trader on SolaWatch! 🔥\n\n#Solana #Trading #Crypto #DeFi`;
@@ -277,6 +281,31 @@ export default function HotWalletsPage() {
 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          {/* Search */}
+          <form onSubmit={handleSearchSubmit} className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-x-text-secondary w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search wallets or enter wallet address to analyze..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+              className="w-full pl-10 pr-12 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
+              disabled={isAnalyzing}
+            />
+            {isSearchingWallet && (
+              <button 
+                type="submit"
+                onClick={handleAnalyzeWallet}
+                disabled={isAnalyzing}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Analyze this wallet"
+              >
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            )}
+          </form>
+
           {/* Sort */}
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-x-text-secondary" />

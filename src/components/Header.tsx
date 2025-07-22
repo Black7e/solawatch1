@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check, Search } from 'lucide-react';
+import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNetworkDisplayName, isTestnet } from '../config/network';
 import CartPopover from './CartPopover';
@@ -26,7 +26,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
   const { connected, disconnect, publicKey } = useWallet();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
   const [cartPopoverOpenLocal, setCartPopoverOpenLocal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
   const cartPopoverOpen = typeof cartPopoverOpenProp === 'boolean' ? cartPopoverOpenProp : cartPopoverOpenLocal;
   const setCartPopoverOpen = setCartPopoverOpenProp || setCartPopoverOpenLocal;
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -68,28 +67,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
   const handleDisconnect = () => {
     disconnect();
     setWalletDropdownOpen(false);
-  };
-
-  const validateSolanaAddress = (address: string): boolean => {
-    return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/hot-wallets?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm('');
-    }
-  };
-
-  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (searchTerm.trim()) {
-        navigate(`/hot-wallets?search=${encodeURIComponent(searchTerm.trim())}`);
-        setSearchTerm('');
-      }
-    }
   };
 
 
@@ -169,19 +146,6 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 BONK Launch 🚀
               </button>
             </nav>
-
-            {/* Search Input */}
-            <form onSubmit={handleSearchSubmit} className="hidden lg:block relative flex-1 max-w-md mx-8">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-x-text-secondary w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search wallets or enter wallet address to analyze..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleSearchKeyPress}
-                className="w-full pl-10 pr-4 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent text-sm"
-              />
-            </form>
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
