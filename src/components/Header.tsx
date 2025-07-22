@@ -178,6 +178,16 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               >
                 Trending Tokens
               </button>
+              <button
+                onClick={() => navigate('/how-it-works')}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === '/how-it-works' 
+                    ? 'text-x-purple' 
+                    : 'text-x-text-secondary hover:text-x-text'
+                }`}
+              >
+                How it Works
+              </button>
 
               <button
                 onClick={() => navigate('/bonk')}
@@ -327,6 +337,16 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 }`}
               >
                 Trending Tokens
+              </button>
+              <button
+                onClick={() => { navigate('/how-it-works'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-2 rounded-lg font-medium transition-colors ${
+                  location.pathname === '/how-it-works' 
+                    ? 'bg-x-purple/20 text-x-purple' 
+                    : 'text-x-text-secondary hover:bg-x-bg-secondary'
+                }`}
+              >
+                How it Works
               </button>
 
               <button
