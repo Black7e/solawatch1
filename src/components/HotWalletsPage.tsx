@@ -270,76 +270,36 @@ export default function HotWalletsPage() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Zap className="w-8 h-8 text-x-purple" />
-            <h1 className="text-3xl font-bold text-x-text">Hot Wallets</h1>
-          </div>
-          <p className="text-x-text-secondary">
-            Discover the most active and profitable traders on Solana, or analyze any wallet address.
-          </p>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Search */}
-          <form onSubmit={handleSearchSubmit} className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-x-text-secondary w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search wallets or enter wallet address to analyze..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={handleSearchKeyPress}
-              className="w-full pl-10 pr-12 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
-              disabled={isAnalyzing}
-            />
-            {isSearchingWallet && (
-              <button 
-                type="submit"
-                onClick={handleAnalyzeWallet}
-                disabled={isAnalyzing}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-x-purple hover:bg-x-purple-hover text-white p-1.5 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Analyze this wallet"
-              >
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            )}
-          </form>
-
-          {/* Sort */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-x-text-secondary" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="bg-x-bg-secondary border border-x-border rounded-lg px-3 py-2 text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
-            >
-              <option value="total">Total PnL</option>
-              <option value="roi">ROI %</option>
-              <option value="winrate">Win Rate</option>
-              <option value="invested">Total Invested</option>
-              <option value="realized">Realized PnL</option>
-              <option value="unrealized">Unrealized PnL</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Search Status */}
-        {isSearchingWallet && (
-          <div className="mb-6 p-4 bg-x-purple/10 border border-x-purple/20 rounded-lg">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-5 h-5 text-x-purple" />
-              <div>
-                <p className="text-x-text font-medium">
-                  Analyzing wallet: {searchTerm.slice(0, 8)}...{searchTerm.slice(-8)}
-                </p>
-                <p className="text-x-text-secondary text-sm">
-                  Press Enter or click the arrow to analyze this wallet's portfolio
-                </p>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <Zap className="w-8 h-8 text-x-purple" />
+                <h1 className="text-3xl font-bold text-x-text">Hot Wallets</h1>
               </div>
+              <p className="text-x-text-secondary">
+                Discover the most active and profitable traders on Solana, or analyze any wallet address.
+              </p>
+            </div>
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-x-text-secondary" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                className="bg-x-bg-secondary border border-x-border rounded-lg px-3 py-2 text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
+              >
+                <option value="total">Total PnL</option>
+                <option value="roi">ROI %</option>
+                <option value="winrate">Win Rate</option>
+                <option value="invested">Total Invested</option>
+                <option value="realized">Realized PnL</option>
+                <option value="unrealized">Unrealized PnL</option>
+              </select>
             </div>
           </div>
-        )}
+        </div>
+
+
 
         {/* Wallets Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

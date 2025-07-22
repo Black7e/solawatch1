@@ -303,44 +303,32 @@ export default function TrendingTokensPage() {
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Flame className="w-8 h-8 text-x-purple" />
-            <h1 className="text-3xl font-bold text-x-text">Trending Tokens</h1>
-          </div>
-          <p className="text-x-text-secondary">
-            Discover the hottest tokens on Solana with real-time market data and risk analysis.
-          </p>
-        </div>
-
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-x-text-secondary w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search tokens..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-x-bg-secondary border border-x-border rounded-lg text-x-text placeholder-x-text-secondary focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
-            />
-          </div>
-
-          {/* Sort */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-x-text-secondary" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortBy)}
-              className="bg-x-bg-secondary border border-x-border rounded-lg px-3 py-2 text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
-            >
-              <option value="marketCap">Market Cap</option>
-              <option value="price">Price</option>
-              <option value="change24h">24h Change</option>
-              <option value="volume24h">24h Volume</option>
-              <option value="liquidity">Liquidity</option>
-              <option value="riskScore">Risk Score</option>
-            </select>
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <Flame className="w-8 h-8 text-x-purple" />
+                <h1 className="text-3xl font-bold text-x-text">Trending Tokens</h1>
+              </div>
+              <p className="text-x-text-secondary">
+                Discover the hottest tokens on Solana with real-time market data and risk analysis.
+              </p>
+            </div>
+            {/* Sort */}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-x-text-secondary" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                className="bg-x-bg-secondary border border-x-border rounded-lg px-3 py-2 text-x-text focus:outline-none focus:ring-2 focus:ring-x-purple focus:border-transparent"
+              >
+                <option value="marketCap">Market Cap</option>
+                <option value="price">Price</option>
+                <option value="change24h">24h Change</option>
+                <option value="volume24h">24h Volume</option>
+                <option value="liquidity">Liquidity</option>
+                <option value="riskScore">Risk Score</option>
+              </select>
+            </div>
           </div>
         </div>
 
