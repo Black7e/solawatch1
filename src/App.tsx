@@ -60,8 +60,8 @@ function HomePage() {
         setMobileMenuOpen={setMobileMenuOpen}
         onConnectWallet={handleConnectWallet}
       />
-      <TrendingTokens onConnectWallet={handleConnectWallet} />
       <Leaderboard />
+      <TrendingTokens onConnectWallet={handleConnectWallet} />
       <Features />
       
       {/* Hyperliquid Perpetuals CTA Section - TEMPORARILY DISABLED */}
