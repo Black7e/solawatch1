@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrendingUp, ExternalLink, Loader2, ArrowRight, Wallet } from 'lucide-react';
+import { TrendingUp, ExternalLink, Loader2, Wallet } from 'lucide-react';
 
 interface TraderSummary {
   realized: number;
@@ -42,7 +42,7 @@ export default function Leaderboard() {
         const apiKey = import.meta.env.VITE_SOLANA_TRACKER_API_KEY;
         
         if (!apiKey || apiKey === 'your_solana_tracker_api_key_here') {
-          throw new Error('Solana Tracker API key is required. Please add your API key to the .env file.');
+          throw new Error('Solana Tracker API key is required');
         }
 
         const response = await fetch('https://data.solanatracker.io/top-traders/all', {
@@ -123,36 +123,9 @@ export default function Leaderboard() {
     return `${sign}${roi.toFixed(1)}%`;
   };
 
-  const getTraderName = (wallet: string, index: number) => {
-    // Use wallet address as identifier instead of fake names
-    return `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
-  };
-
-  const getTraderAvatar = (wallet: string, index: number) => {
-    // Generate a consistent gradient based on wallet address
-    const colors = [
-      'from-purple-500 to-pink-500',
-      'from-blue-500 to-cyan-500',
-      'from-green-500 to-emerald-500',
-      'from-yellow-500 to-orange-500',
-      'from-red-500 to-rose-500',
-      'from-indigo-500 to-purple-500',
-      'from-teal-500 to-blue-500',
-      'from-orange-500 to-red-500'
-    ];
-    return colors[index % colors.length];
-  };
-
-  const getTraderDescription = (summary: TraderSummary) => {
-    if (summary.winPercentage > 80) {
-      return "High-precision trader with exceptional win rate";
-    } else if (summary.totalInvested > 50000000) {
-      return "High-volume trader with significant market impact";
-    } else if (summary.total > summary.totalInvested * 2) {
-      return "Consistent profit generator with strong returns";
-    } else {
-      return "Active trader with diverse portfolio strategy";
-    }
+  const calculateROI = (total: number, invested: number) => {
+    if (invested === 0) return 0;
+    return ((total - invested) / invested) * 100;
   };
 
   if (loading) {
@@ -221,108 +194,96 @@ export default function Leaderboard() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-8">
-          {topTraders.map((trader, index) => {
-            const roi = formatROI(trader.summary.total, trader.summary.totalInvested);
-            const isPositive = trader.summary.total >= trader.summary.totalInvested;
-            
-            return (
-              <div
-                key={trader.wallet}
-                className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-4 pt-12 sm:p-6 sm:pt-12 hover:border-purple-500/30 transition-all duration-300 group hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/10"
-              >
-                {/* Avatar - positioned on top edge, 50% outside card */}
-                <div className="absolute -top-6 sm:-top-8 left-1/2 transform -translate-x-1/2">
-                  <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${getTraderAvatar(trader.wallet, index)} rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold shadow-lg border-4 border-gray-900`}>
-                    {trader.wallet.slice(0, 2).toUpperCase()}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {topTraders.map((trader, index) => (
+            <div
+              key={trader.wallet}
+              className="bg-x-bg-secondary border border-x-border rounded-lg p-6 hover:border-x-border-light transition-all duration-200 hover:shadow-lg"
+            >
+              {/* Wallet Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-x-purple/20 rounded-full flex items-center justify-center">
+                    <span className="text-x-purple font-bold text-sm">#{index + 1}</span>
+                  </div>
+                  <div>
+                    <p className="text-x-text font-medium text-sm">
+                      {trader.wallet.slice(0, 4)}...{trader.wallet.slice(-4)}
+                    </p>
+                    <p className="text-x-text-secondary text-xs">Wallet</p>
                   </div>
                 </div>
-
-                {/* Wallet Address - moved to top */}
-                <div className="mb-4">
-                  <div className="bg-gray-900/60 rounded-xl p-3 border border-gray-700/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 min-w-0 flex-1">
-                          <Wallet className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-300 text-xs font-mono font-medium truncate">
-                            {trader.wallet.slice(0, 8)}...{trader.wallet.slice(-8)}
-                          </span>
-                        </div>
-                        <button className="text-gray-400 hover:text-white transition-colors ml-2 flex-shrink-0">
-                          <ExternalLink className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gray-900/60 rounded-xl p-4 border border-gray-700/30">
-                    <div className="text-white font-bold text-lg">
-                      {formatCurrency(trader.summary.total)}
-                    </div>
-                    <div className="text-gray-400 text-xs mt-1">
-                      {formatCurrency(trader.summary.totalInvested)} invested
-                    </div>
-                  </div>
-                  <div className="bg-gray-900/60 rounded-xl p-4 border border-gray-700/30">
-                    <div className="text-white font-bold text-lg">
-                      {trader.summary.winPercentage.toFixed(1)}%
-                    </div>
-                    <div className="text-gray-400 text-xs mt-1">
-                      {trader.summary.totalWins}W / {trader.summary.totalLosses}L
-                    </div>
-                  </div>
-                </div>
-                
-                {/* PnL Breakdown */}
-                <div className="bg-gray-900/60 rounded-xl p-4 border border-gray-700/30 mb-6">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-xs">Realized PnL</span>
-                      <span className="text-green-400 font-semibold text-sm">
-                        {formatCurrency(trader.summary.realized)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-300 text-xs">Unrealized PnL</span>
-                      <span className={`font-semibold text-sm ${trader.summary.unrealized >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {formatCurrency(trader.summary.unrealized)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Performance Indicator */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-400 text-xs font-medium">Performance</span>
-                    <span className="text-gray-300 text-xs">
-                      {trader.summary.totalWins + trader.summary.totalLosses} trades
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min(trader.summary.winPercentage, 100)}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                {/* Analyze Button */}
-                <button 
-                  onClick={() => handleAnalyzeWallet(trader.wallet)}
-                  className="w-full bg-purple-600 text-white px-4 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-all duration-200 flex items-center justify-center space-x-2"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span>Analyze Portfolio</span>
-                </button>
-                
+                <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
-            );
-          })}
+
+              {/* Stats */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-x-text-secondary text-sm">Total PnL</span>
+                  <span className={`font-bold ${trader.summary.total >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {formatCurrency(trader.summary.total)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-x-text-secondary text-sm">ROI</span>
+                  <span className={`font-bold ${calculateROI(trader.summary.total, trader.summary.totalInvested) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {formatROI(trader.summary.total, trader.summary.totalInvested)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-x-text-secondary text-sm">Win Rate</span>
+                  <span className="font-bold text-x-text">
+                    {trader.summary.winPercentage.toFixed(1)}%
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-x-text-secondary text-sm">Invested</span>
+                  <span className="font-bold text-x-text">
+                    {formatCurrency(trader.summary.totalInvested)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-x-text-secondary text-sm">Trades</span>
+                  <span className="font-bold text-x-text">
+                    {trader.summary.totalWins + trader.summary.totalLosses}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => handleAnalyzeWallet(trader.wallet)}
+                  className="flex-1 bg-x-purple hover:bg-x-purple-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Analyze
+                </button>
+                <button
+                  onClick={() => window.open(`https://solscan.io/account/${trader.wallet}`, '_blank')}
+                  className="bg-x-bg-tertiary hover:bg-x-bg-quaternary text-x-text px-3 py-2 rounded-lg text-sm transition-colors"
+                  title="View on Solscan"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
+        {/* Load More Button */}
+        <div className="text-center">
+          <button
+            onClick={handleLoadMore}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2 mx-auto"
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span>View All Top Traders</span>
+          </button>
+        </div>
       </div>
     </section>
   );
