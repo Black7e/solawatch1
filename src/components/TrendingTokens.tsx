@@ -128,12 +128,20 @@ export default function TrendingTokens({ onConnectWallet }: TrendingTokensProps)
 
   return (
     <section className="w-full px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex justify-center mb-6">
-          <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-purple-400" />
-            <span className="text-purple-400 text-xs font-medium">Trending Tokens on Solana</span>
-          </div>
+      <div className="flex justify-center mb-6">
+        <div className="bg-gray-800 border border-purple-500/30 rounded-full px-3 py-1.5 flex items-center space-x-2">
+          <TrendingUp className="w-4 h-4 text-purple-400" />
+          <span className="text-purple-400 text-xs font-medium">Trending Tokens on Solana</span>
         </div>
+      </div>
+      <div className="text-center mb-12 sm:mb-16">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+          Trending Tokens
+        </h2>
+        <p className="text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto px-4">
+          Discover the hottest tokens on Solana with real-time market data and risk analysis.
+        </p>
+      </div>
       
       {loading && (
         <div className="text-center text-gray-400 py-8">Loading trending tokens...</div>
