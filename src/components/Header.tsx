@@ -235,8 +235,8 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               {/* Cart View */}
               <button
                 ref={cartButtonRef}
-                className="relative bg-x-purple text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30 h-9 sm:h-10"
-                title="View Cart"
+                className="relative bg-x-purple text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30 h-9 sm:h-10 group"
+                title="Add up to 10 tokens to buy them in bulk. Click to view your cart."
                 onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
                 style={{ zIndex: 2 }}
               >
@@ -245,6 +245,11 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
                 {(cart?.length ?? 0) > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
                 )}
+                {/* Enhanced Tooltip */}
+                <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 border border-gray-700 pointer-events-none">
+                  Add up to 10 tokens to buy them in bulk
+                  <div className="absolute top-full right-2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                </div>
               </button>
               <CartPopover
                 cart={cart}
@@ -278,8 +283,8 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
             {/* Cart Button for mobile */}
             <button
               ref={cartButtonRef}
-              className="relative bg-x-purple text-white w-9 h-9 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30"
-              title="View Cart"
+              className="relative bg-x-purple text-white w-9 h-9 rounded-lg font-bold shadow-md hover:bg-x-purple-hover transition-all duration-200 flex items-center justify-center text-sm border border-x-purple/30 group"
+              title="Add up to 10 tokens to buy them in bulk. Click to view your cart."
               onClick={() => setCartPopoverOpen(!cartPopoverOpen)}
               style={{ zIndex: 2 }}
             >
@@ -287,6 +292,11 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
               {(cart?.length ?? 0) > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-xs rounded-full px-2 py-0.5">{cart?.length ?? 0}</span>
               )}
+              {/* Enhanced Tooltip for mobile */}
+              <div className="absolute bottom-full right-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 border border-gray-700 pointer-events-none">
+                Add up to 10 tokens to buy them in bulk
+                <div className="absolute top-full right-2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+              </div>
             </button>
           </div>
         </div>
