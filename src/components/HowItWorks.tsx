@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Header from './Header';
+import WalletModal from './WalletModal';
 
 const HowItWorks: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+
+  const handleConnectWallet = () => {
+    setWalletModalOpen(true);
+    setMobileMenuOpen(false);
+  };
+
+  const handleCloseWalletModal = () => {
+    setWalletModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-x-bg">
-      {/* Header Section */}
+      <Header 
+        mobileMenuOpen={mobileMenuOpen} 
+        setMobileMenuOpen={setMobileMenuOpen}
+        onConnectWallet={handleConnectWallet}
+      />
+      
+      {/* Content Section */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
@@ -43,6 +63,11 @@ const HowItWorks: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <WalletModal 
+        isOpen={walletModalOpen}
+        onClose={handleCloseWalletModal}
+      />
     </div>
   );
 };
