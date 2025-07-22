@@ -63,23 +63,18 @@ function HomePage() {
       <TrendingTokens onConnectWallet={handleConnectWallet} />
       
       {/* How it Works Section */}
-      <section className="py-16 bg-gradient-to-br from-purple-500/5 via-blue-500/5 to-purple-500/5">
+      <section className="py-16">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
               How it Works
             </h2>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              Simple steps to start trading like the pros
-            </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
             <div className="text-center">
-              <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl p-8 border border-purple-500/30 mb-6">
-                <div className="text-4xl mb-4">1</div>
-                <div className="text-2xl mb-4">📊</div>
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
                 <h3 className="text-xl font-bold text-white mb-3">Discover Tokens</h3>
                 <p className="text-gray-300">
                   Browse trending tokens and analyze top-performing wallets to find the best opportunities.
@@ -89,9 +84,7 @@ function HomePage() {
             
             {/* Step 2 */}
             <div className="text-center">
-              <div className="bg-gradient-to-br from-blue-500/20 to-green-500/20 rounded-2xl p-8 border border-blue-500/30 mb-6">
-                <div className="text-4xl mb-4">2</div>
-                <div className="text-2xl mb-4">🛒</div>
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
                 <h3 className="text-xl font-bold text-white mb-3">Add to Cart</h3>
                 <p className="text-gray-300">
                   Add up to 10 tokens to your cart from any trending token or wallet analysis.
@@ -101,9 +94,7 @@ function HomePage() {
             
             {/* Step 3 */}
             <div className="text-center">
-              <div className="bg-gradient-to-br from-green-500/20 to-purple-500/20 rounded-2xl p-8 border border-green-500/30 mb-6">
-                <div className="text-4xl mb-4">3</div>
-                <div className="text-2xl mb-4">⚡</div>
+              <div className="bg-x-bg-secondary rounded-xl p-6 border border-x-border">
                 <h3 className="text-xl font-bold text-white mb-3">One-Click Purchase</h3>
                 <p className="text-gray-300">
                   Purchase all your selected tokens with a single click using Jupiter's best routes.
