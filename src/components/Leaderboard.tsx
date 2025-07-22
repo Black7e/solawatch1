@@ -203,10 +203,9 @@ export default function Leaderboard() {
           </div>
           <button
             onClick={handleLoadMore}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex items-center space-x-2"
+            className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text border border-x-border hover:border-x-border-light px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
           >
-            <TrendingUp className="w-5 h-5" />
-            <span>View All</span>
+            View All
           </button>
         </div>
       </div>
