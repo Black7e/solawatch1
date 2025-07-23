@@ -1,7 +1,7 @@
 // X (Twitter) OAuth Configuration
 const X_CLIENT_ID = import.meta.env.VITE_X_CLIENT_ID;
 const X_REDIRECT_URI = import.meta.env.VITE_X_REDIRECT_URI || `${window.location.origin}/auth/callback`;
-const X_SCOPE = 'tweet.read users.read offline.access';
+const X_SCOPE = 'tweet.read users.read';
 
 export interface XUser {
   id: string;
@@ -95,7 +95,7 @@ class AuthService {
         isAuthenticated: true,
         user,
         accessToken: tokenResponse.access_token,
-        refreshToken: tokenResponse.refresh_token,
+        refreshToken: tokenResponse.refresh_token || null,
         expiresAt: Date.now() + (tokenResponse.expires_in * 1000),
       };
 
@@ -115,7 +115,7 @@ class AuthService {
   // Exchange authorization code for tokens
   private async exchangeCodeForTokens(code: string, codeVerifier: string): Promise<{
     access_token: string;
-    refresh_token: string;
+    refresh_token?: string;
     expires_in: number;
   }> {
     const response = await fetch('https://api.twitter.com/2/oauth2/token', {
