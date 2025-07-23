@@ -2,7 +2,12 @@
 const X_CLIENT_ID = import.meta.env.VITE_X_CLIENT_ID;
 const X_REDIRECT_URI = import.meta.env.VITE_X_REDIRECT_URI || `${window.location.origin}/auth/callback`;
 const X_SCOPE = 'tweet.read users.read';
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
+
+// Use Netlify functions in production, local backend in development
+const isDevelopment = import.meta.env.DEV;
+const API_BASE = isDevelopment 
+  ? (import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000')
+  : '/.netlify/functions';
 
 export interface XUser {
   id: string;
@@ -119,7 +124,11 @@ class AuthService {
     refresh_token?: string;
     expires_in: number;
   }> {
-    const response = await fetch(`${BACKEND_URL}/api/auth/x/token`, {
+    const endpoint = isDevelopment 
+      ? `${API_BASE}/api/auth/x/token`
+      : `${API_BASE}/auth-x-token`;
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -287,7 +296,11 @@ class AuthService {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/x/refresh`, {
+      const endpoint = isDevelopment 
+        ? `${API_BASE}/api/auth/x/refresh`
+        : `${API_BASE}/auth-x-refresh`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
