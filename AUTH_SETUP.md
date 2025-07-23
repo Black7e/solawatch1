@@ -30,7 +30,8 @@ In your Twitter app settings:
 
 From your Twitter app dashboard, copy:
 - **Client ID** (OAuth 2.0 Client ID)
-- **Client Secret** (OAuth 2.0 Client Secret)
+
+**Note**: For browser-based applications, we only need the Client ID. The Client Secret should NOT be included in frontend code for security reasons.
 
 ### 4. Environment Variables
 
@@ -44,6 +45,8 @@ VITE_SOLANA_TRACKER_API_KEY=your_solana_tracker_api_key_here
 VITE_X_CLIENT_ID=your_x_client_id_here
 VITE_X_REDIRECT_URI=http://localhost:5173/auth/callback
 ```
+
+**Important**: We only use the Client ID in the frontend. The Client Secret is not needed for this implementation.
 
 ### 5. Production Deployment
 
@@ -78,6 +81,25 @@ For production deployment:
 - **Token Refresh**: Automatic token refresh when needed
 - **Error Handling**: Comprehensive error handling and user feedback
 
+## Security Implementation
+
+### Why No Client Secret?
+
+This implementation uses the **PKCE (Proof Key for Code Exchange)** flow, which is designed specifically for public clients (like browser applications). In this flow:
+
+- **Client ID**: Used to identify your application
+- **Client Secret**: NOT used in frontend code (this is intentional and secure)
+- **PKCE**: Provides the security that the Client Secret would normally provide
+
+This approach is:
+- ✅ **More Secure**: No sensitive secrets in frontend code
+- ✅ **OAuth 2.0 Compliant**: Follows OAuth 2.0 best practices
+- ✅ **Recommended**: Twitter/X recommends this approach for web apps
+
+### Alternative: Server-Side Implementation
+
+If you need to use the Client Secret, you would need a backend server to handle the OAuth flow. The current implementation is frontend-only for simplicity and security.
+
 ## API Scopes
 
 The app requests the following scopes:
@@ -102,5 +124,7 @@ The app requests the following scopes:
 
 - Never commit your `.env` file to version control
 - Use environment variables for all sensitive configuration
+- **Client Secret Security**: The Client Secret is NOT used in this frontend implementation for security reasons
+- For browser-based apps, only the Client ID is needed (this is the recommended approach)
 - Regularly rotate your Twitter app credentials
 - Monitor your app's usage in the Twitter Developer Portal 
