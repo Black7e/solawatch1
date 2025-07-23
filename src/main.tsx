@@ -30,9 +30,9 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
                            errorMessage.includes('not found');
       
       if (!isWalletError) {
-        console.error('Error caught by boundary:', event.error);
-        setError(event.error);
-        setHasError(true);
+      console.error('Error caught by boundary:', event.error);
+      setError(event.error);
+      setHasError(true);
       } else {
         console.warn('Wallet error (filtered from error boundary):', errorMessage);
       }
@@ -48,9 +48,9 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
                            errorMessage.includes('not found');
       
       if (!isWalletError) {
-        console.error('Promise rejection caught by boundary:', event.reason);
-        setError(new Error(String(event.reason)));
-        setHasError(true);
+      console.error('Promise rejection caught by boundary:', event.reason);
+      setError(new Error(String(event.reason)));
+      setHasError(true);
       } else {
         console.warn('Wallet connection error (filtered from error boundary):', errorMessage);
       }

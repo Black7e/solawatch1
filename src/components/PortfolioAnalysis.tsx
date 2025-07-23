@@ -328,14 +328,14 @@ export default function PortfolioAnalysis() {
                           setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
                           continue;
                         }
-                        addToCart({ token });
+                      addToCart({ token });
                         addedCount++;
                         setToastMessages(msgs => [...msgs, `Added ${token.symbol} successfully.`]);
                         setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
                       } catch (err) {
                         setToastMessages(msgs => [...msgs, `Failed fetch quote for ${token.symbol}.`]);
                         setTimeout(() => setToastMessages(msgs => msgs.slice(1)), 2000);
-                      }
+                    }
                     }
                     setSafeCopySummary({ cartLimit: 0, notSwappable: 0, added: addedCount });
                     setSafeCopyLoading(false);

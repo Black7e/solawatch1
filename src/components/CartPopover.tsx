@@ -63,7 +63,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
     const fetchSolBalance = async () => {
       try {
         const lamports = await getBalanceWithFallback(publicKey);
-        setSolBalance(lamports / 1e9);
+      setSolBalance(lamports / 1e9);
       } catch (error) {
         console.error('Failed to fetch SOL balance on all RPC endpoints:', error);
         setSolBalance(0);
@@ -91,7 +91,7 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
       fetchUsdcBalance().catch(() => {}) // Don't throw, just log
     ]).finally(() => {
       setIsLoadingBalances(false);
-    });
+      });
   }, [publicKey, connection, open]);
 
   // Close on outside click
@@ -295,11 +295,11 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                       Connect your wallet to buy tokens
                     </button>
                   ) : (
-                    <button
+                  <button
                       className="w-full bg-x-purple hover:bg-x-purple-hover text-white font-semibold px-6 py-3 rounded-lg transition-all text-base shadow-md disabled:opacity-60"
-                      type="button"
+                    type="button"
                       disabled={!isAmountValid() || !!amountError || isBuying || isLoadingBalances}
-                      onClick={async () => {
+                    onClick={async () => {
                       setIsBuying(true);
                       setBuyResult(null);
                       setSwapErrors({});
@@ -456,16 +456,16 @@ const CartPopover: React.FC<CartPopoverProps> = ({ cart, open, onClose, handleRe
                         } else {
                           // Fallback to signAllTransactions + manual sending
                           const signedTxs = await signAllTransactions!(unsignedTxs);
-                          for (let i = 0; i < signedTxs.length; i++) {
-                            const tx = signedTxs[i];
-                            const symbol = tokenSymbols[i];
-                            try {
-                              const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
-                              await connection.confirmTransaction(sig, 'confirmed');
-                              completed.push(symbol);
-                            } catch (err) {
-                              failed.push(symbol);
-                              setSwapErrors(prev => ({ ...prev, [cartItems[i].token.mint]: `Swap failed for ${symbol}` }));
+                        for (let i = 0; i < signedTxs.length; i++) {
+                          const tx = signedTxs[i];
+                          const symbol = tokenSymbols[i];
+                          try {
+                            const sig = await connection.sendRawTransaction(tx.serialize(), { skipPreflight: false, maxRetries: 3 });
+                            await connection.confirmTransaction(sig, 'confirmed');
+                            completed.push(symbol);
+                          } catch (err) {
+                            failed.push(symbol);
+                            setSwapErrors(prev => ({ ...prev, [cartItems[i].token.mint]: `Swap failed for ${symbol}` }));
                             }
                           }
                         }
