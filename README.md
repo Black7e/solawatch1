@@ -92,7 +92,7 @@ VITE_FEE_WALLET_ADDRESS=ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h
 ## Credits
 
 ### Core Development
-- **Lead Developer**: Tony Huynh
+- **Lead Developer**: Goldefini
 - **Project**: SolaWatch - Solana Portfolio Tracker & Token Swapper
 
 ### Key Technologies & APIs
