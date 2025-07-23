@@ -86,30 +86,40 @@ VITE_FEE_WALLET_ADDRESS=ATMZV7kBh4ntquvW5vVbH6DCzgxdXTrs2MwgjF2TNy9h
 - **Solana**: @solana/web3.js, @solana/wallet-adapter
 - **Swapping**: Jupiter Aggregator API
 - **Data**: Solana Tracker API, Jupiter Token List
+- **Authentication**: X (Twitter) OAuth 2.0 with Netlify Functions
+- **Deployment**: Netlify
 
-## Development
+## Credits
 
-### Project Structure
+### Core Development
+- **Lead Developer**: Tony Huynh
+- **Project**: SolaWatch - Solana Portfolio Tracker & Token Swapper
 
-```
-src/
-├── components/          # React components
-├── config/             # Configuration files
-├── services/           # API services
-├── utils/              # Utility functions
-│   ├── jupiterSwap.ts  # Jupiter swap service
-│   ├── feeUtils.ts     # Fee calculation utilities
-│   └── rpcFallback.ts  # RPC fallback logic
-└── assets/             # Static assets
-```
+### Key Technologies & APIs
+- **Jupiter Aggregator**: Best-in-class Solana DEX aggregator for token swaps
+- **Solana Tracker**: Portfolio and market data provider
+- **Helius**: High-performance Solana RPC provider
+- **Netlify**: Serverless functions and hosting platform
+- **X (Twitter)**: OAuth authentication provider
 
-### Key Components
+### Open Source Libraries
+- **React**: UI framework
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **Vite**: Fast build tool and dev server
+- **Solana Web3.js**: Solana blockchain interaction
+- **Solana Wallet Adapter**: Wallet integration
 
-- `TrendingTokens.tsx`: Trending tokens display with risk analysis
-- `QuickBuyModal.tsx`: Individual token purchase modal
-- `CartPopover.tsx`: Multi-token cart functionality
-- `PortfolioAnalysis.tsx`: Portfolio tracking and analysis
-- `CopyPortfolioModal.tsx`: Portfolio copying functionality
+### Design & UX
+- **UI/UX Design**: Modern, responsive design with dark theme
+- **User Experience**: Intuitive portfolio tracking and token discovery
+- **Accessibility**: Designed for all users
+
+### Special Thanks
+- Solana community for blockchain infrastructure
+- Jupiter team for DEX aggregation technology
+- Netlify team for serverless platform
+- All contributors and beta testers
 
 ## Contributing
 
