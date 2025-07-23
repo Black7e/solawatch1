@@ -11,6 +11,7 @@ import PortfolioAnalysis from './components/PortfolioAnalysis';
 import HotWalletsPage from './components/HotWalletsPage';
 import { CartProvider } from './components/CartProvider';
 import TrendingTokens from './components/TrendingTokens';
+import SignInModal from './components/SignInModal';
 // Perpetuals imports temporarily disabled
 // import HyperliquidPerpetualsPage from './components/HyperliquidPerpetualsPage';
 import CopyTradingPage from './components/CopyTradingPage';
@@ -21,6 +22,8 @@ import TrendingTokensPageComponent from './components/TrendingTokensPage';
 import BonkPage from './components/BonkPage';
 import HowItWorks from './components/HowItWorks';
 import TokenDetailPage from './components/TokenDetailPage';
+import AuthCallback from './components/AuthCallback';
+import { AuthProvider } from './contexts/AuthContext';
 // import HyperliquidDashboardPage from './components/HyperliquidDashboardPage';
 
 // Loading component for Suspense fallback
@@ -38,6 +41,7 @@ function LoadingSpinner() {
 function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [signInModalOpen, setSignInModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleConnectWallet = () => {
@@ -47,6 +51,15 @@ function HomePage() {
 
   const handleCloseWalletModal = () => {
     setWalletModalOpen(false);
+  };
+
+  const handleSignIn = () => {
+    setSignInModalOpen(true);
+    setMobileMenuOpen(false);
+  };
+
+  const handleCloseSignInModal = () => {
+    setSignInModalOpen(false);
   };
 
   const handleLetsBonk = () => {
@@ -59,6 +72,7 @@ function HomePage() {
         mobileMenuOpen={mobileMenuOpen} 
         setMobileMenuOpen={setMobileMenuOpen}
         onConnectWallet={handleConnectWallet}
+        onSignIn={handleSignIn}
       />
       <Leaderboard />
       <TrendingTokens onConnectWallet={handleConnectWallet} />
@@ -161,6 +175,10 @@ function HomePage() {
         isOpen={walletModalOpen}
         onClose={handleCloseWalletModal}
       />
+      <SignInModal
+        isOpen={signInModalOpen}
+        onClose={handleCloseSignInModal}
+      />
     </>
   );
 }
@@ -224,36 +242,39 @@ function App() {
   }, []);
 
   return (
-    <CartProvider>
-    <SafariFallback>
-      <WalletContextProvider>
-        <Router>
-          <Suspense fallback={<LoadingSpinner />}>
-            <div className="min-h-screen bg-x-bg font-x">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
-                <Route path="/top-traders" element={<HotWalletsPage />} />
-                {/* Perpetuals routes temporarily disabled
-                <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
-                <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
-                <Route path="/perps" element={<HyperliquidDashboardPage />} />
-                */}
-                <Route path="/copy-trading" element={<CopyTradingPage />} />
-                <Route path="/leaderboard" element={<HyperliquidLeaderboardPage />} />
-                <Route path="/futures-grid" element={<FuturesGridBot />} />
-                <Route path="/top-traders" element={<HotWalletsPage />} />
-                <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
-                <Route path="/token/:tokenMint" element={<TokenDetailPage />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/bonk" element={<BonkPage />} />
-              </Routes>
-            </div>
-          </Suspense>
-        </Router>
-      </WalletContextProvider>
-    </SafariFallback>
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <SafariFallback>
+          <WalletContextProvider>
+            <Router>
+              <Suspense fallback={<LoadingSpinner />}>
+                <div className="min-h-screen bg-x-bg font-x">
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/portfolio/:walletAddress" element={<PortfolioAnalysis />} />
+                    <Route path="/top-traders" element={<HotWalletsPage />} />
+                    {/* Perpetuals routes temporarily disabled
+                    <Route path="/perpetuals" element={<HyperliquidPerpetualsPage />} />
+                    <Route path="/hot-perpetuals" element={<HotPerpetualsPage />} />
+                    <Route path="/perps" element={<HyperliquidDashboardPage />} />
+                    */}
+                    <Route path="/copy-trading" element={<CopyTradingPage />} />
+                    <Route path="/leaderboard" element={<HyperliquidLeaderboardPage />} />
+                    <Route path="/futures-grid" element={<FuturesGridBot />} />
+                    <Route path="/top-traders" element={<HotWalletsPage />} />
+                    <Route path="/trending-tokens" element={<TrendingTokensPageComponent />} />
+                    <Route path="/token/:tokenMint" element={<TokenDetailPage />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
+                    <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/bonk" element={<BonkPage />} />
+                  </Routes>
+                </div>
+              </Suspense>
+            </Router>
+          </WalletContextProvider>
+        </SafariFallback>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check, ArrowRight } from 'lucide-react';
+import { Eye, Menu, X, ChevronDown, LogOut, ArrowLeft, ShoppingCart, Check, ArrowRight, User } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { getNetworkDisplayName, isTestnet } from '../config/network';
 import { PublicKey } from '@solana/web3.js';
 import CartPopover from './CartPopover';
 import { useCart } from './CartProvider';
+import { useAuth } from '../contexts/AuthContext';
 import phantomLogo from '../assets/phantom-logo.jpeg';
 import solflareLogo from '../assets/solflare-logo.png';
 import coin98Logo from '../assets/c98-loogo.png';
@@ -14,6 +15,7 @@ interface HeaderProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
   onConnectWallet: () => void;
+  onSignIn?: () => void;
   cartCount?: number;
   cartPopoverOpen?: boolean;
   setCartPopoverOpen?: (open: boolean) => void;
@@ -21,17 +23,20 @@ interface HeaderProps {
   setSafeCopySummary?: (val: any) => void;
 }
 
-export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWallet, cartCount = 0, cartPopoverOpen: cartPopoverOpenProp, setCartPopoverOpen: setCartPopoverOpenProp, safeCopySummary, setSafeCopySummary }: HeaderProps) {
+export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWallet, onSignIn, cartCount = 0, cartPopoverOpen: cartPopoverOpenProp, setCartPopoverOpen: setCartPopoverOpenProp, safeCopySummary, setSafeCopySummary }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { connected, disconnect, publicKey } = useWallet();
+  const { isAuthenticated, user, signOut } = useAuth();
   const [walletDropdownOpen, setWalletDropdownOpen] = useState(false);
+  const [authDropdownOpen, setAuthDropdownOpen] = useState(false);
   const [cartPopoverOpenLocal, setCartPopoverOpenLocal] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
   const [isValidating, setIsValidating] = useState(false);
   const cartPopoverOpen = typeof cartPopoverOpenProp === 'boolean' ? cartPopoverOpenProp : cartPopoverOpenLocal;
   const setCartPopoverOpen = setCartPopoverOpenProp || setCartPopoverOpenLocal;
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const authDropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLButtonElement>(null);
   const { cart, removeFromCart } = useCart();
 
@@ -54,11 +59,14 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
     return <svg {...props} fill="none" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="3" fill="#a78bfa"/><rect width="16" height="10" x="4" y="7" rx="2" fill="#fff"/><circle cx="18" cy="12" r="2" fill="#a78bfa"/></svg>;
   }
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setWalletDropdownOpen(false);
+      }
+      if (authDropdownRef.current && !authDropdownRef.current.contains(event.target as Node)) {
+        setAuthDropdownOpen(false);
       }
     };
 
@@ -206,8 +214,60 @@ export default function Header({ mobileMenuOpen, setMobileMenuOpen, onConnectWal
           </div>
           
           <div className="hidden md:block relative" ref={dropdownRef}>
-            {/* Cart and Wallet Buttons Grouped */}
+            {/* Cart, Auth, and Wallet Buttons Grouped */}
             <div className="flex items-center space-x-2">
+              {/* Auth Button */}
+              <div className="relative" ref={authDropdownRef}>
+                {isAuthenticated ? (
+                  <>
+                    <button 
+                      onClick={() => setAuthDropdownOpen(!authDropdownOpen)}
+                      className="bg-x-bg-secondary hover:bg-x-bg-tertiary text-x-text px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 text-sm sm:text-base border border-x-border hover:border-x-border-light"
+                    >
+                      {user?.profile_image_url ? (
+                        <img 
+                          src={user.profile_image_url} 
+                          alt={user.name}
+                          className="w-5 h-5 rounded-full"
+                        />
+                      ) : (
+                        <User className="w-5 h-5" />
+                      )}
+                      <span className="hidden sm:inline">{user?.name || user?.username}</span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${authDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {authDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-x-bg-secondary border border-x-border rounded-lg shadow-lg z-50">
+                        <div className="py-1">
+                          <div className="px-4 py-2 border-b border-x-border">
+                            <p className="text-sm font-medium text-x-text">{user?.name}</p>
+                            <p className="text-xs text-x-text-secondary">@{user?.username}</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              signOut();
+                              setAuthDropdownOpen(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-x-text-secondary hover:bg-x-bg-tertiary hover:text-x-red transition-colors flex items-center space-x-2"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <button 
+                    onClick={onSignIn}
+                    className="bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base h-9 sm:h-10 flex items-center gap-2"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Sign In</span>
+                  </button>
+                )}
+              </div>
+
               {/* Wallet Button */}
               {connected ? (
                 <>
