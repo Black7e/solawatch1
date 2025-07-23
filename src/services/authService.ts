@@ -2,6 +2,7 @@
 const X_CLIENT_ID = import.meta.env.VITE_X_CLIENT_ID;
 const X_REDIRECT_URI = import.meta.env.VITE_X_REDIRECT_URI || `${window.location.origin}/auth/callback`;
 const X_SCOPE = 'tweet.read users.read';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
 
 export interface XUser {
   id: string;
@@ -118,17 +119,15 @@ class AuthService {
     refresh_token?: string;
     expires_in: number;
   }> {
-    const response = await fetch('https://api.twitter.com/2/oauth2/token', {
+    const response = await fetch(`${BACKEND_URL}/api/auth/x/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${btoa(`${X_CLIENT_ID}:`)}`,
+        'Content-Type': 'application/json',
       },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
+      body: JSON.stringify({
         code,
-        redirect_uri: X_REDIRECT_URI,
         code_verifier: codeVerifier,
+        redirect_uri: X_REDIRECT_URI,
       }),
     });
 
@@ -288,14 +287,12 @@ class AuthService {
     }
 
     try {
-      const response = await fetch('https://api.twitter.com/2/oauth2/token', {
+      const response = await fetch(`${BACKEND_URL}/api/auth/x/refresh`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${btoa(`${X_CLIENT_ID}:`)}`,
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
+        body: JSON.stringify({
           refresh_token: this.state.refreshToken,
         }),
       });

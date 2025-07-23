@@ -6,6 +6,7 @@ This guide explains how to set up X (Twitter) OAuth authentication for SolaWatch
 
 1. A Twitter Developer Account
 2. A Twitter App with OAuth 2.0 enabled
+3. Backend server running on port 4000
 
 ## Setup Steps
 
@@ -30,12 +31,11 @@ In your Twitter app settings:
 
 From your Twitter app dashboard, copy:
 - **Client ID** (OAuth 2.0 Client ID)
-
-**Note**: For browser-based applications, we only need the Client ID. The Client Secret should NOT be included in frontend code for security reasons.
+- **Client Secret** (OAuth 2.0 Client Secret)
 
 ### 4. Environment Variables
 
-Create a `.env` file in your project root with:
+#### Frontend (.env file in project root)
 
 ```env
 # Solana Tracker API Key
@@ -44,17 +44,36 @@ VITE_SOLANA_TRACKER_API_KEY=your_solana_tracker_api_key_here
 # X (Twitter) OAuth Configuration
 VITE_X_CLIENT_ID=your_x_client_id_here
 VITE_X_REDIRECT_URI=http://localhost:5173/auth/callback
+
+# Backend URL
+VITE_BACKEND_URL=http://localhost:4000
 ```
 
-**Important**: We only use the Client ID in the frontend. The Client Secret is not needed for this implementation.
+#### Backend (.env file in backend directory)
 
-### 5. Production Deployment
+```env
+# X (Twitter) OAuth Configuration
+X_CLIENT_ID=your_x_client_id_here
+X_CLIENT_SECRET=your_x_client_secret_here
+```
+
+### 5. Start the Backend Server
+
+```bash
+cd backend
+npm start
+```
+
+The backend server should be running on port 4000.
+
+### 6. Production Deployment
 
 For production deployment:
 
 1. Update the callback URL in your Twitter app settings
-2. Update `VITE_X_REDIRECT_URI` in your environment variables
+2. Update environment variables for both frontend and backend
 3. Ensure your domain is properly configured
+4. Deploy the backend server to your hosting provider
 
 ## Features
 
@@ -63,7 +82,7 @@ For production deployment:
 1. **Sign In**: Users click "Sign In" button
 2. **OAuth Redirect**: User is redirected to Twitter for authorization
 3. **Callback**: Twitter redirects back to `/auth/callback`
-4. **Token Exchange**: App exchanges authorization code for access token
+4. **Token Exchange**: Backend exchanges authorization code for access token
 5. **User Info**: App fetches user profile information
 6. **Session**: User is signed in and session is stored
 
@@ -77,54 +96,58 @@ For production deployment:
 ### Security Features
 
 - **PKCE Flow**: Uses Proof Key for Code Exchange for enhanced security
+- **Backend Proxy**: Token exchange handled by backend to avoid CORS issues
 - **Token Storage**: Secure localStorage with expiration handling
 - **Token Refresh**: Automatic token refresh when needed
 - **Error Handling**: Comprehensive error handling and user feedback
 
 ## Security Implementation
 
-### Why No Client Secret?
+### Backend Proxy Approach
 
-This implementation uses the **PKCE (Proof Key for Code Exchange)** flow, which is designed specifically for public clients (like browser applications). In this flow:
+This implementation uses a **backend proxy** to handle OAuth token exchange:
 
-- **Client ID**: Used to identify your application
-- **Client Secret**: NOT used in frontend code (this is intentional and secure)
-- **PKCE**: Provides the security that the Client Secret would normally provide
+- **Frontend**: Handles OAuth authorization flow and user interface
+- **Backend**: Handles token exchange with Twitter's API (solves CORS issues)
+- **Client ID & Secret**: Stored securely on the backend
+- **PKCE**: Still used for enhanced security
 
 This approach is:
-- ✅ **More Secure**: No sensitive secrets in frontend code
+- ✅ **CORS Compliant**: No cross-origin issues with Twitter's API
+- ✅ **Secure**: Client Secret stays on the backend
 - ✅ **OAuth 2.0 Compliant**: Follows OAuth 2.0 best practices
-- ✅ **Recommended**: Twitter/X recommends this approach for web apps
-
-### Alternative: Server-Side Implementation
-
-If you need to use the Client Secret, you would need a backend server to handle the OAuth flow. The current implementation is frontend-only for simplicity and security.
+- ✅ **Production Ready**: Works in both development and production
 
 ## API Scopes
 
 The app requests the following scopes:
 - `tweet.read`: Read user's tweets
 - `users.read`: Read user profile information
-- `offline.access`: Refresh token access
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Invalid Redirect URI**: Ensure callback URL matches exactly in Twitter app settings
-2. **Missing Client ID**: Check that `VITE_X_CLIENT_ID` is set in environment variables
-3. **CORS Issues**: Ensure your domain is properly configured in Twitter app settings
+2. **Missing Environment Variables**: Check that all required environment variables are set
+3. **Backend Not Running**: Ensure the backend server is running on port 4000
+4. **CORS Issues**: The backend proxy should resolve CORS issues
 
 ### Development vs Production
 
-- **Development**: Use `http://localhost:5173/auth/callback`
-- **Production**: Use `https://yourdomain.com/auth/callback`
+- **Development**: 
+  - Frontend: `http://localhost:5173`
+  - Backend: `http://localhost:4000`
+  - Callback: `http://localhost:5173/auth/callback`
+- **Production**: 
+  - Frontend: `https://yourdomain.com`
+  - Backend: `https://yourdomain.com/api` (or separate backend domain)
+  - Callback: `https://yourdomain.com/auth/callback`
 
 ## Security Notes
 
-- Never commit your `.env` file to version control
+- Never commit your `.env` files to version control
 - Use environment variables for all sensitive configuration
-- **Client Secret Security**: The Client Secret is NOT used in this frontend implementation for security reasons
-- For browser-based apps, only the Client ID is needed (this is the recommended approach)
+- Keep Client Secret secure on the backend only
 - Regularly rotate your Twitter app credentials
 - Monitor your app's usage in the Twitter Developer Portal 

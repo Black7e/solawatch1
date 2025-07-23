@@ -2,12 +2,22 @@ import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
 import NodeCache from 'node-cache';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 const cache = new NodeCache();
 
+// X OAuth Configuration
+const X_CLIENT_ID = process.env.X_CLIENT_ID;
+const X_CLIENT_SECRET = process.env.X_CLIENT_SECRET;
+
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Helper: cache wrapper
 async function cachedFetch<T>(key: string, ttl: number, fetcher: () => Promise<T>): Promise<T> {
@@ -53,6 +63,88 @@ app.get('/api/token-prices', async (req, res) => {
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch token prices', details: err instanceof Error ? err.message : err });
+  }
+});
+
+// X OAuth token exchange proxy
+app.post('/api/auth/x/token', async (req, res) => {
+  try {
+    const { code, code_verifier, redirect_uri } = req.body;
+
+    if (!code || !code_verifier || !redirect_uri) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    if (!X_CLIENT_ID || !X_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'OAuth configuration missing' });
+    }
+
+    const response = await axios.post('https://api.twitter.com/2/oauth2/token', 
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri,
+        code_verifier,
+      }), 
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${X_CLIENT_ID}:${X_CLIENT_SECRET}`).toString('base64')}`,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('OAuth token exchange error:', error);
+    if (axios.isAxiosError(error)) {
+      res.status(error.response?.status || 500).json({
+        error: 'Token exchange failed',
+        details: error.response?.data || error.message
+      });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
+// X OAuth refresh token proxy
+app.post('/api/auth/x/refresh', async (req, res) => {
+  try {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+      return res.status(400).json({ error: 'Missing refresh token' });
+    }
+
+    if (!X_CLIENT_ID || !X_CLIENT_SECRET) {
+      return res.status(500).json({ error: 'OAuth configuration missing' });
+    }
+
+    const response = await axios.post('https://api.twitter.com/2/oauth2/token',
+      new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token,
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${X_CLIENT_ID}:${X_CLIENT_SECRET}`).toString('base64')}`,
+        },
+      }
+    );
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('OAuth refresh error:', error);
+    if (axios.isAxiosError(error)) {
+      res.status(error.response?.status || 500).json({
+        error: 'Token refresh failed',
+        details: error.response?.data || error.message
+      });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 });
 
