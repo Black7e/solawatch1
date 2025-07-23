@@ -148,6 +148,36 @@ app.post('/api/auth/x/refresh', async (req, res) => {
   }
 });
 
+// X OAuth user information proxy
+app.get('/api/auth/x/user', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    }
+
+    const accessToken = authHeader.replace('Bearer ', '');
+
+    const response = await axios.get('https://api.twitter.com/2/users/me?user.fields=id,username,name,profile_image_url,verified,public_metrics', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('OAuth user fetch error:', error);
+    if (axios.isAxiosError(error)) {
+      res.status(error.response?.status || 500).json({
+        error: 'Failed to fetch user information',
+        details: error.response?.data || error.message
+      });
+    } else {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend proxy/cache listening on port ${PORT}`);
 }); 

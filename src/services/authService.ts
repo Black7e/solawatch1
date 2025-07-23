@@ -150,7 +150,12 @@ class AuthService {
 
   // Get X user information
   private async getXUser(accessToken: string): Promise<XUser> {
-    const response = await fetch('https://api.twitter.com/2/users/me?user.fields=id,username,name,profile_image_url,verified,public_metrics', {
+    const endpoint = isDevelopment 
+      ? `${API_BASE}/api/auth/x/user`
+      : `${API_BASE}/auth-x-user`;
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },
