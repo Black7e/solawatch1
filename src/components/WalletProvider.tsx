@@ -3,7 +3,8 @@ import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react
 import {
     PhantomWalletAdapter,
     SolflareWalletAdapter,
-    TorusWalletAdapter
+    TorusWalletAdapter,
+    Coin98WalletAdapter
 } from '@solana/wallet-adapter-wallets';
 import { getCurrentNetworkConfig, getNetworkDisplayName, getPrimaryRpcEndpoint } from '../config/network';
 
@@ -157,6 +158,15 @@ export const WalletContextProvider: FC<Props> = ({ children }) => {
                     }
                 } catch (error) {
                     console.warn('Solflare wallet adapter not available:', error);
+                }
+                
+                // Only add Coin98 if it's available
+                try {
+                    if (typeof window !== 'undefined' && (window as any).coin98?.sol) {
+                        walletAdapters.push(new Coin98WalletAdapter());
+                    }
+                } catch (error) {
+                    console.warn('Coin98 wallet adapter not available:', error);
                 }
                 
                 // Add Torus (web-based, always available)

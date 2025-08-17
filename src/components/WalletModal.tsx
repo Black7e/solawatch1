@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { WalletReadyState } from '@solana/wallet-adapter-base';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -10,55 +11,40 @@ interface WalletModalProps {
 interface WalletInfo {
   name: string;
   icon: string;
-  adapter?: any;
+  adapter: any;
   detected: boolean;
+  readyState: WalletReadyState;
   id: string;
 }
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const { wallets, select, connect, connecting, connected } = useWallet();
-  const [availableWallets, setAvailableWallets] = useState<WalletInfo[]>([]);
 
-  useEffect(() => {
-    const checkWallets = () => {
-      const walletList: WalletInfo[] = [
-        {
-          name: 'Phantom',
-          icon: '👻',
-          detected: !!(window as any).phantom?.solana,
-          id: 'phantom',
-          adapter: wallets.find(w => w.adapter.name === 'Phantom')
-        },
-        {
-          name: 'MetaMask',
-          icon: '🦊',
-          detected: !!(window as any).solana?.isMetaMask,
-          id: 'metamask',
-          adapter: null // We'll handle MetaMask Solana connection manually
-        },
-        {
-          name: 'Coin98',
-          icon: '💰',
-          detected: !!(window as any).coin98?.sol,
-          id: 'coin98',
-          adapter: wallets.find(w => w.adapter.name === 'Coin98')
-        },
-        {
-          name: 'Solflare',
-          icon: '🔥',
-          detected: !!(window as any).solflare,
-          id: 'solflare',
-          adapter: wallets.find(w => w.adapter.name === 'Solflare')
-        }
-      ];
-      
-      setAvailableWallets(walletList);
+  // Get wallet information using proper wallet adapter readyState
+  const availableWallets = useMemo(() => {
+    const walletIcons: { [key: string]: string } = {
+      'Phantom': '👻',
+      'MetaMask': '🦊', 
+      'Coin98': '💰',
+      'Solflare': '🔥',
+      'Torus': '🔒'
     };
 
-    if (isOpen) {
-      checkWallets();
-    }
-  }, [isOpen, wallets]);
+    return wallets.map((wallet) => {
+      const readyState = wallet.adapter.readyState;
+      return {
+        name: wallet.adapter.name,
+        icon: walletIcons[wallet.adapter.name] || '🔗',
+        adapter: wallet,
+        detected: readyState === WalletReadyState.Installed,
+        readyState,
+        id: wallet.adapter.name.toLowerCase().replace(/\s+/g, '')
+      };
+    }).filter((wallet) => {
+      // Only show wallets that are installed, loadable, or supported
+      return wallet.readyState !== WalletReadyState.Unsupported;
+    });
+  }, [wallets]);
 
   useEffect(() => {
     if (connected) {
@@ -73,91 +59,32 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       // Already connected, do nothing
       return;
     }
+    
     try {
-      if (wallet.id === 'metamask') {
-        // Handle MetaMask Solana wallet connection
-        if (!wallet.detected) {
-          window.open('https://metamask.io/', '_blank');
-          return;
-        }
-        
-        try {
-          const metamaskSolana = (window as any).solana;
-          if (!metamaskSolana?.isMetaMask) {
-            // Don't throw error, just show installation message
-            alert('MetaMask Solana wallet not found. Please install the MetaMask extension and enable Solana support.');
-            return;
-          }
-          
-          // Connect to MetaMask Solana wallet directly
-          const response = await metamaskSolana.connect();
-          
-          if (response && response.publicKey) {
-            // Successfully connected
-            console.log('Connected to MetaMask Solana wallet:', response.publicKey.toString());
-            // The wallet adapter should handle the connection state
-            setTimeout(() => {
-              onClose();
-            }, 500);
-          } else {
-            throw new Error('No accounts returned from MetaMask Solana wallet');
-          }
-        } catch (metamaskError) {
-          console.error('MetaMask Solana wallet error:', metamaskError);
-          
-          // Provide more specific error messages
-          let errorMessage = 'Failed to connect to MetaMask Solana wallet.';
-          
-          if (metamaskError instanceof Error) {
-            if (metamaskError.message.includes('User rejected')) {
-              errorMessage = 'Connection was cancelled by user.';
-            } else if (metamaskError.message.includes('not found')) {
-              errorMessage = 'MetaMask Solana wallet not found. Please install the MetaMask extension and enable Solana support.';
-            } else {
-              errorMessage = `MetaMask error: ${metamaskError.message}`;
-            }
-          }
-          
-          alert(errorMessage);
-        }
-        return;
-      }
-
-      if (!wallet.detected) {
+      // Check if wallet is not detected/installed
+      if (wallet.readyState === WalletReadyState.NotDetected) {
         // Open wallet installation page
         const installUrls: { [key: string]: string } = {
           phantom: 'https://phantom.app/',
+          metamask: 'https://metamask.io/',
           coin98: 'https://coin98.com/wallet',
-          solflare: 'https://solflare.com/'
+          solflare: 'https://solflare.com/',
+          torus: 'https://tor.us/'
         };
         
-        if (installUrls[wallet.id]) {
-          window.open(installUrls[wallet.id], '_blank');
+        const installUrl = installUrls[wallet.id] || wallet.adapter.adapter.url;
+        if (installUrl) {
+          window.open(installUrl, '_blank');
         }
         return;
       }
-
-      if (wallet.adapter) {
-        // Use wallet adapter for supported wallets
-        select(wallet.adapter.adapter.name);
-        await connect();
-      } else {
-        // Direct wallet connection for wallets not in the adapter list
-        if (wallet.id === 'phantom' && (window as any).phantom?.solana) {
-          const phantom = (window as any).phantom.solana;
-          await phantom.connect();
-          onClose();
-        } else if (wallet.id === 'coin98' && (window as any).coin98?.sol) {
-          const coin98 = (window as any).coin98.sol;
-          await coin98.connect();
-          onClose();
-        }
-      }
+      
+      // Use wallet adapter for all wallets
+      select(wallet.adapter.adapter.name);
+      await connect();
     } catch (error) {
-      // Only log unexpected errors
-      if (!(typeof error === 'object' && error !== null && 'name' in error && (error as any).name === 'WalletNotSelectedError')) {
-        console.error('Failed to connect wallet:', error);
-      }
+      // Handle wallet connection errors
+      console.error('Failed to connect wallet:', error);
       
       // Provide more specific error messages
       let errorMessage = 'Failed to connect wallet. Please try again.';
@@ -172,6 +99,10 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         } else if (error.name === 'WalletNotSelectedError') {
           // This is not a real error, just part of the wallet flow. Do nothing.
           return;
+        } else if (error.name === 'WalletConnectionError') {
+          errorMessage = 'Failed to connect to wallet. Please try again.';
+        } else if (error.name === 'WalletNotReadyError') {
+          errorMessage = 'Wallet is not ready. Please make sure it is installed and unlocked.';
         }
       }
 
@@ -180,7 +111,6 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         if (!connected) {
           alert(errorMessage);
         }
-        // If wallet is connected, do nothing (no error dialog)
       }, 700);
     }
   };

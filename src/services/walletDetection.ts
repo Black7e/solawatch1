@@ -428,7 +428,7 @@ export class WalletDetectionService {
 			amount: activity.amount?.toFixed(4),
 			token: activity.token,
 			timestamp: new Date(activity.timestamp).toISOString(),
-			priority: this.getAlertPriority(activity, config),
+			priority: this.getAlertPriority(activity),
 		};
 
 		this.alertQueue.push(alert);
@@ -533,8 +533,7 @@ export class WalletDetectionService {
 	 * Get alert priority based on activity
 	 */
 	private getAlertPriority(
-		activity: DetectedActivity,
-		config: WalletMonitorConfig
+		activity: DetectedActivity
 	): AlertMessage["priority"] {
 		if (!activity.amount) return "low";
 
