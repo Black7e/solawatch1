@@ -73,7 +73,6 @@ class AuthService {
   async handleCallback(): Promise<XUser | null> {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const state = urlParams.get('state');
     const error = urlParams.get('error');
 
     if (error) {
